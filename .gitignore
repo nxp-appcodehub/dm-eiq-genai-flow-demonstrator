@@ -1,0 +1,12 @@
+*.egg-info
+.idea
+__pycache__
+*.pyc
+*.wav
+*.pcm
+.pep8
+*.o
+*.d
+*.log
+.venv
+*_env

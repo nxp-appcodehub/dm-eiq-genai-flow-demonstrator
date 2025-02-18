@@ -1,0 +1,10 @@
+# This file is based on ignorefile template in https://bitbucket.sw.nxp.com/projects/PLPH/repos/copyrighter/browse/copyrighter/docs/example.ignore.yaml
+
+#Category file:
+#   Exclude files and folders which will never be released.
+#   If present, must be a flat list of Python regular expressions. Matching is done case-insensitive.
+#   A file or folder whose absolute path matches any (one or more) of the listed regular expressions is not checked.
+#   This decreases execution time.
+file:
+    - ".*_internal/.*"
+
