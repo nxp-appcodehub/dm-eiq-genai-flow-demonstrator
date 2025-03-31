@@ -1,0 +1,46 @@
+This meta-layer customizes the BSP to enable LLM operations on the Neutron NPU.
+
+Please refer to the sections below for details.
+
+
+I. Adding the meta-eiq-genai-flow layer to your build
+=====================================================
+
+To add the meta-eiq-genai-flow layer to your build, run the following command:
+```bash
+bitbake-layers add-layer meta-eiq-genai-flow
+```
+
+II. Build a eiq-genai-flow image with Neutron acceleration for LLMs
+================================
+
+This image includes custom Neutron components and installs additional tools required to run the eiq-genai-flow Demonstrator with the `--use-neutron` parameter.  
+However, the eiq-genai-flow Demonstrator package is not included in the image and must be copied manually.
+
+To build the image, run:
+```bash
+$ bitbake imx-image-full-eiq-genai-flow-dep
+```
+
+III. Post flash operations
+==========================
+
+Once flashed, the Neutron device tree blob (DTB) must be set manually in U-Boot.
+To set the correct dtb neutron in u-boot:
+
+* Stop the boot an u-boot stage
+* List and identify the available Neutron DTB files. If flashed on an SD card, use:
+
+```bash
+u-boot=> fatls mmc 1:1
+```
+
+* Set a Neutron-enabled DTB, for example:
+
+```bash
+u-boot=> setenv fdtfile imx95-19x19-evk-adv7535-ap1302-neutron.dtb
+u-boot=> saveenv
+u-boot=> boot
+```
+
+Once the board has booted, the eiq-genai-flow package can be copied to the target device and executed with the `--use-neutron` parameter.

@@ -1,0 +1,2 @@
+[console_scripts]
+optimum-cli = optimum.commands.optimum_cli:main

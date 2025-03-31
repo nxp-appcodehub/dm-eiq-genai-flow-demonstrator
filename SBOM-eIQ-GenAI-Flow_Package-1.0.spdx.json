@@ -1,0 +1,1336 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-03-31T19:01:47Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "eIQ-GenAI-Flow_Package-1.0",
+  "dataLicense": "CC0-1.0",
+  "hasExtractedLicensingInfos": [
+    {
+      "licenseId": "LicenseRef-2f839f4f-a98b-4a7a-846e-3ee4fd935aec",
+      "extractedText": "LA_OPT_NXP_Software_License v58 November 2024\nIMPORTANT.  Read the following NXP Software License Agreement (\"Agreement\") completely. By selecting the \"I Accept\" button at the end of this page, or by downloading, installing, or using the Licensed Software, you indicate that you accept the terms of the Agreement, and you acknowledge that you have the authority, for yourself or on behalf of your company, to bind your company to these terms. You may then download or install the file. In the event of a conflict between the terms of this Agreement and any license terms and conditions for NXP’s proprietary software embedded anywhere in the Licensed Software file, the terms of this Agreement shall control.  If a separate license agreement for the Licensed Software has been signed by you and NXP, then that agreement shall govern your use of the Licensed Software and shall supersede this Agreement.\n\nNXP SOFTWARE LICENSE AGREEMENT\nThis is a legal agreement between your employer, of which you are an authorized representative, or, if you have no employer, you as an individual (\"you\" or \"Licensee\"), and and NXP USA, Inc., if Licensee is located within the United States or NXP Semiconductors Netherlands B.V., if Licensee if located outside of the United States (“NXP”).  It concerns your rights to use the software provided to you in binary or source code form and any accompanying written materials (the \"Licensed Software\"). The Licensed Software may include any updates or error corrections or documentation relating to the Licensed Software provided to you by NXP under this Agreement. In consideration for NXP allowing you to access the Licensed Software, you are agreeing to be bound by the terms of this Agreement. If you do not agree to all of the terms of this Agreement, do not download or install the Licensed Software. If you change your mind later, stop using the Licensed Software and delete all copies of the Licensed Software in your possession or control. Any copies of the Licensed Software that you have already distributed, where permitted, and do not destroy will continue to be governed by this Agreement. Your prior use will also continue to be governed by this Agreement.\n1.       DEFINITIONS\n1.1.         \"Affiliate\" means, with respect to a party, any corporation or other legal entity that now or hereafter Controls, is Controlled by or is under common Control with such party; where \"Control\" means the direct or indirect ownership of greater than fifty percent (50%) of the shares or similar interests entitled to vote for the election of directors or other persons performing similar functions. An entity is considered an Affiliate only so long as such Control exists.\n1.2\t\"Authorized System\" means either (i) Licensee’s hardware product which incorporates an NXP Product or (ii) Licensee’s software program which is used exclusively in connection with an NXP Product and with which the Licensed Software will be integrated.      \n1.3.\t\"Derivative Work\" means a work based upon one or more pre-existing works.  A work consisting of editorial revisions, annotations, elaborations, or other modifications which, as a whole, represent an original work of authorship, is a Derivative Work.         \n1.4\t\"Intellectual Property Rights\" means any and all rights under statute, common law or equity in and under copyrights, trade secrets, and patents (including utility models), and analogous rights throughout the world, including any applications for and the right to apply for, any of the foregoing.\n1.5\t\"NXP Product\" means a hardware product (e.g. a microprocessor, microcontroller, sensor or digital signal processor) and/or services (e.g. cloud platform services) supplied directly or indirectly from NXP or an NXP Affiliate, unless there is a product specified in the Software Content Register, in which case this definition is limited to such product.\n1.6      \"Software Content Register\" means the documentation which may accompany the Licensed Software which identifies the contents of the Licensed Software, including but not limited to identification of any Third Party Software, if any, and may also contain other related information as whether the license in 2.3 is applicable. \n1.7     \"Third Party Software\" means, any software included in the Licensed Software that is not NXP proprietary software, and is not open source software, and to which different license terms may apply. \n2.       LICENSE GRANT.  \n2.1.         If you are not expressly granted the distribution license in Section 2.3 in the Software Content Register, then you are only granted the rights in Section 2.2 and not in 2.3.  If you are expressly granted the distribution license in Section 2.3 in the Software Content Register, then you are granted the rights in both Section 2.2 and 2.3.\n2.2.\tStandard License.  Subject to the terms and conditions of this Agreement, NXP grants you a worldwide, personal, non-transferable, non-exclusive, non-sublicensable license, solely for the development of an Authorized System:\n(a)\tto use and reproduce the Licensed Software (and its Derivative Works prepared under the license in Section 2.2(b)) solely in combination with a NXP Product; and\n(b)\tfor Licensed Software provided to you in source code form (human readable), to prepare Derivative Works of the Licensed Software solely for use in combination with a NXP Product. \nYou may not distribute or sublicense the Licensed Software to others under the license granted in this Section 2.2. \nYou may demonstrate the Licensed Software to your direct customers as part of an Authorized System so long as such demonstration is directly controlled by you and without prior approval by NXP; however, to all other third parties only if NXP has provided its advance, written approval (e.g. email approval) of your demonstrating the Licensed Software to specified third parties or at specified event(s).  You may not leave the Licensed Software with a direct customer or any other third party at any time. \n2.3.        Additional Distribution License.  If expressly authorized in the Software Content Register, subject to the terms and conditions of this Agreement, NXP grants you a worldwide, personal, non-transferable, non-exclusive, non-sublicensable license solely in connection with your manufacturing and distribution of an Authorized System: \n(a) to manufacture (or have manufactured), distribute, and market the Licensed Software (and its Derivative Works prepared under the license in 2.2(b)) in object code (machine readable format) only as part of, or embedded within, Authorized Systems and not on a standalone basis solely for use in combination with a NXP Product.  Notwithstanding the foregoing, those files marked as .h files (\"Header files\") may be distributed in source or object code form, but only as part of, or embedded within Authorized Systems; and  \n(b) to copy and distribute as needed, solely in connection with an Authorized System and for use in combination with a NXP Product, non-confidential NXP information provided as part of the Licensed Software for the purpose of maintaining and supporting Authorized Systems with which the Licensed Software is integrated. \n2.4\tSeparate license grants to Third Party Software, or other terms applicable to the Licensed Software if different from those granted in this Section 2, are contained in Appendix A. The Licensed Software may be accompanied by a Software Content Register which will identify that portion of the Licensed Software, if any, that is subject to the different terms in Appendix A. \n2.5.         You may use subcontractors to exercise your rights under Section 2.2 and Section 2.3, if any, so long as you have an agreement in place with the subcontractor containing confidentiality restrictions no less stringent than those contained in this Agreement. You will remain liable for your subcontractors’ adherence to the terms of this Agreement and for any and all acts and omissions of such subcontractors with respect to this Agreement and the Licensed Software.\n3.       LICENSE LIMITATIONS AND RESTRICTIONS.  \n3.1.         The licenses granted above in Section 2 only extend to NXP Intellectual Property Rights that would be infringed by the unmodified Licensed Software prior to your preparation of any Derivative Work.   \n3.2.         The Licensed Software is licensed to you, not sold. Title to Licensed Software delivered hereunder remains vested in NXP or NXP’s licensor and cannot be assigned or transferred. You are expressly forbidden from selling or otherwise distributing the Licensed Software, or any portion thereof, except as expressly permitted herein. This Agreement does not grant to you any implied rights under any NXP or third party Intellectual Property Rights.\n3.3.         You may not translate, reverse engineer, decompile, or disassemble the Licensed Software except to the extent applicable law specifically prohibits such restriction. You must prohibit your subcontractors or customers (if distribution is permitted) from translating, reverse engineering, decompiling, or disassembling the Licensed Software except to the extent applicable law specifically prohibits such restriction.\n3.4.         You must reproduce any and all of NXP’s (or its third-party licensor’s) copyright notices and other proprietary legends on copies of Licensed Software.  \n3.5.         If you distribute the Licensed Software to the United States Government, then the Licensed Software is \"restricted computer software\" and is subject to FAR 52.227-19.   \n3.6.         You grant to NXP a non-exclusive, non-transferable, irrevocable, perpetual, worldwide, royalty-free, sub-licensable license under your Intellectual Property Rights to use without restriction and for any purpose any suggestion, comment or other feedback related to the Licensed Software (including, but not limited to, error corrections and bug fixes).\n3.7.         You will not take or fail to take any action that could subject the Licensed Software to an Excluded License. An Excluded License means any license that requires, as a condition of use, modification or distribution of software subject to the Excluded License, that such software or other software combined and/or distributed with the software be (i) disclosed or distributed in source code form; (ii) licensed for the purpose of making Derivative Works; or (iii) redistributable at no charge. \n3.8.         You may not publish or distribute reports associated with the use of the Licensed Software to anyone other than NXP.  You may advise NXP of any results obtained from your use of the Licensed Software, including any problems or suggested improvements thereof, and NXP retains the right to use such results and related information in any manner it deems appropriate.\n4.       OPEN SOURCE.         Open source software included in the Licensed Software is not licensed under the terms of this Agreement but is instead licensed under the terms of the applicable open source license(s), such as the BSD License, Apache License or the GNU Lesser General Public License. Your use of the open source software is subject to the terms of each applicable license. You must agree to the terms of each applicable license, or you cannot use the open source software.  \n5.       INTELLECTUAL PROPERTY RIGHTS.    \nUpon request, you must provide NXP the source code of any derivative of the Licensed Software.\nUnless prohibited by law, the following paragraph shall apply.  Your modifications to the Licensed Software, and all intellectual property rights associated with, and title thereto, will be the property of NXP.  You agree to assign all, and hereby do assign all rights, title, and interest to any such modifications to the Licensed Software to NXP and agree to provide all assistance reasonably requested by NXP to establish, preserve or enforce such right.  Further, you agree to waive all moral rights relating to your modifications to the Licensed Software, including, without limitation, all rights of identification of authorship and all rights of approval, restriction, or limitation on use or subsequent modification.  Notwithstanding the foregoing, you will have the license rights granted in Section 2 hereto to any such modifications made by you or your licensees.\nOtherwise, you agree to grant an irrevocable, worldwide, and perpetual license to NXP to make, have made, use, sell, offer to sell, import, commercialize, sublicense and reproduce your modifications or derivative works to the Licensed Software without any payment to Licensee. You agree to provide all assistance reasonably requested by NXP to establish, preserve or enforce such right.\n6.       ESSENTIAL PATENTS.    NXP has no obligation to identify or obtain any license to any Intellectual Property Right of a third-party that may be necessary for use in connection with technology that is incorporated into the Authorized System (whether or not as part of the Licensed Software).\n7.       TERM AND TERMINATION.   This Agreement will remain in effect unless terminated as provided in this Section.\n7.1.         You may terminate this Agreement immediately upon written notice to NXP at the address provided below.\n7.2.         Either party may terminate this Agreement if the other party is in default of any of the terms and conditions of this Agreement, and termination is effective if the defaulting party fails to correct such default within 30 days after written notice thereof by the non-defaulting party to the defaulting party at the address below.\n7.3.         Notwithstanding the foregoing, NXP may terminate this Agreement immediately upon written notice if you: breach any of your confidentiality obligations or the license restrictions under this Agreement;  become bankrupt, insolvent, or file a petition for bankruptcy or insolvency; make an assignment for the benefit of its creditors; enter proceedings for winding up or dissolution; are dissolved; or are nationalized or become subject to the expropriation of all or substantially all of your business or assets.\n7.4.         Upon termination of this Agreement, all licenses granted under Section 2 will expire. \n7.5.         After termination of this Agreement by either party   you will destroy all parts of Licensed Software and its Derivative Works (if any) and will provide to NXP a statement certifying the same.\n7.6.         Notwithstanding the termination of this Agreement for any reason, the terms of Sections 1 and 3 through 24 will survive.  \n8.        SUPPORT.  NXP is not obligated to provide any support, upgrades or new releases of the Licensed Software under this Agreement. If you wish, you may contact NXP and report problems and provide suggestions regarding the Licensed Software. NXP has no obligation to respond to such a problem report or suggestion. NXP may make changes to the Licensed Software at any time, without any obligation to notify or provide updated versions of the Licensed Software to you.\n9.        NO WARRANTY.  To the maximum extent permitted by law, NXP expressly disclaims any warranty for the Licensed Software. The Licensed Software is provided \"AS IS\", without warranty of any kind, either express or implied, including without limitation the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. You assume the entire risk arising out of the use or performance of the licensed software, or any systems you design using the licensed software (if any).\n10.        INDEMNITY. You agree to fully defend and indemnify NXP from all claims, liabilities, and costs (including reasonable attorney’s fees) related to (1) your use (including your subcontractor’s or distributee’s use, if permitted) of the Licensed Software or (2) your violation of the terms and conditions of this Agreement.\n11.        LIMITATION OF LIABILITY.  EXCLUDING LIABILITY FOR A BREACH OF SECTION 2 (LICENSE GRANTS), SECTION 3 (LICENSE LIMITATIONS AND RESTRICTIONS), SECTION 16 (CONFIDENTIAL INFORMATION), OR CLAIMS UNDER SECTION 10 (INDEMNITY), IN NO EVENT WILL EITHER PARTY BE LIABLE, WHETHER IN CONTRACT, TORT, OR OTHERWISE, FOR ANY INCIDENTAL, SPECIAL, INDIRECT, CONSEQUENTIAL OR PUNITIVE DAMAGES, INCLUDING, BUT NOT LIMITED TO, DAMAGES FOR ANY LOSS OF USE, LOSS OF TIME, INCONVENIENCE, COMMERCIAL LOSS, OR LOST PROFITS, SAVINGS, OR REVENUES, TO THE FULL EXTENT SUCH MAY BE DISCLAIMED BY LAW. NXP’S TOTAL LIABILITY FOR ALL COSTS, DAMAGES, CLAIMS, OR LOSSES WHATSOEVER ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT OR PRODUCT(S) SUPPLIED UNDER THIS AGREEMENT IS LIMITED TO THE AGGREGATE AMOUNT PAID BY YOU TO NXP IN CONNECTION WITH THE LICENSED SOFTWARE PROVIDED UNDER THIS AGREEMENT TO WHICH LOSSES OR DAMAGES ARE CLAIMED.\n12.        EXPORT COMPLIANCE. \n12.1\tEach party shall comply with all applicable export and import control laws and regulations including but not limited to the US Export Administration Regulation (including restrictions on certain military end uses and military end users as specified in Section 15 C.F.R. § 744.21 and prohibited party lists issued by other federal governments), Catch-all regulations and all national and international embargoes. Each party further agrees that it will not knowingly transfer, divert, export or re-export, directly or indirectly, any product, software, including software source code, or technology restricted by such regulations or by other applicable national regulations, received from the other party under this Agreement, or any direct product of such software or technical data to any person, firm, entity, country or destination to which such transfer, diversion, export or re-export is restricted or prohibited, without obtaining prior written authorization from the applicable competent government authorities to the extent required by those laws.\n12.2 Prohibition of Export to Russian Federation\n\n(a) With respect to activitit that falls under the scope of Article 12g, 12ga of Council Regulation (EU) No 833/2014, or Council Regulation (EU) No 765/2006 (as the case requires), you (a) will not sell, export or re-export, directly or indirectly any item, and (b) will not sell, license or sublicense any intellectual property rights or trade secrets, to the Russian Federation or Belarus, or for use in the Russian Federation or Belarus.\n\n(b) You will ensure that the purpose of paragraph (a) above is not frustrated by any third parties further down the commercial chain, including by either resellers, sublicensees, or both.\n\n(c) You will set up and maintain an adequate monitoring mechanism to detect conduct by any third parties further down the commercial chain, including by either resellers, sublicensees, or both, that would frustrate the purpose of paragraph (a).\n\n(d) Any violation of paragraphs (a), (b) or (c) will constitute a material breach of this Agreement, and NXP will be entitled to seek appropriate remedies, including, but not limited to: (i) termination of these Terms; (ii) suspension of any of its business relationships with you, youraffiliates or both, until the breach of paragraph (a) above is remedied, and (iii) a plan to remedy the breach.\n\n(e) You will immediately inform NXP about any problems in applying paragraphs (a), (b) or (c), above, including any relevant activities by third parties that could frustrate the purpose of paragraph (a). You will make available to NXPinformation concerning compliance with the obligations under paragraphs (a), (b) and (c) within 2 weeks of the request for information.\n13.   GOVERNMENT CONTRACT COMPLIANCE\n13.1.      If you sell Authorized Systems directly to any government or public entity, including U.S., state, local, foreign or international governments or public entities, or indirectly via a prime contractor or subcontractor of such governments or entities, NXP makes no representations, certifications, or warranties whatsoever about compliance with government or public entity acquisition statutes or regulations, including, without limitation, statutes or regulations that may relate to pricing, quality, origin or content.\n13.2.      The Licensed Software has been developed at private expense and is a \"Commercial Item\" as defined in 48 C.F.R. Section 2.101, consisting of \"Commercial Computer Software\", and/or \"Commercial Computer Software Documentation,\" as such terms are used in 48 C.F.R. Section 12.212 (or 48 C.F.R. Section 227.7202, as applicable) and may only be licensed to or shared with U.S. Government end users in object code form as part of, or embedded within, Authorized Systems. Any agreement pursuant to which you share the Licensed Software will include a provision that reiterates the limitations of this document and requires all sub-agreements to similarly contain such limitations. \n14.        CRITICAL APPLICATIONS.  In some cases, NXP may promote certain software for use in the development of, or for incorporation into, products or services (a) used in applications requiring fail-safe performance or (b) in which failure could lead to death, personal injury, or severe physical or environmental damage (these products and services are referred to as \"Critical Applications\"). NXP’s goal is to educate customers so that they can design their own end-product solutions to meet applicable functional safety standards and requirements. Licensee makes the ultimate design decisions regarding its products and is solely responsible for compliance with all legal, regulatory, safety, and security related requirements concerning its products, regardless of any information or support that may be provided by NXP. As such, Licensee assumes all risk related to use of the Licensed Software in Critical Applications and NXP SHALL NOT BE LIABLE FOR ANY SUCH USE IN CRITICAL APPLICATIONS BY LICENSEE. Accordingly, Licensee will indemnify and hold NXP harmless from any claims, liabilities, damages and associated costs and expenses (including attorneys’ fees) that NXP may incur related to Licensee’s incorporation of the Licensed Software in a Critical Application.\n15.        CHOICE OF LAW; VENUE.  When Software is licensed by NXP USA, Inc., Licensee agrees that the laws of the State of Texas, USA, without regard to conflicts of laws principles, will apply to all matters relating to this Agreement or the Software, and Licensee agrees that any litigation will be subject to the exclusive jurisdiction of the state or federal courts in Austin, Texas, USA..  When Software is licensed by NXP Semiconductors Netherlands B.V., Licensee agrees that the laws of The Netherlands, without regard to conflicts of laws principles, will apply to all matters relating to this Agreement or the Software, and Licensee agrees that any litigation will be subject to the exclusive jurisdiction of the courts in Amsterdam, The Netherlands. Notwithstanding the foregoing, NXP will always be permitted to bring any action or proceedings against Licensee in any other court of competent jurisdiction. The United Nations Convention on Contracts for the International Sale of Goods will not apply to this document. \n16.        CONFIDENTIAL INFORMATION.  Subject to the license grants and restrictions contained herein, you must treat the Licensed Software as confidential information and you agree to retain the Licensed Software in confidence perpetually. You may not disclose any part of the Licensed Software to anyone other than distributees in accordance with Section 2.3 and employees, or subcontractors in accordance with Section 2.5, who have a need to know of the Licensed Software and who have executed written agreements obligating them to protect such Licensed Software to at least the same degree of confidentiality as in this Agreement. You agree to use the same degree of care, but no less than a reasonable degree of care, with the Licensed Software as you do with your own confidential information. You may disclose Licensed Software to the extent required by a court or under operation of law or order provided that you notify NXP of such requirement prior to disclosure, which you only disclose the minimum of the required information, and that you allow NXP the opportunity to object to such court or other legal body requiring such disclosure. \n17.       TRADEMARKS.  You are not authorized to use any NXP trademarks, brand names, or logos.\n18.        ENTIRE AGREEMENT.  This Agreement constitutes the entire agreement between you and NXP regarding the subject matter of this Agreement, and supersedes all prior communications, negotiations, understandings, agreements or representations, either written or oral, if any. This Agreement may only be amended in written form, signed by you and NXP.\n19.        SEVERABILITY.  If any provision of this Agreement is held for any reason to be invalid or unenforceable, then the remaining provisions of this Agreement will be unimpaired and, unless a modification or replacement of the invalid or unenforceable provision is further held to deprive you or NXP of a material benefit, in which case the Agreement will immediately terminate, the invalid or unenforceable provision will be replaced with a provision that is valid and enforceable and that comes closest to the intention underlying the invalid or unenforceable provision.\n20.        NO WAIVER.  The waiver by NXP of any breach of any provision of this Agreement will not operate or be construed as a waiver of any other or a subsequent breach of the same or a different provision.\n21.        AUDIT.  You will keep full, clear and accurate records with respect to your compliance with the limited license rights granted under this Agreement for three years following expiration or termination of this Agreement. NXP will have the right, either itself or through an independent certified public accountant to examine and audit, at NXP’s expense, not more than once a year, and during normal business hours, all such records that may bear upon your compliance with the limited license rights granted above. You must make prompt adjustment to compensate for any errors and/or omissions disclosed by such examination or audit.\n22.        NOTICES.             All notices and communications under this Agreement will be made in writing, and will be effective when received at the following addresses: \n       NXP:\t\n       NXP B.V.\n       High Tech Campus 60\n       5656 AG Eindhoven\n       The Netherlands\n       ATTN: Legal Department\n \t         \n       You:\t\n       The address provided at registration will be used.\n\n23.        RELATIONSHIP OF THE PARTIES.     The parties are independent contractors. Nothing in this Agreement will be construed to create any partnership, joint venture, or similar relationship. Neither party is authorized to bind the other to any obligations with third parties.\n24.        SUCCESSION AND ASSIGNMENT.   This Agreement will be binding upon and inure to the benefit of the parties and their permitted successors and assigns.  You may not assign this Agreement, or any part of this Agreement, without the prior written approval of NXP, which approval will not be unreasonably withheld or delayed. NXP may assign this Agreement, or any part of this Agreement, in its sole discretion. \n25.\tPRIVACY. By agreeing to this Agreement and/or utilizing the Licensed Software, Licensee consents to use of certain personal information, including but not limited to name, email address, and location, for the purpose of NXP’s internal analysis regarding future software offerings.  NXP’s complete Privacy Statement can be found at: https://www.nxp.com/company/our-company/about-nxp/privacy-statement:PRIVACYPRACTICES.\n\n\nAPPENDIX A\nOther License Grants and Restrictions:\n\nThe Licensed Software may include some or all of the following software, which is either 1) Third Party Software or 2) NXP proprietary software subject to different terms than those in the Agreement. If the Software Content Register that accompanies the Licensed Software identifies any of the following Third Party Software or specific components of the NXP proprietary software, the following terms apply to the extent they deviate from the terms in the Agreement:\n\nAGGIOS, Inc.: EnergyLab LITE and Seed software are distributed by NXP under license from AGGIOS, Inc. Your use of AGGIOS software, as the Licensee, is subject to the following: (i) use of AGGIOS software is limited to object code and Authorized System only; (ii) Licensee may not sublicense the AGGIOS software to any third party; (iii) Licensee is only granted an evaluation license for the Seed software, defined as license to use the Seed software internally for own evaluation purposes, limited to three (3) months. Further rights including but not limited to production deployment must be obtained directly from AGGIOS, Inc. \n\nAirbiquity Inc.: The Airbiquity software may only be used in object code and Licensee may not sublicense the Airbiquity software to any third party. Licensee’s license to use the Airbiquity software expires on June 30, 2026.\n\nAmazon: Use of the Amazon software constitutes your acceptance of the terms of the Amazon Program Materials License Agreement (including the AVS Component Schedule, if applicable), located at https://developer.amazon.com/support/legal/pml.  All Amazon software is hereby designated \"Amazon confidential\".  With the exception of the binary library of the Amazon Wake Word Engine for \"Alexa\", all Amazon software is also hereby designated as \"Restricted Program Materials\". Amazon is a third-party beneficiary to this Agreement with respect to the Amazon software.\n\nAmazon Web Services, Inc.: AWS is an intended third-party beneficiary to this Agreement with respect to the Greengrass software. If you have an account with AWS that is not in good standing, you may not download, install, use or distribute the Greengrass software. You will comply with all instructions and requirements in any integration documents, guidelines, or other documentation AWS provides. The license to the Greengrass software will immediately terminate without notice if you (a) fail to comply with this Agreement or any other agreement with AWS, (b) fail to make timely payment for any AWS service, (c) fail to implement AWS updates, or (d) bring any action for intellectual property infringement against AWS or any AWS customer utilizing AWS services.  Any dispute or claim relating to your use of the Greengrass software will be resolved by binding arbitration, rather than in court, except that you may assert claims in small claims court if your claims qualify.\n\nAmazon: AWS Fleetwise software must be used consistent with the terms found here: https://github.com/aws/aws-iot-fleetwise-edge/blob/main/LICENSE.\n\nAmphion Semiconductor Ltd.: Distribution of Amphion software must be a part of, or embedded within, Authorized Systems that include an Amphion Video Decoder.  \n\nApple MFi Software Development Kit: Use of Apple MFi Software and associated documentation is restricted to current Apple MFi licensees in accordance with the terms of their own valid and in-effect license from Apple.\n\nAquantia Corp.: You may use Aquantia's API binaries solely to flash the API software to an NXP Product which mates with an Aquantia device.\n\nArgus Cyber Security: The Argus software may only be used in object code and only for evaluation and demonstration purposes.\n\nArm Toolkit: This tool is owned by Arm Limited. You may not reverse engineer, decompile or dissemble any ARM Toolkit. You agree to abide by any third-party IP requirements, including the relevant license terms where applicable, where such third-party IP is identified in the documentation provided with the ARM Toolkit. You may not copy the Arm Toolkit except solely for archival and backup purposes provided all notices are preserved. Arm disclaims any and all liability related to your use of the ARM Toolkit.\n\nAtheros: Use of Atheros software is limited to evaluation and demonstration only.  Permitted distributions must be similarly limited. Further rights must be obtained directly from Atheros.    \n\nATI (AMD): Distribution of ATI software must be a part of, or embedded within, Authorized Systems that include a ATI graphics processor core.  \n\nAu-Zone Technologies: eIQ Portal, Model Tool, DeepViewRT and ModelRunner are distributed by NXP under license from Au-Zone Technologies.  Your use of the Licensed Software, examples and related documentation is subject to the following:\n(1)          Use of Software is limited to Authorized System only\n(2)          In no event may Licensee Sublicense the Software\n(3)          AU-ZONE TECHNOLOGIES SHALL NOT BE LIABLE FOR USE OF LICENSED SOFTWARE IN CRITICAL APPLICATIONS BY LICENSEE\n\nBroadcom Corporation: Your use of Broadcom Corporation software is restricted to Authorized Systems that incorporate a compatible integrated circuit device manufactured or sold by Broadcom.\n\nCadence Design Systems: Use of Cadence audio codec software is limited to distribution only of one copy per single NXP Product. The license granted herein to the Cadence Design Systems HiFi aacPlus Audio Decoder software does not include a license to the AAC family of technologies which you or your customer may need to obtain. Configuration tool outputs may only be distributed by licensees of the relevant Cadence SDK and distribution is limited to distribution of one copy embedded in a single NXP Product. Your use of Cadence NatureDSP Libraries whether in source code or in binary is restricted to NXP SoC based systems or emulation enablement based on NXP SoC.\n\nCEVA D.S.P. Ltd. And CEVA Technologies Inc. (\"CEVA\"): The CEVA-SPF2 linear algebra, CEVA-SPF2 Neural Network Libraries, CEVA-SPF2 Core Libraries, CEVA-SPF2 OpenAMP and CEVA-SPF2 STL licensed modules are owned by CEVA and such materials may only be used in connection with an NXP product containing the S250 or S125 integrated circuits, whether or not the CEVA-SPF2 Core is physically implemented and/or enabled on such NXP product\n\nCirque Corporation: Use of Cirque Corporation technology is limited to evaluation, demonstration, or certification testing only. Permitted distributions must be similarly limited. Further rights, including but not limited to ANY commercial distribution rights, must be obtained directly from Cirque Corporation. \n\nCoding Technologies (Dolby Labs): Use of CTS software is limited to evaluation and demonstration only.  Permitted distributions must be similarly limited. Further rights must be obtained from Dolby Laboratories. \n\nCoremark:  Use of the Coremark benchmarking software is subject to the following terms and conditions:  https://github.com/eembc/coremark/blob/main/LICENSE.md\n\nCSR: Use of Cambridge Silicon Radio, Inc. (\"CSR\") software is limited to evaluation and demonstration only.  Permitted distributions must be similarly limited.  Further rights must be obtained directly from CSR. \n\nCrank: Use of Crank Software Inc. software is limited to evaluation and demonstration only. Permitted distributions must be similarly limited. Further rights must be obtained directly from Crank Software Inc.\n\nCypress Semiconductor Corporation: WWD RTOS source code may only be used in accordance with the Cypress IOT Community License Agreement obtained directly from Cypress Semiconductor Corporation. \n\nElektrobit Automotive GmbH (\"EB\"): EB software must be used consistent with the EB License Terms and Conditions, Version 1.4 (Dec 2019) found here: https://www.elektrobit.com/legal-notice/ .  Licensee is only granted an evaluation license for the EB software, defined as license to use the EB software internally for own evaluation purposes, limited to three (3) months. Production deployment of the EB software using this license is prohibited. See additionally Section 2.1.1 EB EULA.\n\nEmbedded Systems Academy GmbH (EmSA):  Any use of Micro CANopen Plus is subject to the acceptance of the license conditions described in the LICENSE.INFO file distributed with all example projects and in the documentation and the additional clause described below.\nClause 1: Micro CANopen Plus may not be used for any competitive or comparative purpose, including the publication of any form of run time or compile time metric, without the express permission of EmSA.\n\nFenopix Technologies Private Limited: Under no circumstances may the CanvasJS software product be used in any way that would compete with any product from Fenopix.  License to the CanvasJS software will terminate immediately without notice if Licensee fail to comply with any provision of this Agreement.\n\nFraunhofer IIS: Fraunhofer MPEG Audio Decoder (Fraunhofer copyright) - If you are provided MPEG-H decoding functionality, you understand that NXP will provide Fraunhofer your name and contact information.\n\nFuture Technology Devices International Ltd.: Future Technology Devices International software must be used consistent with the terms found here: http://www.ftdichip.com/Drivers/FTDriverLicenceTerms.htm \n\nGlobal Locate (Broadcom Corporation): Use of Global Locate, Inc. software is limited to evaluation and demonstration only.  Permitted distributions must be similarly limited.  Further rights must be obtained from Global Locate.    \n\nIAR Systems: Use of IAR flashloader or any IAR source code is subject to the terms of the IAR Source License located within the IAR zip package. The IAR Source License applies to linker command files, example projects unless another license is explicitly stated, the cstartup code, low_level_init.c, and some other low-level runtime library files.\n\nLC3plus: the LC3plus Low Complexity Communication Codec Plus (LC3plus) per ETSI TS 103 634 V1.3.1, is subject to ETSI Intellectual Property Rights Policy, See https://portal.etsi.org/directives/45_directives_jun_2022.pdf. For application in an End Product, Fraunhofer communication applies, see https://www.iis.fraunhofer.de/en/ff/amm/communication/lc3.html\n\nLumissil: Use of the Lumissil software constitutes your acceptance of the terms of the Lumissil Software License Agreement.  A link to the agreement is incorporated as follows: https://www.lumissil.com/assets/pdf/support/2023%20Lumissil%20IS3xCG5317%20Software%20License%20Agreement%20NXP.pdf .  The Run-Time Software and Boot ROM Code are without warranty of any kind from NXP or Lumissil, either express or implied, including without limitation the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. You assume the entire risk arising out of the use or performance of the Lumissil software, or any systems you design using the such, if any.  For the use of Lumissil software, Lumissil is as a third-party beneficiary of the this Agreement with authority to enforce its rights in the Run-Time Software and Boot ROM Code.\n\nMicrosoft: Except for Microsoft PlayReady software, if the Licensed Software includes software owned by Microsoft Corporation (\"Microsoft\"), it is subject to the terms of your license with Microsoft (the \"Microsoft Underlying Licensed Software\") and as such, NXP grants no license to you, beyond evaluation and demonstration in connection with NXP processors, in the Microsoft Underlying Licensed Software.  You must separately obtain rights beyond evaluation and demonstration in connection with the Microsoft Underlying Licensed Software from Microsoft. Microsoft does not provide support services for the components provided to you through this Agreement.  If you have any questions or require technical assistance, please contact NXP.  Microsoft Corporation is a third party beneficiary to this Agreement with the right to enforce the terms of this Agreement.  TO THE MAXIMUM EXTENT PERMITTED BY LAW, MICROSOFT AND ITS AFFILIATES DISCLAIM ANY WARRANTIES FOR THE MICROSOFT UNDERLYING LICENSED SOFTWARE.  TO THE MAXIMUM EXTENT PERMITTED BY LAW, NEITHER MICROSOFT NOR ITS AFFILIATES WILL BE LIABLE, WHETHER IN CONTRACT, TORT, OR OTHERWISE, FOR ANY DIRECT, INCIDENTAL, SPECIAL, INDIRECT, CONSEQUENTIAL OR PUNITIVE DAMAGES, INCLUDING, BUT NOT LIMITED TO, DAMAGES FOR ANY LOSS OF USE, LOSS OF TIME, INCONVENIENCE, COMMERCIAL LOSS, OR LOST PROFITS, SAVINGS, OR REVENUES, ARISING FROM THE FROM THE USE OF THE MICROSOFT UNDERLYING LICENSED SOFTWARE.  With respect to the Microsoft PlayReady software, you will have the license rights granted in Section 2, provided that you may not use the Microsoft PlayReady software unless you have entered into a Microsoft PlayReady Master Agreement and license directly with Microsoft. \n\nMindTree: Notwithstanding the terms contained in Section 2.3 (a), if the Licensed Software includes proprietary software of MindTree in source code format, Licensee may make modifications and create derivative works only to the extent necessary for debugging of the Licensed Software. \n\nMM SOLUTIONS AD:  Use of MM SOLUTIONS AEC (Auto Exposure Control) and AWB (Auto White Balance) software is limited to demonstration, testing, and evaluation only.  In no event may Licensee distribute or sublicense the MM SOLUTIONS software. Further rights must be obtained directly from MM SOLUTIONS.\n\nMPEG LA: Use of MPEG LA audio or video codec technology is limited to evaluation and demonstration only. Permitted distributions must be similarly limited. Further rights must be obtained directly from MPEG LA.  \n\nMQX RTOS Code: MQX RTOS source code may not be re-distributed by any NXP Licensee under any circumstance, even by a signed written amendment to this Agreement. \n\nNXP Voice Software: VoiceSpot, VoiceSeeker (including AEC), VIT Speech to Intent, and Conversa may be used for evaluation or demonstration purposes only. Any commercial distribution rights are subject to a separate royalty agreement obtained from NXP.\n\nNXP Wireless Charging Library: License to the Software is limited to use in inductive coupling or wireless charging applications \n\nON Semiconductor: ON Semiconductor AP1302 Image Signal Processor Initialization Binaries must be used consistent with the terms found here: https://github.com/ONSemiconductor/ap1302_binaries/blob/main/AP1302%20Software%20License%20Agreement.pdf\n\nOpus: Use of Opus software must be consistent with the terms of the Opus license which can be found at: http://www.opus-codec.org/license/  \n\nOracle JRE (Java): The Oracle JRE must be used consistent with terms found here: http://java.com/license \n\nP&E Micro: P&E Software must be used consistent with the terms found here: http://www.pemicro.com/licenses/gdbserver/license_gdb.pdf \n\nPro Design Electronic: Licensee may not modify, create derivative works based on, or copy the Pro Design software, documentation, hardware execution key or the accompanying materials.  Licensee shall not use Pro Design's or any of its licensors names, logos or trademarks to market the Authorized System.  Only NXP customers and distributors are permitted to further redistribute the Pro Design software and only as part of an Authorized System which contains the Pro Design software.\n\nQualcomm Atheros, Inc.: Notwithstanding anything in this Agreement, Qualcomm Atheros, Inc. Wi-Fi software must be used strictly in accordance with the Qualcomm Atheros, Inc. Technology License Agreement that accompanies such software.  Any other use is expressly prohibited.\n\nReal Networks - GStreamer Optimized Real Format Client Code implementation or OpenMax Optimized Real Format Client Code: Use of the GStreamer Optimized Real Format Client Code, or OpenMax Optimized Real Format Client code is restricted to applications in the automotive market.  Licensee must be a final manufacturer in good standing with a current license with Real Networks for the commercial use and distribution of products containing the GStreamer Optimized Real Format Client Code implementation or OpenMax Optimized Real Format Client Code\n\nReal-Time Innovations, Inc.: Not withstanding anything in this Agreement, Real-Time Innovations, Inc. software must be used strictly in accordance with Real-Time Innovations, Inc.'s Automotive Software Evaluation License Agreement, available here: https://www.rti.com/hubfs/_Collateral/Services_and_Support/Automotive_Evaluation_SLA_90_dayNXP.pdf .  Any other use is expressly prohibited.\n\nRivieraWaves SAS (a member of the CEVA, Inc. family of companies): You may not use the RivieraWaves intellectual property licensed under this Agreement if you develop, market, and/or license products similar to such RivieraWaves intellectual property.  Such use constitutes a breach of this Agreement.  Any such use rights must be obtained directly from RivieraWaves.\n\nSanDisk Corporation: If the Licensed Software includes software developed by SanDisk Corporation (\"SanDisk\"), you must separately obtain the rights to reproduce and distribute this software in source code form from SanDisk.  Please follow these easy steps to obtain the license and software:  \n(1) Contact your local SanDisk sales representative to obtain the SanDisk License Agreement.  \n(2) Sign the license agreement.  Fax the signed agreement to SanDisk USA marketing department at 408-542-0403.  The license will be valid when fully executed by SanDisk. \n(3) If you have specific questions, please send an email to sales@sandisk.com \nYou may only use the SanDisk Corporation Licensed Software on products compatible with a SanDisk Secure Digital Card.  You may not use the SanDisk Corporation Licensed Software on any memory device product.  SanDisk retains all rights to any modifications or derivative works to the SanDisk Corporation Licensed Software that you may create. \n\nSEGGER Microcontroller - emWin Software: Your use of SEGGER emWin software and components is restricted for development of NXP ARM7, ARM9, Cortex-M0, Cortex-M3, Cortex-M4, Cortex-M33, Cortex-M7, and Cortex-A7 based products only.\n\nSEGGER Microcontroller - J-Link/J-Trace Software: Segger software must be used consistent with the terms found here: http://www.segger.com/jlink-software.html \n\nSEVENSTAX - Not withstanding anything in this Agreement, SEVENSTAX GmbH software must be used for evaluation purposes only, in strict accordance with the SEVENSTAX License Agreement, available here: https://www.sevenstax.de/fileadmin/documents/SEVENSTAX-NX-ESLA.txt. Any other use, and embedding the software into commercial products, is expressly prohibited.\nSynopsys/BLE Software: Your use of the Synopsys/BLE Software and related documentation is subject to the following:\n(1) Synopsys is third-party beneficiaries of, and thus may enforce against you, the license restrictions and confidentiality obligations in this agreement with respect to their intellectual property and proprietary information.\n(2) Your distribution of the Licensed Software shall subject any recipient to a written agreement at least as protective of the Licensed Software as provided in this Agreement. \n\nSynopsys/Target Compiler Technologies: Your use of the Synopsys/Target Compiler Technologies Licensed Software and related documentation is subject to the following: \n(1) Duration of the license for the Licensed Software is limited to 12 months, unless otherwise specified in the license file. \n(2) The Licensed Software is usable by one user at a time on a single designated computer, unless otherwise agreed by Synopsys.  \n(3) Licensed Software and documentation are to be used only on a designated computer at the designated physical address provided by you on the APEX license form. \n(4) The Licensed Software is not sub-licensable. \n\nT2 Labs / T2 Software:  As a condition to the grant of any license under this Agreement, you represent and warrant that you will comply with all licenses, agreements, rules and bylaws of the Bluetooth SIG (Special Interest Group ) applicable to the licensed software and documentation and its use which may affect when and if you may take certain actions under licenses granted hereunder.\n \nThe license grant under this Agreement is conditional to you being (i) a Bluetooth SIG Associate member until such time as the specifications for the software are made public to Bluetooth SIG members of any level and (ii) thereafter a Bluetooth SIG member of any level.\n \nNotwithstanding the terms contained in Section 2.3 (a), if the licensed software includes proprietary software in source code format, you may make modifications and create derivative works only to the extent necessary for improving the performance of the source code with the NXP products or your products and for creating enhancements of such products. You may not further sublicense or otherwise distribute the source code, or any modifications or derivatives thereof as stand-alone products.  You will be responsible for qualifying any modifications or derivatives with the Bluetooth SIG and any other qualifying bodies.\n\nTARA Systems: Use of TARA Systems GUI technology Embedded Wizard is limited to evaluation and demonstration only. Permitted distributions must be similarly limited. Further rights must be obtained directly from TARA Systems.\n\nTeensyduino Core Library:  If the Teensyduino Core Library or documentation is incorporated into a build system that allows selection among a list of target devices, then similar target devices manufactured by PJRC.com must be included in the list of target devices and selectable in the same manner.\n\nTexas Instruments: Your use of Texas Instruments Inc. WiLink8 Licensed Software is restricted to NXP SoC based systems that include a compatible connectivity device manufactured by TI.  \n\nTES Electronic Solutions Germany (TES):  TES 3D Surround View software and associated data and documentation may only be used for evaluation purposes and for demonstration to third parties in integrated form on a board package containing an NXP S32V234 device. Licensee may not distribute or sublicense the TES software. Your license to the TES software may be terminated at any time upon notice.\n\nVivante: Distribution of Vivante software must be a part of, or embedded within, Authorized Systems that include a Vivante Graphics Processing Unit.  \n\nWittenstein:  Your use of the SafeRTOS v9.x and Networking Stack, in object form, is limited to your internal testing, evaluation, feedback and development specifically for use with an NXP Product.  Licensee’s license to use and supply the software to you expires on June 25, 2026.  Further rights must be obtained directly from Wittenstein.",
+      "name": "LA_OPT_NXP_Software_License v58 November 2024 clause 2.3"
+    },
+    {
+      "licenseId": "LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05",
+      "extractedText": "LA_OPT_Online Code Hosting NXP_Software_License - v1.3 December 2024 \nIMPORTANT.  Read the following NXP Online Code Hosting Software License Agreement (“Agreement”) completely. By selecting the “I Accept” button at the end of this page, or by downloading, installing, or using the Licensed Software, including via GitHub or similar platform, you indicate that you accept the terms of the Agreement, and you acknowledge that you have the authority, for yourself or on behalf of your company, to bind your company to these terms. You may then download or install the software or obtain it via GitHub or similar platform. In the event of a conflict between the terms of this Agreement and any license terms and conditions for NXP’s proprietary software embedded anywhere in the Licensed Software file, the terms of this Agreement shall control.  If a separate license agreement for the Licensed Software has been signed by you and NXP, then that agreement shall govern your use of the Licensed Software and shall supersede this Agreement. \n\nNXP ONLINE CODE HOSTING SOFTWARE LICENSE AGREEMENT\nThis is a legal agreement between your employer, of which you are an authorized representative, or, if you have no employer, you as an individual (“you” or “Licensee”), and NXP B.V. (“NXP”).  It concerns your rights to use the software provided to you in binary or source code form and any accompanying written materials (the “Licensed Software”). The Licensed Software may include any updates or error corrections or documentation relating to the Licensed Software provided to you by NXP under this Agreement. In consideration for NXP allowing you to access the Licensed Software, you are agreeing to be bound by the terms of this Agreement. If you do not agree to all of the terms of this Agreement, do not download, install or copy from GitHub or similar platform, the Licensed Software. If you change your mind later, stop using the Licensed Software and delete all copies of the Licensed Software in your possession or control. Any copies of the Licensed Software that you have already distributed, where permitted, and do not destroy will continue to be governed by this Agreement. Your prior use will also continue to be governed by this Agreement.\n1.\tDEFINITIONS\n\n1.1.\t“Affiliate” means, with respect to a party, any corporation or other legal entity that now or hereafter Controls, is Controlled by or is under common Control with such party; where “Control” means the direct or indirect ownership of greater than fifty percent (50%) of the shares or similar interests entitled to vote for the election of directors or other persons performing similar functions. An entity is considered an Affiliate only so long as such Control exists.\n\n1.2.\t“Authorized System” means either (i) Licensee’s hardware product which incorporates an NXP Product or (ii) Licensee’s software program which is used exclusively in connection with an NXP Product and with which the Licensed Software will be integrated.      \n\n1.3.\t“Derivative Work” means a work based upon one or more pre-existing works.  A work consisting of editorial revisions, annotations, elaborations, or other modifications which, as a whole, represent an original work of authorship, is a Derivative Work.\n\n1.4.\t“Intellectual Property Rights” means any and all rights under statute, common law or equity in and under copyrights, trade secrets, and patents (including utility models), and analogous rights throughout the world, including any applications for and the right to apply for, any of the foregoing.\n\n1.5.\t“NXP Product” means a hardware product (e.g., a microprocessor, microcontroller, sensor or digital signal processor) and/or services (e.g., cloud platform services) supplied directly or indirectly from NXP or an NXP Affiliate, unless there is a product specified in the Software Content Register, in which case this definition is limited to such product.\n\n1.6.\t“Software Content Register” means the documentation which may accompany the Licensed Software which identifies the contents of the Licensed Software. \n\n2.\tLICENSE GRANT.  \n\n2.1.\tStandard License.  Subject to the terms and conditions of this Agreement, NXP grants you a worldwide, personal, non-transferable, non-exclusive, non-sublicensable license, solely for the development of an Authorized System:\n\n(a)\tto use and reproduce the Licensed Software (and its Derivative Works prepared under the license in Section 2.1(b)) solely for use in combination with a NXP Product;\n\n(b)\tto prepare Derivative Works of the Licensed Software solely for use in combination with a NXP Product;\n\n(c)\tto manufacture (or have manufactured), distribute, and market object code of the Licensed Software (and its Derivative Works prepared under the license in 2.2(b)) only as part of, or embedded within, Authorized Systems and not on a standalone basis;\n\n(d)\tto copy and distribute as needed, solely in connection with an Authorized System, NXP information provided as part of the Licensed Software for the purpose of maintaining and supporting Authorized Systems which use the Licensed Software; and\n\n(e)\tto distribute the Licensed Software (and its Derivative Works prepared under the license in 2.1(b)) in a source code form on a standalone basis using any means of distribution including GitHub or similar platform, for use with Authorized Systems, provided that you provide every recipient of the License Software a copy of this Agreement, conspicuously  indicate that the Licensed Software is provided under this Agreement, and assure that the recipient understands that by receiving or using the Licensed Software it has entered into this Agreement with NXP.  You are responsible for any violation of this Agreement by anyone who received source code of the Licensed Software from you.\n\n2.2.\tYou may use subcontractors to exercise your rights under Section 2.1, if any, so long as you have an agreement in place with the subcontractor containing restrictions no less stringent than those contained in this Agreement. You will remain liable for your subcontractors’ adherence to the terms of this Agreement and for any and all acts and omissions of such subcontractors with respect to this Agreement and the Licensed Software.\n \n3.\tLICENSE LIMITATIONS AND RESTRICTIONS.  \n\n3.1.\tThe licenses granted above in Section 2 only extend to NXP Intellectual Property Rights that would be infringed by the unmodified Licensed Software prior to your preparation of any Derivative Work.\n\n3.2.\tThe Licensed Software is licensed to you, not sold. Title to Licensed Software delivered hereunder remains vested in NXP or NXP’s licensor and cannot be assigned or transferred. You are expressly forbidden from selling or otherwise distributing the Licensed Software, or any portion thereof, except as expressly permitted herein. This Agreement does not grant to you any implied rights under any NXP or third-party Intellectual Property Rights.\n\n3.3.\tYou may not translate, reverse engineer, decompile, or disassemble the Licensed Software except to the extent applicable law specifically prohibits such restriction. You must prohibit your subcontractors or customers from translating, reverse engineering, decompiling, or disassembling the Licensed Software except to the extent applicable law specifically prohibits such restriction.\n\n3.4.\tYou must reproduce any and all of NXP’s (or its third-party licensor’s) copyright notices and other proprietary legends on copies of Licensed Software.  \n\n3.5.\tIf you distribute the Licensed Software to the United States Government, then the Licensed Software is “restricted computer software” and is subject to FAR 52.227-19.   \n\n3.6.\tYou grant to NXP a non-exclusive, non-transferable, irrevocable, perpetual, worldwide, royalty-free, sub-licensable license under your Intellectual Property Rights to use without restriction and for any purpose any suggestion, comment or other feedback related to the Licensed Software (including, but not limited to, error corrections and bug fixes).\n\n3.7.\tYou will not take or fail to take any action that could subject the Licensed Software to an Excluded License. An Excluded License means any license that requires, as a condition of use, modification or distribution of software subject to the Excluded License, that such software or other software combined and/or distributed with the software be (i) disclosed or distributed in source code form; (ii) licensed for the purpose of making Derivative Works; or (iii) redistributable at no charge. \n\n3.8.\tYou may not publish or distribute reports associated with the use of the Licensed Software to anyone other than NXP.  You may advise NXP of any results obtained from your use of the Licensed Software, including any problems or suggested improvements thereof, and NXP retains the right to use such results and related information in any manner it deems appropriate.\n\n4.\tOPEN SOURCE.  Open-source software included in the Licensed Software is not licensed under the terms of this Agreement but is instead licensed under the terms of the applicable open-source license(s), such as the BSD License, Apache License or the GNU Lesser General Public License. Your use of the open-source software is subject to the terms of each applicable license. You must agree to the terms of each applicable license, or you cannot use the open-source software.  \n \n5.\tINTELLECTUAL PROPERTY RIGHTS.\n\n5.1.\tUpon request, you must provide NXP the source code of any derivative of the Licensed Software.\n\n5.2.\tUnless prohibited by law, the following paragraph shall apply.  Your modifications to the Licensed Software, and all intellectual property rights associated with, and title thereto, will be the property of NXP.  You agree to assign all, and hereby do assign all rights, title, and interest to any such modifications to the Licensed Software to NXP and agree to provide all assistance reasonably requested by NXP to establish, preserve or enforce such right.  Further, you agree to waive all moral rights relating to your modifications to the Licensed Software, including, without limitation, all rights of identification of authorship and all rights of approval, restriction, or limitation on use or subsequent modification.  Notwithstanding the foregoing, you will have the license rights granted in Section 2 hereto to any such modifications.\n\n5.3.\tOtherwise, you agree to grant an irrevocable, worldwide, and perpetual license to NXP to make, have made, use, sell, offer to sell, import, commercialize, sublicense and reproduce your modifications or derivative works to the Licensed Software without any payment to you. You agree to provide all assistance reasonably requested by NXP to establish, preserve or enforce such right.\n\n6.\tESSENTIAL PATENTS.    NXP has no obligation to identify or obtain any license to any Intellectual Property Right of a third-party that may be necessary for use in connection with technology that is incorporated into the Authorized System (whether or not as part of the Licensed Software).\n\n7.\tTERM AND TERMINATION.   This Agreement will remain in effect unless terminated as provided in this Section.\n\n7.1.\tYou may terminate this Agreement immediately by deleting the Licensed Software and all copies thereof.\n\n7.2.\tEither party may terminate this Agreement if the other party is in default of any of the terms and conditions of this Agreement, and termination is effective if the defaulting party fails to correct such default within 30 days after written notice thereof by the non-defaulting party to the defaulting party at the address below.\n\n7.3.\tNotwithstanding the foregoing, NXP may terminate this Agreement immediately upon written notice if you:  become bankrupt, insolvent, or file a petition for bankruptcy or insolvency; make an assignment for the benefit of its creditors; enter proceedings for winding up or dissolution; are dissolved; or are nationalized or become subject to the expropriation of all or substantially all of your business or assets.\n\n7.4.\tUpon termination of this Agreement, all licenses granted under Section 2 will expire. \n\n7.5.\tAfter termination of this Agreement by either party you will destroy all parts of Licensed Software and its Derivative Works (if any) and will provide to NXP a statement certifying the same.\n\n7.6.\tNotwithstanding the termination of this Agreement for any reason, the terms of Sections 1 and 3 through 24 will survive.  \n\n8.\tSUPPORT.  NXP is not obligated to provide any support, upgrades or new releases of the Licensed Software under this Agreement. If you wish, you may contact NXP and report problems and provide suggestions regarding the Licensed Software. NXP has no obligation to respond to such a problem report or suggestion. NXP may make changes to the Licensed Software at any time, without any obligation to notify or provide updated versions of the Licensed Software to you.\n9.\tNO WARRANTY.  To the maximum extent permitted by law, NXP expressly disclaims any warranty for the Licensed Software. The Licensed Software is provided “AS IS”, without warranty of any kind, either express or implied, including without limitation the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. You assume the entire risk arising out of the use or performance of the licensed software, or any systems you design using the licensed software (if any).\n\n10.\tINDEMNITY. You agree to fully defend and indemnify NXP from all claims, liabilities, and costs (including reasonable attorney’s fees) related to (1) your use (including your subcontractor’s or distributee’s use) of the Licensed Software or (2) your violation of the terms and conditions of this Agreement.\n\n11.\tLIMITATION OF LIABILITY.  EXCLUDING LIABILITY FOR A BREACH OF SECTION 2 (LICENSE GRANTS), SECTION 3 (LICENSE LIMITATIONS AND RESTRICTIONS), OR CLAIMS UNDER SECTION 10 (INDEMNITY), IN NO EVENT WILL EITHER PARTY BE LIABLE, WHETHER IN CONTRACT, TORT, OR OTHERWISE, FOR ANY INCIDENTAL, SPECIAL, INDIRECT, CONSEQUENTIAL OR PUNITIVE DAMAGES, INCLUDING, BUT NOT LIMITED TO, DAMAGES FOR ANY LOSS OF USE, LOSS OF TIME, INCONVENIENCE, COMMERCIAL LOSS, OR LOST PROFITS, SAVINGS, OR REVENUES, TO THE FULL EXTENT SUCH MAY BE DISCLAIMED BY LAW. NXP’S TOTAL LIABILITY FOR ALL COSTS, DAMAGES, CLAIMS, OR LOSSES WHATSOEVER ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT OR PRODUCT(S) SUPPLIED UNDER THIS AGREEMENT IS LIMITED TO THE AGGREGATE AMOUNT PAID BY YOU TO NXP IN CONNECTION WITH THE LICENSED SOFTWARE PROVIDED UNDER THIS AGREEMENT TO WHICH LOSSES OR DAMAGES ARE CLAIMED.\n\n12.\tEXPORT COMPLIANCE. \n\n12.1\tEach party shall comply with all applicable export and import control laws and regulations including but not limited to the US Export Administration Regulation (including restrictions on certain military end uses and military end users as specified in Section 15 C.F.R. § 744.21 and prohibited party lists issued by other federal governments), Catch-all regulations and all national and international embargoes. Each party further agrees that it will not knowingly transfer, divert, export or re-export, directly or indirectly, any product, software, including software source code, or technology restricted by such regulations or by other applicable national regulations, received from the other party under this Agreement, or any direct product of such software or technical data to any person, firm, entity, country or destination to which such transfer, diversion, export or re-export is restricted or prohibited, without obtaining prior written authorization from the applicable competent government authorities to the extent required by those laws.\n\n12.2\tProhibition of Export to Russian Federation\n\n(a)\tWith respect to activities that fall under the scope of Article 12g, 12ga of Council Regulation (EU) No 833/2014, or Council Regulation (EU) No 765/2006 (as the case requires), Licensee (a) will not sell, export or re-export, directly or indirectly any item, and (b) will not sell, license or sublicense any intellectual property rights or trade secrets, to the Russian Federation or Belarus, or for use in the Russian Federation or Belarus.\n\n(b)\tLicensee will ensure that the purpose of paragraph (a) above is not frustrated by any third parties further down the commercial chain, including by either resellers, sublicensees, or both.\n\n(c)\tLicensee will set up and maintain an adequate monitoring mechanism to detect conduct by any third parties further down the commercial chain, including by either resellers, sublicensees, or both, that would frustrate the purpose of paragraph (a).\n\n(d)\tAny violation of paragraphs (a), (b) or (c) will constitute a material breach of this Agreement, and NXP will be entitled to seek appropriate remedies, including, but not limited to: (i) termination of this Agreement; (ii) suspension of any of its business relationships with Licensee, Licensee’s affiliates or both, until the breach of paragraph (a) above is remedied, and (iii) a plan to remedy the breach.\n\n(e)\tLicensee will immediately inform NXP about any problems in applying paragraphs (a), (b) or (c), above, including any relevant activities by third parties that could frustrate the purpose of paragraph (a). Licensee will make available to NXP information concerning compliance with the obligations under paragraphs (a), (b) and (c) within 2 weeks of the request for information.\n\n13.\tGOVERNMENT CONTRACT COMPLIANCE\n\n13.1.\tIf you sell Authorized Systems directly to any government or public entity, including U.S., state, local, foreign or international governments or public entities, or indirectly via a prime contractor or subcontractor of such governments or entities, NXP makes no representations, certifications, or warranties whatsoever about compliance with government or public entity acquisition statutes or regulations, including, without limitation, statutes or regulations that may relate to pricing, quality, origin or content.\n\n13.2.\tThe Licensed Software has been developed at private expense and is a “Commercial Item” as defined in 48 C.F.R. Section 2.101, consisting of “Commercial Computer Software”, and/or “Commercial Computer Software Documentation,” as such terms are used in 48 C.F.R. Section 12.212 (or 48 C.F.R. Section 227.7202, as applicable) and may only be licensed to or shared with U.S. Government end users in object code form as part of, or embedded within, Authorized Systems. Any agreement pursuant to which you share the Licensed Software will include a provision that reiterates the limitations of this document and requires all sub-agreements to similarly contain such limitations. \n\n14.\tCRITICAL APPLICATIONS.  In some cases, NXP may promote certain software for use in the development of, or for incorporation into, products or services (a) used in applications requiring fail-safe performance or (b) in which failure could lead to death, personal injury, or severe physical or environmental damage (these products and services are referred to as “Critical Applications”). NXP’s goal is to educate customers so that they can design their own end-product solutions to meet applicable functional safety standards and requirements. Licensee makes the ultimate design decisions regarding its products and is solely responsible for compliance with all legal, regulatory, safety, and security related requirements concerning its products, regardless of any information or support that may be provided by NXP. As such, Licensee assumes all risk related to use of the Licensed Software in Critical Applications and NXP SHALL NOT BE LIABLE FOR ANY SUCH USE IN CRITICAL APPLICATIONS BY LICENSEE. Accordingly, Licensee will indemnify and hold NXP harmless from any claims, liabilities, damages and associated costs and expenses (including attorneys’ fees) that NXP may incur related to Licensee’s incorporation of the Licensed Software in a Critical Application.\n\n15.\tCHOICE OF LAW; VENUE.  This Agreement will be governed by, construed, and enforced in accordance with the laws of The Netherlands, without regard to conflicts of laws principles, will apply to all matters relating to this Agreement or the Licensed Software, and you agree that any litigation will be subject to the exclusive jurisdiction of the courts of Amsterdam, The Netherlands. The United Nations Convention on Contracts for the International Sale of Goods will not apply to this document. \n\n16.\tTRADEMARKS.  You are not authorized to use any NXP trademarks, brand names, or logos.\n\n17.\tENTIRE AGREEMENT.  This Agreement constitutes the entire agreement between you and NXP regarding the subject matter of this Agreement, and supersedes all prior communications, negotiations, understandings, agreements or representations, either written or oral, if any. This Agreement may only be amended in written form, signed by you and NXP.\n\n\n18.\tSEVERABILITY.  If any provision of this Agreement is held for any reason to be invalid or unenforceable, then the remaining provisions of this Agreement will be unimpaired and, unless a modification or replacement of the invalid or unenforceable provision is further held to deprive you or NXP of a material benefit, in which case the Agreement will immediately terminate, the invalid or unenforceable provision will be replaced with a provision that is valid and enforceable and that comes closest to the intention underlying the invalid or unenforceable provision.\n\n19.\tNO WAIVER.  The waiver by NXP of any breach of any provision of this Agreement will not operate or be construed as a waiver of any other or a subsequent breach of the same or a different provision.\n\n20.\tAUDIT.  You will keep full, clear and accurate records with respect to your compliance with the limited license rights granted under this Agreement for three years following expiration or termination of this Agreement. NXP will have the right, either itself or through an independent certified public accountant to examine and audit, at NXP’s expense, not more than once a year, and during normal business hours, all such records that may bear upon your compliance with the limited license rights granted above. You must make prompt adjustment to compensate for any errors and/or omissions disclosed by such examination or audit.\n\n21.\tNOTICES.  All notices and communications under this Agreement will be made in writing, and will be effective when received at the following addresses: \nNXP:\t\nNXP B.V.\nHigh Tech Campus 60\n5656 AG Eindhoven\nThe Netherlands\nATTN: Legal Department\n \t         \nYou:\t\nThe address of company headquarters will be used for a company Licensee or the address of an individual for an individual Licensee.\n\n22.\tRELATIONSHIP OF THE PARTIES.  The parties are independent contractors. Nothing in this Agreement will be construed to create any partnership, joint venture, or similar relationship. Neither party is authorized to bind the other to any obligations with third parties.\n\n23.\tSUCCESSION AND ASSIGNMENT.   This Agreement will be binding upon and inure to the benefit of the parties and their permitted successors and assigns.  You may not assign this Agreement, or any part of this Agreement, without the prior written approval of NXP, which approval will not be unreasonably withheld or delayed. NXP may assign this Agreement, or any part of this Agreement, in its sole discretion. \n\n24.\tPRIVACY. By agreeing to this Agreement and/or utilizing the Licensed Software, Licensee consents to use of certain personal information, including but not limited to name, email address, and location, for the purpose of NXP’s internal analysis regarding future software offerings.  NXP’s complete Privacy Statement can be found at: https://www.nxp.com/company/our-company/about-nxp/privacy-statement:PRIVACYPRACTICES.\n",
+      "name": "LA_OPT_Online Code Hosting NXP_Software_License - v1.3 December 2024"
+    },
+    {
+      "licenseId": "LicenseRef-471c1cfd-a33d-4955-ad37-a2e41491adcf",
+      "extractedText": "License For Customer Use of NVIDIA Software\n===========================================\n\nIMPORTANT NOTICE -- READ CAREFULLY: This License For Customer Use of NVIDIA\nSoftware (\"LICENSE\") is the agreement which governs use of the software of NVIDIA\nCorporation and its subsidiaries (\"NVIDIA\") downloadable herefrom, including\ncomputer software and associated printed materials (\"SOFTWARE\"). By downloading,\ninstalling, copying, or otherwise using the SOFTWARE, you agree to be bound by\nthe terms of this LICENSE. If you do not agree to the terms of this LICENSE, do\nnot download the SOFTWARE.\n\nRECITALS\n\nUse of NVIDIA's products requires three elements: the SOFTWARE, the hardware on a\ngraphics controller board, and a personal computer. The SOFTWARE is protected by\ncopyright laws and international copyright treaties, as well as other\nintellectual property laws and treaties. The SOFTWARE is not sold, and instead is\nonly licensed for use, strictly in accordance with this document. The hardware is\nprotected by various patents, and is sold, but this LICENSE does not cover that\nsale, since it may not necessarily be sold as a package with the SOFTWARE. This\nLICENSE sets forth the terms and conditions of the SOFTWARE LICENSE only.\n\n1. DEFINITIONS\n\n1.1 Customer.  Customer means the entity or individual that downloads the\nSOFTWARE.\n\n2. GRANT OF LICENSE\n\n2.1 Rights and Limitations of Grant.  NVIDIA hereby grants Customer the following\nnon-exclusive, non-transferable right to use the SOFTWARE, with the following\nlimitations:\n\n2.1.1 Rights.  Customer may install and use one copy of the SOFTWARE on a single\ncomputer, and except for making one back-up copy of the Software, may not\notherwise copy the SOFTWARE. This LICENSE of SOFTWARE may not be shared or used\nconcurrently on different computers.\n\n2.1.2 Linux/FreeBSD/OpenSolaris Exception.  Notwithstanding the foregoing terms\nof Section 2.1.1, SOFTWARE designed exclusively for use on the Linux or FreeBSD\noperating systems, or other operating systems derived from the source code to\nthese operating systems, may be copied and redistributed, provided that the\nbinary files thereof are not modified in any way (except for unzipping of\ncompressed files).\n\n2.1.3 Limitations.\n\nNo Reverse Engineering.  Customer may not reverse engineer, decompile, or\ndisassemble the SOFTWARE, nor attempt in any other manner to obtain the source\ncode.\n\nNo Separation of Components.  The SOFTWARE is licensed as a single product. Its\ncomponent parts may not be separated for use on more than one computer, nor\notherwise used separately from the other parts.\n\nNo Rental.  Customer may not rent or lease the SOFTWARE to someone else.\n\n3. TERMINATION\n\nThis LICENSE will automatically terminate if Customer fails to comply with any of\nthe terms and conditions hereof. In such event, Customer must destroy all copies\nof the SOFTWARE and all of its component parts.\n\nDefensive Suspension. If Customer commences or participates in any legal\nproceeding against NVIDIA, then NVIDIA may, in its sole discretion, suspend or\nterminate all license grants and any other rights provided under this LICENSE\nduring the pendency of such legal proceedings.\n\n4. COPYRIGHT\n\nAll title and copyrights in and to the SOFTWARE (including but not limited to all\nimages, photographs, animations, video, audio, music, text, and other information\nincorporated into the SOFTWARE), the accompanying printed materials, and any\ncopies of the SOFTWARE, are owned by NVIDIA, or its suppliers. The SOFTWARE is\nprotected by copyright laws and international treaty provisions. Accordingly,\nCustomer is required to treat the SOFTWARE like any other copyrighted material,\nexcept as otherwise allowed pursuant to this LICENSE and that it may make one\ncopy of the SOFTWARE solely for backup or archive purposes.\n\n5. APPLICABLE LAW\n\nThis LICENSE shall be deemed to have been made in, and shall be construed\npursuant to, the laws of the State of California. The United Nations Convention\non Contracts for the International Sale of Goods is specifically disclaimed.\n\n6. DISCLAIMER OF WARRANTIES AND LIMITATION ON LIABILITY\n\n6.1 No Warranties.  TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE\nSOFTWARE IS PROVIDED \"AS IS\" AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL\nWARRANTIES, EITHERWHETHER EXPRESS OR, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT\nLIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND, FITNESS FOR A PARTICULAR\nPURPOSE. , TITLE, AND NON-INFRINGEMENT. Without limiting the foregoing, you are\nsolely responsible for determining and verifying that the SOFTWARE that you\nobtain and install is the appropriate version for your model of graphics\ncontroller board, operating system, and computer hardware.\n\n6.2 No Liability for Consequential Damages.  TO THE MAXIMUM EXTENT PERMITTED BY\nAPPLICABLE LAW, IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY\nSPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING,\nWITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, LOSS OF DATA, BUSINESS\nINTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING\nOUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF NVIDIA HAS BEEN\nADVISED OF THE POSSIBILITY OF SUCH DAMAGES.\n\n7. MISCELLANEOUS\n\nIf any provision of this LICENSE is inconsistent with, or cannot be fully\nenforced under, the law, such provision will be construed as limited to the\nextent necessary to be consistent with and fully enforceable under the law. This\nLICENSE is the final, complete and exclusive agreement between the parties\nrelating to the subject matter hereof, and supersedes all prior or\ncontemporaneous understandings and agreements relating to such subject matter,\nwhether oral or written. This LICENSE may only be modified in writing signed by\nan authorized officer of NVIDIA.  Customer agrees that it will not ship, transfer\nor export the SOFTWARE into any country, or use the SOFTWARE in any manner,\nprohibited by the United States Bureau of Industry and Security or any export\nlaws, restrictions or regulations.",
+      "name": "NVIDIA Customer Use License"
+    },
+    {
+      "licenseId": "LicenseRef-cb6510ff-3f4f-4328-97df-7ac9da7db2a7",
+      "extractedText": "NVIDIA Corp\n===========\n\nCopyright (c) 1996 NVIDIA, Corp. All rights reserved.\n\nNOTICE TO USER: The source code is copyrighted under U.S. and international laws.\nNVIDIA, Corp. of Sunnyvale, California owns the copyright and as design patents\npending on the design and interface of the NV chips. Users and possessors of this\nsource code are hereby granted a nonexclusive, royalty-free copyright and design\npatent license to use this code in individual and commercial software.\n\nAny use of this source code must include, in the user documentation and internal\ncomments to the code, notices to the end user as follows:\n\nCopyright (c) 1996 NVIDIA, Corp. NVIDIA design patents pending in the U.S. and\nforeign countries.\n\nNVIDIA, CORP. MAKES NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOURCE CODE\nFOR ANY PURPOSE. IT IS PROVIDED \"AS IS\" WITHOUT EXPRESS OR IMPLIED WARRANTY OF\nANY KIND. NVIDIA, CORP. DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOURCE CODE,\nINCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE. IN NO EVENT SHALL NVIDIA, CORP. BE LIABLE FOR ANY SPECIAL, INDIRECT,\nINCIDENTAL, OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM\nLOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR\nOTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR\nPERFORMANCE OF THIS SOURCE CODE.",
+      "name": "NVIDIA License"
+    },
+    {
+      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
+      "extractedText": "Public domain code is not subject to any license.",
+      "name": "Public Domain"
+    }
+  ],
+  "documentNamespace": "https://nxp.com/spdx/0bac5db3-431c-42df-8149-c77d230ae742",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "name": "eIQ-GenAI-Flow_Package",
+      "versionInfo": "1.0",
+      "licenseConcluded": "(LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05)",
+      "licenseDeclared": "(LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05)",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-af6c6aa4-1dcc-4801-8a58-ada6300c2a54",
+      "name": "eIQ-GenAI-Flow_Source",
+      "versionInfo": "1.0",
+      "licenseConcluded": "LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05",
+      "licenseDeclared": "(LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05)",
+      "homepage": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: NXP",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-40a40004-7d38-4181-aba5-5604e1e99af6",
+      "name": "meta-eiq-genai-flow",
+      "versionInfo": "1.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "(MIT)",
+      "homepage": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: NXP",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-006e2efe-a418-4964-979b-35eadc9b3c85",
+      "name": "Retrieval-Augmented Generation Framework",
+      "versionInfo": "1.0",
+      "licenseConcluded": "LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05",
+      "licenseDeclared": "(LicenseRef-3189476f-5b70-4a90-9c18-5da934503c05)",
+      "homepage": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: NXP",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-4b531937-142f-411e-8f71-5b6c8ff0cb18",
+      "name": "accelerate",
+      "versionInfo": "0.30.1",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/huggingface/accelerate",
+      "downloadLocation": "https://pypi.org/project/accelerate/0.30.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b2ea0075-c53b-46ec-ae21-bab4af21c742",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/accelerate@0.30.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-c1f528d8-12df-43d6-8168-86452638c569",
+      "name": "all-MiniLM-L6-v2_onnx_NXP",
+      "versionInfo": "1.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-7ee1fc1b-cf1b-44b8-9b47-25b7f59a3565",
+      "name": "datasets",
+      "versionInfo": "3.4.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://pypi.org/project/datasets/",
+      "downloadLocation": "https://pypi.org/project/datasets/3.4.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "2dbf051a-9f86-4297-a6e9-91d146d98c0b",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/datasets@3.4.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-72d2d4f0-936e-4832-bc92-9fc57029e252",
+      "name": "filesystem_spec",
+      "versionInfo": "2024.12.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/fsspec/filesystem_spec",
+      "downloadLocation": "https://pypi.org/project/fsspec/2024.12.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "ba28ecdf-0f31-4cf3-8a13-21b816a5a118",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/fsspec@2024.12.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-230ade5f-0d07-4514-8852-1a855b0c6f78",
+      "name": "Flask",
+      "versionInfo": "3.0.2",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://flask.pocoo.org/",
+      "downloadLocation": "https://bodhi.fedoraproject.org/updates/python-flask-doc-3.0.2-1.fc40",
+      "originator": "Organization: fedora",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d9bdd46f-9cc2-4bec-a59e-fceb8a8070a0",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:armin_ronacher:flask:3.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:palletsprojects:flask:3.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:flask:3.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/fedora/python-flask-doc@3.0.2-1.fc40?arch=noarch&epoch=1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-772cc838-3b21-4d7c-9017-73c4990db43b",
+      "name": "GObject-introspection",
+      "versionInfo": "2.80.4",
+      "licenseConcluded": "LGPL-2.1-or-later",
+      "licenseDeclared": "LGPL-2.1-or-later",
+      "homepage": "http://live.gnome.org/GObjectIntrospection",
+      "downloadLocation": "http://http.debian.net/debian/pool/main/g/glib2.0",
+      "originator": "Organization: debian",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:deb/debian/gir1.2-glib-2.0@2.80.4-1?arch=riscv64",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d4ea5bbd-9e14-4a69-98d1-eb9273306809",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-c09c8e08-c56e-48f9-b92b-8671da837a50",
+      "name": "h2o-danube3-500m-chat_onnx_NXP",
+      "versionInfo": "1.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-77cc8cda-73a8-4984-8081-ee7f37aac8c0",
+      "name": "huggingface-hub",
+      "versionInfo": "0.29.3",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/huggingface/huggingface_hub",
+      "downloadLocation": "https://pypi.org/project/huggingface-hub/0.29.3",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/huggingface-hub@0.29.3",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "4f6637aa-c873-4bae-bc60-2aca340f20b8",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-54249e8c-8d31-46c9-93ae-edca77f606e7",
+      "name": "jinjapython",
+      "versionInfo": "3.1.6",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://jinja.palletsprojects.com",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: alpine",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:palletsprojects:jinja:3.1.6:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:jinja2:3.1.6:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:Jinja2:3.1.6:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "726665f5-a5e5-4ead-86ec-4907bbe86518",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pocoo:jinja2:3.1.6:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:apk/alpine/py3-jinja2@3.1.6-r0?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-b7a1bf71-e200-40fe-bd11-283cc5035c4d",
+      "name": "MarkupSafe",
+      "versionInfo": "3.0.2",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://www.palletsprojects.com/p/markupsafe/",
+      "downloadLocation": "https://pypi.org/project/MarkupSafe/3.0.2",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/markupsafe@3.0.2",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "8aa3014c-f7fb-41e8-a542-97df996b96c6",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-4792501b-8908-4790-b0be-10ec4bb0413d",
+      "name": "mingw32-python3-requests",
+      "versionInfo": "2.32.3",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://requests.readthedocs.io/",
+      "downloadLocation": "https://bodhi.fedoraproject.org/updates/mingw32-python3-requests-2.32.3-3.fc42",
+      "originator": "Organization: fedora",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b3161993-4620-44a2-9a74-f5f9cc2c4671",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/fedora/mingw32-python3-requests@2.32.3-3.fc42?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-3c53bb1a-f1ad-4f37-9f56-e59f0e9ef333",
+      "name": "NumPy",
+      "versionInfo": "1.26.4",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://numpy.org/",
+      "downloadLocation": "https://repo.continuum.io/pkgs/main/osx-arm64",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:numpy:1.26.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "5f9c99ea-8bf9-4bac-9506-0e650cd9386f",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:numpy:numpy:1.26.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/numpy@1.26.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-4637f9d4-a059-4f84-9a33-61dd807f9f6f",
+      "name": "Open Computer Vision Library (OpenCV)",
+      "versionInfo": "4.5.5",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "http://opencv.org/",
+      "downloadLocation": "https://bodhi.fedoraproject.org/updates/python3-opencv-4.5.5-8.fc37",
+      "originator": "Organization: fedora",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/fedora/python3-opencv@4.5.5-8.fc37?arch=x86_64",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "81705f42-f309-428e-a8cf-6c79a3e8d038",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:opencv:opencv:4.5.5:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-8776b2ea-f206-48b8-b2db-e01a63a12cfe",
+      "name": "optimum",
+      "versionInfo": "1.23.3",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://huggingface.co/hardware",
+      "downloadLocation": "https://pypi.org/project/optimum/1.23.3",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/optimum@1.23.3",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "ffe98999-39ac-457e-9480-abad81c0df00",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-3d809112-ad1e-4ba6-a7df-585288535007",
+      "name": "Packaging",
+      "versionInfo": "24.1",
+      "licenseConcluded": "(BSD-3-Clause AND Apache-2.0)",
+      "licenseDeclared": "(BSD-3-Clause AND Apache-2.0)",
+      "homepage": "https://github.com/pypa/packaging",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: alpine",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "132aff1e-8bb8-469b-bcdf-e8c3092c5d35",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:apk/alpine/py3-packaging@24.1-r0?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-29a1188d-3940-4f45-b021-5359a8f5f5fc",
+      "name": "py3-rich",
+      "versionInfo": "13.9.4",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: alpine",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:apk/alpine/py3-rich@13.9.4-r0?arch=noarch",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "82d5db7e-8f8a-4810-8d68-bbbf31bbe010",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-e21582f2-a99f-4c18-a10d-639446c80973",
+      "name": "py-filelock",
+      "versionInfo": "3.18.0",
+      "licenseConcluded": "Unlicense",
+      "licenseDeclared": "Unlicense",
+      "homepage": "https://github.com/benediktschmitt/py-filelock",
+      "downloadLocation": "https://pypi.org/project/filelock/3.18.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/filelock@3.18.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "85101a60-2c51-4ccb-aa2b-06020fa26831",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-b6de6782-36e4-41b8-9bf5-e9ccd01f6482",
+      "name": "python3-importlib-metadata",
+      "versionInfo": "8.0.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "http://importlib-metadata.readthedocs.io/",
+      "downloadLocation": "https://bodhi.fedoraproject.org/updates/python3-importlib-metadata-8.0.0-1.fc41",
+      "originator": "Organization: fedora",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/fedora/python3-importlib-metadata@8.0.0-1.fc41?arch=noarch",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "e7a71179-b463-4a92-a348-8490b52b04e0",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-51d04ec4-dea6-4588-8617-c77fd146f390",
+      "name": "python3-jaraco.text",
+      "versionInfo": "3.2.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/jaraco/jaraco.text",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: opensuse",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/opensuse/python3-jaraco.text@3.2.0-1.5?arch=noarch",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "e57d5765-9a84-4a46-aaa7-822e2ded7556",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-5bc85951-d4ea-4e96-a673-355548491ce3",
+      "name": "python3-sentencepiece",
+      "versionInfo": "0.2.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/google/sentencepiece",
+      "downloadLocation": "http://http.debian.net/debian/pool/main/s/sentencepiece",
+      "originator": "Organization: debian",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "f1ce360d-d110-40a1-ae05-0095edf96b91",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:deb/debian/python3-sentencepiece@0.2.0-1%2Bb2?arch=s390x",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-56c53438-b8ca-4513-9267-be6bd96ff873",
+      "name": "python-attrs",
+      "versionInfo": "25.3.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://attrs.readthedocs.org/",
+      "downloadLocation": "https://pypi.org/project/attrs/25.3.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/attrs@25.3.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "3d1029a2-9613-40a6-94f0-cca2d39e0591",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-c5d206ed-130d-427c-867b-ba18d0799a8c",
+      "name": "python-bcrypt",
+      "versionInfo": "4.2.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "http://www.mindrot.org/projects/py-bcrypt/",
+      "downloadLocation": "http://http.debian.net/debian/pool/main/p/python-bcrypt",
+      "originator": "Organization: debian",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "f09deeeb-67d2-4a1c-b973-84dc7ef2f3d1",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:deb/debian/python3-bcrypt@4.2.0-1?arch=amd64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-93b42f19-9820-4481-8790-264455a0385e",
+      "name": "python-certifi",
+      "versionInfo": "2024.8.30",
+      "licenseConcluded": "MPL-2.0",
+      "licenseDeclared": "MPL-2.0",
+      "homepage": "https://certifiio.readthedocs.io/en/latest/",
+      "downloadLocation": "http://http.debian.net/debian/pool/main/p/python-certifi",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:kennethreitz:certifi:2024.8.30:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:certifi_project:certifi:2024.8.30:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:certifi:2024.8.30:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-b52eb36f-4dac-4833-bdc4-c596f3b944dc",
+      "name": "python-dill",
+      "versionInfo": "0.3.8",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://pypi.org/project/dill/",
+      "downloadLocation": "https://pypi.org/project/dill/0.3.8",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/dill@0.3.8",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "7ed8a8fc-3575-4183-8ef4-d79761a5512d",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-d4f67121-91f3-4f46-b67e-dc8b0fed1f8d",
+      "name": "python-regex",
+      "versionInfo": "2024.11.6",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://code.google.com/p/mrab-regex-hg/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: opensuse",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/opensuse/python-regex@2024.11.6-1.1?arch=aarch64",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d7f40e65-858a-432d-a010-9729816adb66",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-47698fe4-d249-4750-b970-8dce220e9747",
+      "name": "pytorch",
+      "versionInfo": "2.6.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://pytorch.org",
+      "downloadLocation": "https://pypi.org/project/torch/2.6.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:linuxfoundation:pytorch:2.6.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/torch@2.6.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:torch:2.6.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "4d14eb64-92a6-45a9-b0ed-35113b74f43b",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-82171d56-44f6-44e6-8219-d9e5c855cebb",
+      "name": "pytorch/audio",
+      "versionInfo": "v2.6.0",
+      "licenseConcluded": "BSD-2-Clause",
+      "licenseDeclared": "BSD-2-Clause",
+      "homepage": "https://github.com/pytorch/audio",
+      "downloadLocation": "http://http.debian.net/debian/pool/main/p/pytorch-audio",
+      "originator": "Organization: debian",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:deb/debian/python3-torchaudio@2.6.0-1?arch=s390x",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "bb470d51-d104-407f-a96a-ba6a5781c278",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-f26ef6e6-5e0b-4cba-9c06-8a4e7d56fc81",
+      "name": "PyTZ - Python Time Zone Library",
+      "versionInfo": "2024.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "http://pythonhosted.org/pytz/",
+      "downloadLocation": "https://pypi.org/project/pytz/2024.1",
+      "originator": "Organization: opensuse",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d22c4988-9050-42bc-a36e-0937c4ad5340",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/opensuse/python-pytz@2024.1-1.1?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-aac3a432-d326-48ed-a4ea-760b0ae2472a",
+      "name": "PyYAML",
+      "versionInfo": "6.0.2",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://pyyaml.org/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:PyYAML:6.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:yaml:pyyaml:6.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pyyaml:pyyaml:6.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:pyyaml:6.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyyaml@6.0.2",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "fe77bc92-64ab-4ea5-bded-9ecd47e1c9f0",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pyyaml_project:pyyaml:6.0.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-4296114c-49d7-44a5-a785-6921d4ebd7a3",
+      "name": "regex",
+      "versionInfo": "2024.11.6",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/cgrand/regex",
+      "downloadLocation": "https://pypi.org/project/regex/2024.11.6",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b41e4635-d1b1-4be0-a535-332838bfb097",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/regex@2024.11.6",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a64c2a99-215c-4b2a-824f-5a112ca31262",
+      "name": "Sherlock Project",
+      "versionInfo": "v0.15.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "http://sherlock-project.github.io",
+      "downloadLocation": "https://bodhi.fedoraproject.org/updates/sherlock-project-0.15.0-3.fc41",
+      "originator": "Organization: fedora",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "9354d461-605e-46c0-ab31-c020229ba4f3",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/fedora/sherlock-project@0.15.0-3.fc41?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-cccddce8-d6bc-40b9-81fd-99c4e878bdf7",
+      "name": "silero-vad",
+      "versionInfo": "5.1.2",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/pengzhendong/silero-vad",
+      "downloadLocation": "https://pypi.org/project/silero-vad/5.1.2",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/silero-vad@5.1.2",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "68549cb0-1b80-4215-8ab7-bfa8bc1207aa",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-5da11ee1-0e75-4881-80a9-7fdd3478c220",
+      "name": "Time Zone Database",
+      "versionInfo": "2024a",
+      "licenseConcluded": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
+      "licenseDeclared": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
+      "homepage": "http://www.iana.org/time-zones",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: opensuse",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "ef2fb33c-0993-4fd7-af2f-d9e57f540b47",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/opensuse/timezone@2024a-150600.89.1?arch=s390x",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-fc7db081-bc65-4079-bb63-7be02272a13d",
+      "name": "torchaudio",
+      "versionInfo": "2.6.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/JuanFMontesinos/pytorch_audio",
+      "downloadLocation": "https://pypi.org/project/torchaudio/2.6.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "3718f448-f443-4f28-9aec-9a983bd536c0",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/torchaudio@2.6.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-d45af71f-e513-4814-8ff1-e7197f23d777",
+      "name": "tqdm",
+      "versionInfo": "4.67.1",
+      "licenseConcluded": "(MPL-2.0 AND MIT)",
+      "licenseDeclared": "(MPL-2.0 AND MIT)",
+      "homepage": "https://tqdm.github.io",
+      "downloadLocation": "https://pypi.org/project/tqdm/4.67.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:tqdm:4.67.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:tqdm_project:tqdm:4.67.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "8b628caf-6d48-4bf5-a022-214051a8a793",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/tqdm@4.67.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-0ee94ee7-db08-4851-bc41-b5e57ff96ab8",
+      "name": "transformers",
+      "versionInfo": "4.49.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/nvbn/__transformers__",
+      "downloadLocation": "https://pypi.org/project/transformers/4.49.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:transformers:4.49.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "7cb1dba0-155b-4911-8256-fba776799261",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:huggingface:transformers:4.49.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/transformers@4.49.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-39df0f99-f8e7-4145-b07a-85f303c5360d",
+      "name": "urllib3",
+      "versionInfo": "2.3.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://urllib3.readthedocs.io/en/stable",
+      "downloadLocation": "https://bodhi.fedoraproject.org/updates/python3-urllib3-2.3.0-1.fc42",
+      "originator": "Organization: fedora",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:urllib3_project:urllib3:2.3.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/fedora/python3-urllib3@2.3.0-1.fc42?arch=noarch",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:python:urllib3:2.3.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:urllib3:2.3.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "a12a571c-8014-4382-9622-530de124f449",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-53dc3f19-2ef8-469b-8859-e37166fec7eb",
+      "name": "whisper-small.en_onnx_NXP",
+      "versionInfo": "1.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-f459b191-9e3b-4681-9212-ac0d1539ff60",
+      "name": "yt-dlp",
+      "versionInfo": "2024.09.27",
+      "licenseConcluded": "Unlicense",
+      "licenseDeclared": "Unlicense",
+      "homepage": "https://github.com/yt-dlp/yt-dlp",
+      "downloadLocation": "https://github.com/yt-dlp/yt-dlp/releases/tag/2024.09.27",
+      "originator": "Organization: yt-dlp",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "a392fd16-3b55-41de-ac72-09096f84ff7c",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:youtube-dlc_project:youtube-dlc:2024.09.27:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/yt-dlp/yt-dlp@2024.09.27",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-40a40004-7d38-4181-aba5-5604e1e99af6"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-006e2efe-a418-4964-979b-35eadc9b3c85"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-77cc8cda-73a8-4984-8081-ee7f37aac8c0"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-5bc85951-d4ea-4e96-a673-355548491ce3"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-c09c8e08-c56e-48f9-b92b-8671da837a50"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-af6c6aa4-1dcc-4801-8a58-ada6300c2a54"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-51d04ec4-dea6-4588-8617-c77fd146f390"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-54249e8c-8d31-46c9-93ae-edca77f606e7"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-4792501b-8908-4790-b0be-10ec4bb0413d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-4637f9d4-a059-4f84-9a33-61dd807f9f6f"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a64c2a99-215c-4b2a-824f-5a112ca31262"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b52eb36f-4dac-4833-bdc4-c596f3b944dc"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-3c53bb1a-f1ad-4f37-9f56-e59f0e9ef333"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b7a1bf71-e200-40fe-bd11-283cc5035c4d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-230ade5f-0d07-4514-8852-1a855b0c6f78"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b6de6782-36e4-41b8-9bf5-e9ccd01f6482"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-3d809112-ad1e-4ba6-a7df-585288535007"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-0ee94ee7-db08-4851-bc41-b5e57ff96ab8"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-772cc838-3b21-4d7c-9017-73c4990db43b"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-53dc3f19-2ef8-469b-8859-e37166fec7eb"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-f459b191-9e3b-4681-9212-ac0d1539ff60"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-39df0f99-f8e7-4145-b07a-85f303c5360d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-29a1188d-3940-4f45-b021-5359a8f5f5fc"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-fc7db081-bc65-4079-bb63-7be02272a13d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-4b531937-142f-411e-8f71-5b6c8ff0cb18"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-c1f528d8-12df-43d6-8168-86452638c569"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-c5d206ed-130d-427c-867b-ba18d0799a8c"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-f26ef6e6-5e0b-4cba-9c06-8a4e7d56fc81"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-82171d56-44f6-44e6-8219-d9e5c855cebb"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-56c53438-b8ca-4513-9267-be6bd96ff873"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-7ee1fc1b-cf1b-44b8-9b47-25b7f59a3565"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-d45af71f-e513-4814-8ff1-e7197f23d777"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-8776b2ea-f206-48b8-b2db-e01a63a12cfe"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-cccddce8-d6bc-40b9-81fd-99c4e878bdf7"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-72d2d4f0-936e-4832-bc92-9fc57029e252"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-d4f67121-91f3-4f46-b67e-dc8b0fed1f8d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-4296114c-49d7-44a5-a785-6921d4ebd7a3"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-aac3a432-d326-48ed-a4ea-760b0ae2472a"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-93b42f19-9820-4481-8790-264455a0385e"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-47698fe4-d249-4750-b970-8dce220e9747"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-5da11ee1-0e75-4881-80a9-7fdd3478c220"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-0bac5db3-431c-42df-8149-c77d230ae742",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-e21582f2-a99f-4c18-a10d-639446c80973"
+    }
+  ]
+}

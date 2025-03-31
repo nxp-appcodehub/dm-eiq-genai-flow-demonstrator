@@ -1,0 +1,75 @@
+From ba14ba00432f0af50403df495ca7b1590fc7e1a9 Mon Sep 17 00:00:00 2001
+From: "Jiwei.Fu" <jiwei.fu@nxp.com>
+Date: Fri, 14 Feb 2025 15:58:49 +0800
+Subject: [PATCH 1/4] AIR-12578-1 arm64: dts: Add specific neutron dts for
+ imx95
+
+Add specific dts to reserve more large size memory for Neutron NPU device.
+
+Upstream-Status: Pending
+
+Signed-off-by: Jiwei.Fu <jiwei.fu@nxp.com>
+Reviewed-by: Forrest Shi <xuelin.shi@nxp.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/Makefile        |  6 +++++
+ .../freescale/imx95-19x19-evk-neutron.dtso    | 23 +++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/freescale/imx95-19x19-evk-neutron.dtso
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index 3ca040ceada7..fa76f33d4a2f 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -630,6 +630,9 @@ imx95-15x15-evk-ox03c10-isp-adv7535-dtbs := imx95-15x15-evk-adv7535.dtb \
+ 					    imx95-15x15-evk-ox03c10.dtbo \
+ 					    imx95-19x19-evk-neoisp.dtbo
+ dtb-$(CONFIG_ARCH_MXC) += imx95-15x15-evk-ox03c10-isp-adv7535.dtb
++imx95-15x15-evk-neutron-dtbs := imx95-15x15-evk.dtb imx95-19x19-evk-neutron.dtbo
++dtb-$(CONFIG_ARCH_MXC) += imx95-15x15-evk-neutron.dtb
++
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-evk-sof-wm8962.dtb
+ 
+ imx95-19x19-evk-pcie1-ep-dtbs := imx95-19x19-evk.dtb imx95-19x19-evk-pcie1-ep.dtbo
+@@ -751,6 +754,9 @@ imx95-19x19-evk-ox05b1s-isp-lvds-dual-dtbs := imx95-19x19-evk-neoisp.dtb imx95-1
+ 							  imx95-19x19-evk-it6263-lvds-dual.dtbo
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-evk-ox05b1s-isp-lvds-dual.dtb
+ 
++imx95-19x19-evk-neutron-dtbs := imx95-19x19-evk.dtb imx95-19x19-evk-neutron.dtbo
++dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-evk-neutron.dtb
++
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-verdin.dtb
+ DTC_FLAGS_imx95-19x19-verdin-rpmsg := -@
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-verdin-rpmsg.dtb
+diff --git a/arch/arm64/boot/dts/freescale/imx95-19x19-evk-neutron.dtso b/arch/arm64/boot/dts/freescale/imx95-19x19-evk-neutron.dtso
+new file mode 100644
+index 000000000000..91b44a3050d7
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx95-19x19-evk-neutron.dtso
+@@ -0,0 +1,23 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Copyright 2025 NXP
++ */
++
++/dts-v1/;
++/plugin/;
++
++
++&{/reserved-memory} {
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	neutron_mem: neutron_memory@100000000 {
++		compatible = "shared-dma-pool";
++		reusable;
++		reg = <0x1 0x00000000 0x1 0x00000000>;
++	};
++};
++
++&neutron {
++	memory-region = <&neutron_mem>;
++};
+-- 
+2.34.1
+

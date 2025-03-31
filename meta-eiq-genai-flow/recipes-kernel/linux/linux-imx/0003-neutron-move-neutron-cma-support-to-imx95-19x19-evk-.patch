@@ -1,0 +1,33 @@
+From e303fabb3da9c9d648c9ed854dedbd4b7fd7b49a Mon Sep 17 00:00:00 2001
+From: Pierre Moos <pierre.moos_1@nxp.com>
+Date: Thu, 6 Mar 2025 08:59:42 +0100
+Subject: [PATCH 3/4] neutron: move neutron cma support to
+ imx95-19x19-evk-adv7535-ap1302-neutron-dtbs.dtb
+
+Upstream-Status: Pending
+
+Signed-off-by: Pierre Moos <pierre.moos_1@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/Makefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index fa76f33d4a2f..ec76cd455a2a 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -757,6 +757,12 @@ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-evk-ox05b1s-isp-lvds-dual.dtb
+ imx95-19x19-evk-neutron-dtbs := imx95-19x19-evk.dtb imx95-19x19-evk-neutron.dtbo
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-evk-neutron.dtb
+ 
++imx95-19x19-evk-adv7535-ap1302-neutron-dtbs := imx95-19x19-evk.dtb \
++                                      imx95-19x19-evk-adv7535.dtbo \
++                                      imx95-19x19-evk-ap1302.dtbo \
++                                      imx95-19x19-evk-neutron.dtbo
++dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-evk-adv7535-ap1302-neutron.dtb
++
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-verdin.dtb
+ DTC_FLAGS_imx95-19x19-verdin-rpmsg := -@
+ dtb-$(CONFIG_ARCH_MXC) += imx95-19x19-verdin-rpmsg.dtb
+-- 
+2.34.1
+

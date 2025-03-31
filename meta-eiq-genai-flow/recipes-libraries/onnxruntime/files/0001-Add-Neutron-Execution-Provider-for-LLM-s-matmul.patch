@@ -1,0 +1,3551 @@
+From 547ac966992b9db65e1f99cd42e5dfefa961b26d Mon Sep 17 00:00:00 2001
+From: Joshua Puerta <joshua.puerta@nxp.com>
+Date: Tue, 14 May 2024 06:28:11 +0200
+Subject: [PATCH] Add Neutron Execution Provider for LLM's matmul
+
+Implement original CMA allocation scheme i.e. only when NeutonEP is used.
+- Defaults to 3 slots of 512MB for a total of 1.5 GB.
+- Overwriteable using NEUTRON_CMA_512SLOTS environment variable, supports
+between 1 and 6 slots.
+
+Upstream-Status: Submitted
+---
+ .gitignore                                    |   1 +
+ cmake/CMakeLists.txt                          |   6 +
+ cmake/onnxruntime.cmake                       |   1 +
+ cmake/onnxruntime_providers.cmake             |   6 +
+ cmake/onnxruntime_providers_neutron.cmake     |  38 ++
+ cmake/onnxruntime_python.cmake                |  11 +
+ cmake/onnxruntime_unittests.cmake             |  20 +
+ .../onnxruntime/core/framework/allocator.h    |   2 +
+ .../core/framework/op_kernel_context.h        |   2 +
+ .../onnxruntime/core/framework/ortdevice.h    |   1 +
+ include/onnxruntime/core/graph/constants.h    |   1 +
+ .../neutron/neutron_provider_factory.h        |  24 +
+ onnxruntime/core/framework/allocator.cc       |   4 +
+ onnxruntime/core/framework/execution_frame.cc |   9 +
+ onnxruntime/core/framework/execution_frame.h  |   2 +
+ onnxruntime/core/framework/op_kernel.cc       |  10 +
+ .../framework/op_kernel_context_internal.h    |   4 +
+ .../core/framework/sequential_executor.cc     |  18 +
+ .../core/optimizer/graph_transformer_utils.cc |   4 +-
+ .../core/optimizer/matmul_integer_to_float.cc |   5 +-
+ .../core/optimizer/transformer_memcpy.cc      |   5 +
+ .../core/providers/get_execution_providers.cc |   8 +
+ onnxruntime/core/providers/neutron/README.md  |   7 +
+ .../providers/neutron/neutron_allocator.cc    | 141 +++++
+ .../providers/neutron/neutron_allocator.h     |  47 ++
+ .../neutron/neutron_execution_provider.cc     | 133 +++++
+ .../neutron/neutron_execution_provider.h      |  28 +
+ .../core/providers/neutron/neutron_fwd.h      |  10 +
+ .../core/providers/neutron/neutron_kernel.h   |  31 ++
+ .../neutron/neutron_provider_factory.cc       |  34 ++
+ .../neutron_provider_factory_creator.h        |  13 +
+ .../core/providers/neutron/ops/common.h       |  48 ++
+ .../neutron/ops/dequantize_linear.cc          | 119 +++++
+ .../providers/neutron/ops/dequantize_linear.h |  33 ++
+ .../providers/neutron/ops/matmul_integer.cc   | 344 ++++++++++++
+ .../providers/neutron/ops/matmul_integer.h    |  54 ++
+ .../neutron/ops/matmul_integer_to_float.cc    | 502 ++++++++++++++++++
+ .../neutron/ops/matmul_integer_to_float.h     |  82 +++
+ .../providers/neutron/ops/qlinear_matmul.cc   | 358 +++++++++++++
+ .../providers/neutron/ops/qlinear_matmul.h    | 198 +++++++
+ .../providers/neutron/ops/quantize_linear.cc  | 144 +++++
+ .../providers/neutron/ops/quantize_linear.h   |  37 ++
+ .../neutron/platform/NeutronDriver.h          | 213 ++++++++
+ .../neutron/platform/NeutronErrors.h          |  45 ++
+ .../core/providers/neutron/platform/README.md |   3 +
+ .../core/providers/neutron/symbols.txt        |   1 +
+ .../providers/provider_factory_creators.h     |   4 +
+ .../providers/shared_library/provider_api.h   |   1 +
+ .../python/onnxruntime_pybind_state.cc        |   5 +
+ onnxruntime/test/onnx/TestCase.cc             |   2 +-
+ onnxruntime/test/onnx/main.cc                 |  15 +-
+ .../test/perftest/command_args_parser.cc      |   6 +-
+ onnxruntime/test/perftest/ort_test_session.cc |  11 +
+ onnxruntime/test/providers/base_tester.cc     |   2 +
+ onnxruntime/test/util/default_providers.cc    |   9 +
+ .../test/util/include/default_providers.h     |   2 +
+ onnxruntime/test/util/include/providers.h     |   3 +
+ 57 files changed, 2859 insertions(+), 8 deletions(-)
+ create mode 100644 cmake/onnxruntime_providers_neutron.cmake
+ create mode 100644 include/onnxruntime/core/providers/neutron/neutron_provider_factory.h
+ create mode 100644 onnxruntime/core/providers/neutron/README.md
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_allocator.cc
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_allocator.h
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_execution_provider.cc
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_execution_provider.h
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_fwd.h
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_kernel.h
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_provider_factory.cc
+ create mode 100644 onnxruntime/core/providers/neutron/neutron_provider_factory_creator.h
+ create mode 100644 onnxruntime/core/providers/neutron/ops/common.h
+ create mode 100644 onnxruntime/core/providers/neutron/ops/dequantize_linear.cc
+ create mode 100644 onnxruntime/core/providers/neutron/ops/dequantize_linear.h
+ create mode 100644 onnxruntime/core/providers/neutron/ops/matmul_integer.cc
+ create mode 100644 onnxruntime/core/providers/neutron/ops/matmul_integer.h
+ create mode 100644 onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.cc
+ create mode 100644 onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.h
+ create mode 100644 onnxruntime/core/providers/neutron/ops/qlinear_matmul.cc
+ create mode 100644 onnxruntime/core/providers/neutron/ops/qlinear_matmul.h
+ create mode 100644 onnxruntime/core/providers/neutron/ops/quantize_linear.cc
+ create mode 100644 onnxruntime/core/providers/neutron/ops/quantize_linear.h
+ create mode 100644 onnxruntime/core/providers/neutron/platform/NeutronDriver.h
+ create mode 100644 onnxruntime/core/providers/neutron/platform/NeutronErrors.h
+ create mode 100644 onnxruntime/core/providers/neutron/platform/README.md
+ create mode 100644 onnxruntime/core/providers/neutron/symbols.txt
+
+diff --git a/.gitignore b/.gitignore
+index 4d0a1205b7..973fc10e92 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,6 +1,7 @@
+ # build, distribute, and bins (+ python proto bindings)
+ build
+ build_*/
++_build*/
+ .build_debug/*
+ .build_release/*
+ distribute/*
+diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
+index 9459b11f9b..409ef168c8 100644
+--- a/cmake/CMakeLists.txt
++++ b/cmake/CMakeLists.txt
+@@ -148,6 +148,7 @@ option(onnxruntime_TVM_USE_HASH "Build ipp-crypto library for support hash algor
+ option(onnxruntime_USE_XNNPACK "Build with XNNPACK support. Provides an alternative math library on ARM, WebAssembly and x86." OFF)
+ option(onnxruntime_USE_WEBNN "Build with WebNN support. Enable hardware acceleration in web browsers." OFF)
+ option(onnxruntime_USE_WEBGPU "Build with WebGPU support. Enable WebGPU via C/C++ interface." OFF)
++option(onnxruntime_USE_NEUTRON "[Experimental] Build with Neutron support." OFF)
+ 
+ # Options related to reducing the binary size produced by the build
+ # XNNPACK EP requires the internal NHWC contrib ops to be available, so this option must be OFF when onnxruntime_USE_XNNPACK is ON
+@@ -959,6 +960,11 @@ if (onnxruntime_USE_AZURE)
+     list(APPEND ORT_PROVIDER_CMAKE_FLAGS -Donnxruntime_USE_AZURE=1)
+     list(APPEND ONNXRUNTIME_PROVIDER_NAMES azure)
+ endif()
++if (onnxruntime_USE_NEUTRON)
++    list(APPEND ORT_PROVIDER_FLAGS  -DUSE_NEUTRON=1)
++    list(APPEND ORT_PROVIDER_CMAKE_FLAGS -Donnxruntime_USE_NEUTRON=1)
++    list(APPEND ONNXRUNTIME_PROVIDER_NAMES neutron)
++endif()
+ if (onnxruntime_USE_LOCK_FREE_QUEUE)
+     add_compile_definitions(USE_LOCK_FREE_QUEUE)
+ endif()
+diff --git a/cmake/onnxruntime.cmake b/cmake/onnxruntime.cmake
+index 9602e54f3b..3d71fb867d 100644
+--- a/cmake/onnxruntime.cmake
++++ b/cmake/onnxruntime.cmake
+@@ -215,6 +215,7 @@ set(onnxruntime_INTERNAL_LIBRARIES
+   ${PROVIDERS_WEBGPU}
+   ${PROVIDERS_WEBNN}
+   ${PROVIDERS_AZURE}
++  ${PROVIDERS_NEUTRON}
+   ${PROVIDERS_INTERNAL_TESTING}
+   ${onnxruntime_winml}
+   onnxruntime_optimizer
+diff --git a/cmake/onnxruntime_providers.cmake b/cmake/onnxruntime_providers.cmake
+index 9666877cdc..472128e0cd 100644
+--- a/cmake/onnxruntime_providers.cmake
++++ b/cmake/onnxruntime_providers.cmake
+@@ -119,6 +119,9 @@ endif()
+ if (onnxruntime_USE_AZURE)
+   set(PROVIDERS_AZURE onnxruntime_providers_azure)
+ endif()
++if (onnxruntime_USE_NEUTRON)
++  set(PROVIDERS_NEUTRON onnxruntime_providers_neutron)
++endif()
+ 
+ 
+ if(onnxruntime_USE_SNPE)
+@@ -213,3 +216,6 @@ endif()
+ if (onnxruntime_USE_AZURE)
+   include(onnxruntime_providers_azure.cmake)
+ endif()
++if (onnxruntime_USE_NEUTRON)
++  include(onnxruntime_providers_neutron.cmake)
++endif()
+diff --git a/cmake/onnxruntime_providers_neutron.cmake b/cmake/onnxruntime_providers_neutron.cmake
+new file mode 100644
+index 0000000000..eb56893b24
+--- /dev/null
++++ b/cmake/onnxruntime_providers_neutron.cmake
+@@ -0,0 +1,38 @@
++# Copyright (c) NXP. All rights reserved.
++
++add_definitions(-DUSE_NEUTRON=1)
++file(GLOB_RECURSE onnxruntime_providers_neutron_srcs
++  "${ONNXRUNTIME_ROOT}/core/providers/neutron/*.h"
++  "${ONNXRUNTIME_ROOT}/core/providers/neutron/*.cc"
++)
++
++source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_neutron_srcs})
++onnxruntime_add_static_library(onnxruntime_providers_neutron ${onnxruntime_providers_neutron_srcs})
++onnxruntime_add_include_to_target(onnxruntime_providers_neutron
++  onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 safeint_interface
++)
++
++if(CMAKE_CROSSCOMPILING AND ("$ENV{OECORE_TARGET_ARCH}" MATCHES "aarch64" OR "${CMAKE_SYSTEM_PROCESSOR}" MATCHES "aarch64"))
++  message(STATUS " Target arch: $ENV{OECORE_TARGET_ARCH}")
++  add_definitions(-DNEUTRON_AARCH64=1)
++  target_link_libraries(onnxruntime_providers_neutron
++    PRIVATE ${ONNXRUNTIME_ROOT}/core/providers/neutron/platform/libNeutronDriver.a)
++endif()
++
++add_dependencies(onnxruntime_providers_neutron ${onnxruntime_EXTERNAL_DEPENDENCIES})
++set_target_properties(onnxruntime_providers_neutron PROPERTIES FOLDER "ONNXRuntime")
++target_include_directories(onnxruntime_providers_neutron PRIVATE
++  ${ONNXRUNTIME_ROOT} ${eigen_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
++)
++install(FILES ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/neutron/neutron_provider_factory.h
++  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/)
++
++set_target_properties(onnxruntime_providers_neutron PROPERTIES LINKER_LANGUAGE CXX)
++
++if (NOT onnxruntime_BUILD_SHARED_LIB)
++  install(TARGETS onnxruntime_providers_neutron
++          ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
++          LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
++          RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
++          FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
++endif()
+diff --git a/cmake/onnxruntime_python.cmake b/cmake/onnxruntime_python.cmake
+index 0d038d210e..85ea883f09 100644
+--- a/cmake/onnxruntime_python.cmake
++++ b/cmake/onnxruntime_python.cmake
+@@ -181,6 +181,7 @@ target_link_libraries(onnxruntime_pybind11_state PRIVATE
+     ${PROVIDERS_WEBGPU}
+     ${PROVIDERS_AZURE}
+     ${PROVIDERS_QNN}
++    ${PROVIDERS_NEUTRON}
+     onnxruntime_optimizer
+     onnxruntime_providers
+     onnxruntime_util
+@@ -1050,4 +1051,14 @@ if (onnxruntime_USE_QNN)
+   endif()
+ endif()
+ 
++if (onnxruntime_USE_NEUTRON)
++  add_custom_command(
++    TARGET onnxruntime_pybind11_state POST_BUILD
++    COMMAND ${CMAKE_COMMAND} -E copy
++        $<TARGET_FILE:onnxruntime_providers_neutron>
++        $<TARGET_FILE_DIR:${build_output_target}>/onnxruntime/capi/
++  )
++endif()
++
++
+ endif()
+diff --git a/cmake/onnxruntime_unittests.cmake b/cmake/onnxruntime_unittests.cmake
+index 087fc7d3f8..17ab8bf98e 100644
+--- a/cmake/onnxruntime_unittests.cmake
++++ b/cmake/onnxruntime_unittests.cmake
+@@ -622,6 +622,10 @@ if(onnxruntime_USE_ARMNN)
+   list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_armnn)
+ endif()
+ 
++if(onnxruntime_USE_NEUTRON)
++  list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_neutron)
++endif()
++
+ set(ONNXRUNTIME_TEST_LIBS
+     onnxruntime_session
+     ${ONNXRUNTIME_INTEROP_TEST_LIBS}
+@@ -641,6 +645,7 @@ set(ONNXRUNTIME_TEST_LIBS
+     # ${PROVIDERS_TVM}
+     ${PROVIDERS_XNNPACK}
+     ${PROVIDERS_AZURE}
++    ${PROVIDERS_NEUTRON}
+     onnxruntime_optimizer
+     onnxruntime_providers
+     onnxruntime_util
+@@ -746,6 +751,13 @@ if(onnxruntime_USE_AZURE)
+   list(APPEND onnxruntime_test_providers_libs onnxruntime_providers_azure)
+ endif()
+ 
++if(onnxruntime_USE_NEUTRON)
++  list(APPEND onnxruntime_test_framework_src_patterns  ${TEST_SRC_DIR}/providers/neutron/*)
++  list(APPEND onnxruntime_test_framework_libs onnxruntime_providers_neutron)
++  list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_neutron)
++  list(APPEND onnxruntime_test_providers_libs onnxruntime_providers_neutron)
++endif()
++
+ if(WIN32)
+   if (onnxruntime_USE_TVM)
+     list(APPEND disabled_warnings ${DISABLED_WARNINGS_FOR_TVM})
+@@ -1009,6 +1021,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+   set_property(TARGET onnxruntime_test_all APPEND_STRING PROPERTY LINK_FLAGS " -s ASSERTIONS=0 -s SAFE_HEAP=0 -s STACK_OVERFLOW_CHECK=1")
+ endif()
+ 
++if(onnxruntime_USE_NEUTRON)
++  if("$ENV{OECORE_TARGET_ARCH}" MATCHES "aarch64")
++    message(STATUS " Link Neutron specific libs to onnxruntime_test_all")
++    target_link_libraries(onnxruntime_test_all
++      PRIVATE ${ONNXRUNTIME_ROOT}/core/providers/neutron/platform/libNeutronDriver.a)
++  endif()
++endif()
++
+ if (onnxruntime_ENABLE_ATEN)
+   target_compile_definitions(onnxruntime_test_all PRIVATE ENABLE_ATEN)
+ endif()
+diff --git a/include/onnxruntime/core/framework/allocator.h b/include/onnxruntime/core/framework/allocator.h
+index 57b332ce65..7a3d5ee9ea 100644
+--- a/include/onnxruntime/core/framework/allocator.h
++++ b/include/onnxruntime/core/framework/allocator.h
+@@ -54,6 +54,8 @@ constexpr const char* OpenVINO_RT = "OpenVINO_RT";
+ constexpr const char* OpenVINO_RT_NPU = "OpenVINO_RT_NPU";
+ constexpr const char* WEBGPU_BUFFER = "WebGPU_Buffer";
+ constexpr const char* WEBNN_TENSOR = "WebNN_Tensor";
++constexpr const char* NEUTRON = "Neutron";
++constexpr const char* NEUTRON_PINNED = "NeutronPinned";
+ 
+ constexpr size_t kAllocAlignment = 256;
+ 
+diff --git a/include/onnxruntime/core/framework/op_kernel_context.h b/include/onnxruntime/core/framework/op_kernel_context.h
+index ac22d91309..799bc824c2 100644
+--- a/include/onnxruntime/core/framework/op_kernel_context.h
++++ b/include/onnxruntime/core/framework/op_kernel_context.h
+@@ -186,6 +186,8 @@ class OpKernelContext {
+   */
+   AllocatorPtr GetAllocator(const OrtDevice& device) const;
+ 
++  Status ForceMLValue(int index, const OrtValue& ort_value);
++
+  protected:
+   OpKernelContext(concurrency::ThreadPool* threadpool, const logging::Logger& logger, Stream* stream);
+ 
+diff --git a/include/onnxruntime/core/framework/ortdevice.h b/include/onnxruntime/core/framework/ortdevice.h
+index f15543f22f..ce98ee3e7e 100644
+--- a/include/onnxruntime/core/framework/ortdevice.h
++++ b/include/onnxruntime/core/framework/ortdevice.h
+@@ -24,6 +24,7 @@ struct OrtDevice {
+     static const MemoryType CUDA_PINNED = 1;
+     static const MemoryType HIP_PINNED = 2;
+     static const MemoryType CANN_PINNED = 3;
++    static const MemoryType NEUTRON_PINNED = 4;
+   };
+ 
+   constexpr OrtDevice(DeviceType device_type_, MemoryType memory_type_, DeviceId device_id_)
+diff --git a/include/onnxruntime/core/graph/constants.h b/include/onnxruntime/core/graph/constants.h
+index f072badd19..7da8fc08f4 100644
+--- a/include/onnxruntime/core/graph/constants.h
++++ b/include/onnxruntime/core/graph/constants.h
+@@ -54,6 +54,7 @@ constexpr const char* kWebGpuExecutionProvider = "WebGpuExecutionProvider";
+ constexpr const char* kCannExecutionProvider = "CANNExecutionProvider";
+ constexpr const char* kAzureExecutionProvider = "AzureExecutionProvider";
+ constexpr const char* kVSINPUExecutionProvider = "VSINPUExecutionProvider";
++constexpr const char* kNeutronExecutionProvider = "NeutronExecutionProvider";
+ 
+ constexpr const char* kExecutionProviderSharedLibraryPath = "shared_lib_path";
+ constexpr const char* kExecutionProviderSharedLibraryEntry = "provider_factory_entry_point";
+diff --git a/include/onnxruntime/core/providers/neutron/neutron_provider_factory.h b/include/onnxruntime/core/providers/neutron/neutron_provider_factory.h
+new file mode 100644
+index 0000000000..0aa934dfce
+--- /dev/null
++++ b/include/onnxruntime/core/providers/neutron/neutron_provider_factory.h
+@@ -0,0 +1,24 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "onnxruntime_c_api.h"
++
++
++enum NeutronFlags {
++  NEUTRON_FLAG_USE_NONE = 0x000,
++  NEUTRON_FLAG_USE_ARENA = 0x001,
++
++  NEUTRON_FLAG_LAST = NEUTRON_FLAG_USE_ARENA,
++};
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++ORT_EXPORT ORT_API_STATUS(OrtSessionOptionsAppendExecutionProvider_Neutron,
++                          _In_ OrtSessionOptions* options, uint32_t neutron_flags);
++
++#ifdef __cplusplus
++}
++#endif
+diff --git a/onnxruntime/core/framework/allocator.cc b/onnxruntime/core/framework/allocator.cc
+index b6dc8ad56f..71212fe1ec 100644
+--- a/onnxruntime/core/framework/allocator.cc
++++ b/onnxruntime/core/framework/allocator.cc
+@@ -158,6 +158,10 @@ ORT_API_STATUS_IMPL(OrtApis::CreateMemoryInfo, _In_ const char* name1, enum OrtA
+     *out = new OrtMemoryInfo(
+         onnxruntime::HIP_PINNED, type, OrtDevice(OrtDevice::CPU, OrtDevice::MemType::HIP_PINNED, static_cast<OrtDevice::DeviceId>(id1)),
+         id1, mem_type1);
++  } else if (strcmp(name1, onnxruntime::NEUTRON_PINNED) == 0) {
++    *out = new OrtMemoryInfo(
++        onnxruntime::NEUTRON_PINNED, type, OrtDevice(OrtDevice::CPU, OrtDevice::MemType::NEUTRON_PINNED, static_cast<OrtDevice::DeviceId>(id1)),
++        id1, mem_type1);
+   } else {
+     return OrtApis::CreateStatus(ORT_INVALID_ARGUMENT, "Specified device is not supported.");
+   }
+diff --git a/onnxruntime/core/framework/execution_frame.cc b/onnxruntime/core/framework/execution_frame.cc
+index 894e0daae9..30df846876 100644
+--- a/onnxruntime/core/framework/execution_frame.cc
++++ b/onnxruntime/core/framework/execution_frame.cc
+@@ -66,6 +66,15 @@ Status IExecutionFrame::SetOutputMLValue(int index, const OrtValue& ort_value) {
+ }
+ #endif
+ 
++Status IExecutionFrame::ForceMLValue(int index, const OrtValue& ort_value) {
++  int ort_value_idx = GetNodeIdxToMLValueIdx(index);
++  if (ort_value_idx == NodeIndexInfo::kInvalidEntry || static_cast<size_t>(ort_value_idx) >= all_values_size_) {
++    return ORT_MAKE_STATUS(ONNXRUNTIME, INVALID_ARGUMENT, "invalid index ", ort_value_idx);
++  }
++  all_values_[ort_value_idx] = ort_value;
++  return Status::OK();
++}
++
+ #ifdef ENABLE_TRAINING
+ void IExecutionFrame::UpdateFeeds(gsl::span<const int> feed_mlvalue_idxs, gsl::span<const OrtValue> feeds) {
+   ORT_ENFORCE(feed_mlvalue_idxs.size() == feeds.size());
+diff --git a/onnxruntime/core/framework/execution_frame.h b/onnxruntime/core/framework/execution_frame.h
+index de571f86f1..7ef826ab03 100644
+--- a/onnxruntime/core/framework/execution_frame.h
++++ b/onnxruntime/core/framework/execution_frame.h
+@@ -59,6 +59,8 @@ class IExecutionFrame {
+   Status SetOutputMLValue(int index, const OrtValue& ort_value);
+ #endif
+ 
++Status ForceMLValue(int index, const OrtValue& ort_value);
++
+ #ifdef ENABLE_TRAINING
+   // Referenced by PartialGraphExecutionState which is applicable when using ORTModule.
+   // These wont be needed when using ORT Training APIs
+diff --git a/onnxruntime/core/framework/op_kernel.cc b/onnxruntime/core/framework/op_kernel.cc
+index 94b6224440..3673a74393 100644
+--- a/onnxruntime/core/framework/op_kernel.cc
++++ b/onnxruntime/core/framework/op_kernel.cc
+@@ -199,4 +199,14 @@ Status OpKernelContext::SetOutputMLValue(int index, const OrtValue& ort_value) {
+ }
+ #endif
+ 
++Status OpKernelContext::ForceMLValue(int index, const OrtValue& ort_value) {
++  if (index < 0 || index >= OutputCount()) {
++    return Status(common::ONNXRUNTIME, common::FAIL,
++                  "Index out of range. " + std::to_string(index) +
++                      " was specified, but " + "range is [0, " + std::to_string(OutputCount()) + ")");
++  }
++  auto output_arg_index = GetOutputArgIndex(index);
++  return execution_frame_->ForceMLValue(output_arg_index, ort_value);
++}
++
+ }  // namespace onnxruntime
+diff --git a/onnxruntime/core/framework/op_kernel_context_internal.h b/onnxruntime/core/framework/op_kernel_context_internal.h
+index 64bd70465a..3f23d2168e 100644
+--- a/onnxruntime/core/framework/op_kernel_context_internal.h
++++ b/onnxruntime/core/framework/op_kernel_context_internal.h
+@@ -60,6 +60,10 @@ class OpKernelContextInternal : public OpKernelContext {
+   }
+ #endif
+ 
++  Status ForceMLValue(int index, const OrtValue& ort_value) {
++    return OpKernelContext::ForceMLValue(index, ort_value);
++  }
++
+   OrtValue* OutputMLValue(int index, const TensorShape& shape) override {
+     return OpKernelContext::OutputMLValue(index, shape);
+   }
+diff --git a/onnxruntime/core/framework/sequential_executor.cc b/onnxruntime/core/framework/sequential_executor.cc
+index aa762ca32f..f1bb05e623 100644
+--- a/onnxruntime/core/framework/sequential_executor.cc
++++ b/onnxruntime/core/framework/sequential_executor.cc
+@@ -15,6 +15,15 @@
+ #include "core/framework/session_state.h"
+ #include "core/framework/op_kernel_context_internal.h"
+ #include "core/framework/utils.h"
++#include <time.h>
++
++#ifndef NDEBUG
++static double time_diff2(struct timespec start_time, struct timespec end_time)
++{
++    double ns_diff = (double)(end_time.tv_sec - start_time.tv_sec) * 1e9 + (end_time.tv_nsec - start_time.tv_nsec);
++    return ns_diff / 1e3;
++}
++#endif
+ 
+ #if defined DEBUG_NODE_INPUTS_OUTPUTS
+ #include "core/framework/debug_node_inputs_outputs_utils.h"
+@@ -492,7 +501,16 @@ onnxruntime::Status ExecuteKernel(StreamExecutionContext& ctx,
+         status = kernel_ctx.SetOutputMLValue(0, cache.get()->at(cached_arg_name));
+       }
+ #else
++#ifndef NDEBUG
++      struct timespec t1, t2;
++      clock_gettime(CLOCK_REALTIME, &t1);
++#endif
+       status = p_kernel->Compute(&kernel_ctx);
++#ifndef NDEBUG
++      clock_gettime(CLOCK_REALTIME, &t2);
++      printf("%s %s:%s  %.0fus\n",  p_kernel->Info().GetExecutionProvider()->Type().c_str(), p_kernel->KernelDef().OpName().c_str(), p_kernel->Node().Name().c_str(), time_diff2(t1, t2));
++#endif
++
+ #endif
+     }
+     ORT_CATCH(const std::exception& ex) {
+diff --git a/onnxruntime/core/optimizer/graph_transformer_utils.cc b/onnxruntime/core/optimizer/graph_transformer_utils.cc
+index f769d31092..db1e0cfe16 100644
+--- a/onnxruntime/core/optimizer/graph_transformer_utils.cc
++++ b/onnxruntime/core/optimizer/graph_transformer_utils.cc
+@@ -332,8 +332,8 @@ InlinedVector<std::unique_ptr<GraphTransformer>> GenerateTransformers(
+       }
+ 
+       transformers.emplace_back(std::make_unique<GemmActivationFusion>(cpu_ep));
+-      transformers.emplace_back(std::make_unique<MatMulIntegerToFloatFusion>(cpu_dml_acl_eps));
+-      transformers.emplace_back(std::make_unique<DynamicQuantizeMatMulFusion>(cpu_acl_eps));
++      //transformers.emplace_back(std::make_unique<MatMulIntegerToFloatFusion>(cpu_dml_acl_eps));
++      //transformers.emplace_back(std::make_unique<DynamicQuantizeMatMulFusion>(cpu_acl_eps));
+ 
+       transformers.emplace_back(std::make_unique<ConvActivationFusion>(cpu_rocm_acl_armnn_js_eps));
+ 
+diff --git a/onnxruntime/core/optimizer/matmul_integer_to_float.cc b/onnxruntime/core/optimizer/matmul_integer_to_float.cc
+index 4fee1a6ce2..e9b3b3d531 100644
+--- a/onnxruntime/core/optimizer/matmul_integer_to_float.cc
++++ b/onnxruntime/core/optimizer/matmul_integer_to_float.cc
+@@ -160,8 +160,11 @@ Status MatMulIntegerToFloatFusion::ApplyImpl(Graph& graph, bool& modified, int g
+                                      p_add_node != nullptr ? p_add_node->MutableOutputDefs() : mul_node.MutableOutputDefs(),
+                                      nullptr,
+                                      kMSDomain);
++
++    //printf("%s\n", matmulinteger_node.GetExecutionProviderType().c_str());
++
+     // Assign provider to this new node. Provider should be same as the provider for old node.
+-    fused_node.SetExecutionProviderType(mul_node.GetExecutionProviderType());
++    fused_node.SetExecutionProviderType(matmulinteger_node.GetExecutionProviderType());
+ 
+     nodes_to_remove.push_back(matmulinteger_node);
+     nodes_to_remove.push_back(cast_node);
+diff --git a/onnxruntime/core/optimizer/transformer_memcpy.cc b/onnxruntime/core/optimizer/transformer_memcpy.cc
+index f1e94dd4fe..318864143a 100644
+--- a/onnxruntime/core/optimizer/transformer_memcpy.cc
++++ b/onnxruntime/core/optimizer/transformer_memcpy.cc
+@@ -6,6 +6,7 @@
+ #include "core/framework/kernel_registry_manager.h"
+ #include "core/framework/execution_providers.h"
+ #include "core/framework/utils.h"
++#include "core/graph/constants.h"
+ 
+ using namespace ONNX_NAMESPACE;
+ namespace onnxruntime {
+@@ -262,6 +263,10 @@ void TransformerMemcpyImpl::ProcessDefs(onnxruntime::Node& node, const KernelReg
+         !node_provider_type.empty()) {
+       ORT_THROW("Execution type '", node_provider_type, "' doesn't support memcpy ");
+     }
++    if (node_provider_type != kNeutronExecutionProvider) {
++      // Neutron: Avoid adding copy ops even if first node is neutron (probably cpu alloc)
++      return;
++    }
+ 
+     for (const auto* arg : node.InputDefs()) {
+       if (arg->Exists())
+diff --git a/onnxruntime/core/providers/get_execution_providers.cc b/onnxruntime/core/providers/get_execution_providers.cc
+index d2a72c3a38..f1e8959f6c 100644
+--- a/onnxruntime/core/providers/get_execution_providers.cc
++++ b/onnxruntime/core/providers/get_execution_providers.cc
+@@ -194,6 +194,14 @@ constexpr ProviderInfo kProvidersInPriorityOrder[] =
+             true,
+ #else
+             false,
++#endif
++        },
++        {
++            kNeutronExecutionProvider,
++#ifdef USE_NEUTRON
++            true,
++#else
++            false,
+ #endif
+         },
+         {kCpuExecutionProvider, true},  // kCpuExecutionProvider is always last
+diff --git a/onnxruntime/core/providers/neutron/README.md b/onnxruntime/core/providers/neutron/README.md
+new file mode 100644
+index 0000000000..fdd5a82114
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/README.md
+@@ -0,0 +1,7 @@
++# Neutron Execution Provider
++
++Minimal execution provider to prove LLM execution through ONNXRT
++
++neutron: common ep related files
++* platform: Neutron-software/platform specific related elements
++* ops: implemented ops in neutron and/or cpu with neutron memory management
+diff --git a/onnxruntime/core/providers/neutron/neutron_allocator.cc b/onnxruntime/core/providers/neutron/neutron_allocator.cc
+new file mode 100644
+index 0000000000..da636b6fc4
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_allocator.cc
+@@ -0,0 +1,141 @@
++// Copyright (c) NXP. All rights reserved.
++
++#include <sys/mman.h>
++#include <cstddef>
++
++#include "core/providers/neutron/neutron_allocator.h"
++#include "core/common/logging/logging.h"
++#if NEUTRON_AARCH64
++#include "core/providers/neutron/platform/NeutronDriver.h"
++#endif
++
++namespace onnxruntime {
++
++inline size_t getAlignedSize(size_t size) {
++  size_t mod = size % kDefaultTensorAlignment;
++  return mod ? (size + kDefaultTensorAlignment - mod) : size;
++}
++
++NeutronStackAllocator::~NeutronStackAllocator() {
++  if (p_)
++    releaseBuffer(p_);
++}
++
++void NeutronStackAllocator::Init() {
++  static bool init = false;
++
++  if (!init) {
++    _Bool user = true;
++
++    // update number handles
++    char *strNumHandles = NULL;
++    strNumHandles = getenv("NEUTRON_CMA_512SLOTS");
++    if (strNumHandles) {
++        size_t num;
++        if (sscanf(strNumHandles, "%ld", &num) == 1) {
++            if (num >= 1 && num <= NEUTRON_MAX_512MB_SLOTS)
++                neutronNumHandles = num;
++        }
++    }
++
++    size_t fullNeutronBufferSize = neutronNumHandles * kBoundaryNeutronBufferSize;
++
++
++    printf("[NeutronEP:Allocator] CMA %s memory %ld MB\n", user ? "userspace" : "kernel", (fullNeutronBufferSize/1024/1024));
++
++    NeutronError ret = allocateBuffer(fullNeutronBufferSize, (void **)&p_, user);
++    if (ret != ENONE)
++      return;
++
++#ifndef NDEBUG
++    printf("NeutronEP: allocated memory %p %ld MB\n", p_ , (fullNeutronBufferSize/1024/1024));
++#endif
++
++    for (size_t i = 0; i < neutronNumHandles; i++) {
++      neutron_ptr_[i] = p_ + i * kBoundaryNeutronBufferSize;
++      size_t rest = fullNeutronBufferSize - i * kBoundaryNeutronBufferSize;
++      neutron_size_[i] =  rest >=  kBoundaryNeutronBufferSize ? kBoundaryNeutronBufferSize : (uint32_t) rest;
++
++      printf("[NeutronEP:Allocator] %ld %p %ld MB\n", i, neutron_ptr_[i], (long)(neutron_size_[i]/1024/1024));
++    }
++
++    init = true;
++  }
++}
++
++size_t NeutronStackAllocator::getMemoryHandle() {
++  size_t largest_pos = 0;
++  for (size_t i = 1; i < neutronNumHandles; i++)
++    if (neutron_size_[i] > neutron_size_[largest_pos])
++      largest_pos = i;
++  return largest_pos;
++}
++
++void* NeutronStackAllocator::Alloc(size_t size, size_t handle) {
++
++  if (p_ == NULL) {
++    throw std::bad_alloc();
++  }
++
++  size = getAlignedSize(size);
++  if (neutron_size_[handle] < (kReservedNeutronBufferSize + size)) {
++#ifndef NDEBUG
++    printf("NeutronEP: %s handle[%02ld] %p 0x%08lx bytes, remaining 0x%08lx bytes\n",
++      "ToCPU", handle, neutron_ptr_[handle], size, neutron_size_[handle] - kReservedNeutronBufferSize);
++#endif
++    throw std::bad_alloc();
++  }
++
++#ifndef NDEBUG
++    static int i = 1;
++    printf("NeutronEP: %d allocated handle[%02ld] %p 0x%08lx bytes, remaining 0x%08lx bytes\n",
++       i, handle, neutron_ptr_[handle], size, neutron_size_[handle] - size - kReservedNeutronBufferSize);
++    i++;
++#endif
++
++    void* tmp = neutron_ptr_[handle];
++    neutron_ptr_[handle] += size;
++    neutron_size_[handle] -= size;
++
++    return tmp;
++}
++
++void* NeutronStackAllocator::AllocReserved(size_t size, size_t handle) {
++  size = getAlignedSize(size);
++  if (neutron_size_[handle] < size) {
++#ifndef NDEBUG
++    printf("NeutronEP: reservation exception handle[%ld] %p %10ld bytes, space %12ld bytes\n",
++       handle, neutron_ptr_[handle], size, neutron_size_[handle]);
++#endif
++    throw std::bad_alloc();
++  }
++
++#ifndef NDEBUG
++  printf("NeutronEP: reserved handle[%ld] %p %10ld bytes, remaining handle %12ld bytes\n",
++      handle, neutron_ptr_[handle], size, neutron_size_[handle] - size);
++#endif
++
++  void* tmp = neutron_ptr_[handle];
++  neutron_ptr_[handle] += size;
++  neutron_size_[handle] -= size;
++  return tmp;
++}
++
++void NeutronStackAllocator::pushMemoryState(size_t handle) {
++  past_ptrs_.push_back(neutron_ptr_[handle]);
++  past_sizes_.push_back(neutron_size_[handle]);
++}
++
++void NeutronStackAllocator::popMemoryState(size_t handle) {
++  neutron_ptr_[handle] = past_ptrs_.back();
++  past_ptrs_.pop_back();
++  neutron_size_[handle] = past_sizes_.back();
++  past_sizes_.pop_back();
++
++#ifndef NDEBUG
++  printf("NeutronEP: restored handle[%ld] %p %10ld bytes, remaining %12ld bytes\n",
++      handle, neutron_ptr_[handle], (long)0, neutron_size_[handle]);
++#endif
++}
++
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/neutron_allocator.h b/onnxruntime/core/providers/neutron/neutron_allocator.h
+new file mode 100644
+index 0000000000..c657c3d46a
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_allocator.h
+@@ -0,0 +1,47 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include <cstdlib>
++#include <stdint.h>
++#include <vector>
++
++#define NEUTRON_DEFAULT_512MB_SLOTS 3
++#define NEUTRON_MAX_512MB_SLOTS 6
++
++namespace onnxruntime {
++
++constexpr size_t kDefaultTensorAlignment = 64;
++constexpr size_t kBoundaryNeutronBufferSize = 512 * 1024 * 1024;
++constexpr size_t kReservedNeutronBufferSize = 128 * 1024 * 1024;
++constexpr size_t kMaxNeutronNumHandles = NEUTRON_MAX_512MB_SLOTS;
++
++class NeutronStackAllocator {
++public:
++  void Init();
++
++  // The first operation. Picks the memory slot with most free space.
++  size_t getMemoryHandle();
++
++  // Memory allocation within given
++  void* Alloc(size_t size, size_t handle);
++  void* AllocReserved(size_t size, size_t handle);
++
++  // Remember current allocations.
++  void pushMemoryState(size_t handle);
++
++  // Releases all allocations since the last push.
++  void popMemoryState(size_t handle);
++
++  ~NeutronStackAllocator();
++
++private:
++  uint8_t* p_{NULL};
++  size_t neutronNumHandles{NEUTRON_DEFAULT_512MB_SLOTS};
++  uint8_t* neutron_ptr_[kMaxNeutronNumHandles];
++  size_t   neutron_size_[kMaxNeutronNumHandles];
++  std::vector<uint8_t*> past_ptrs_;
++  std::vector<size_t> past_sizes_;
++};
++
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/neutron_execution_provider.cc b/onnxruntime/core/providers/neutron/neutron_execution_provider.cc
+new file mode 100644
+index 0000000000..8e8775358b
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_execution_provider.cc
+@@ -0,0 +1,133 @@
++// Copyright (c) NXP. All rights reserved.
++
++/* Include `provider_api.h` first to avoid funny inclusion issues */
++//#include "core/providers/shared_library/provider_api.h"
++/* other headers */
++#include "core/providers/neutron/neutron_execution_provider.h"
++#include "core/providers/neutron/neutron_allocator.h"
++#include "core/providers/neutron/neutron_provider_factory.h"
++#include "core/framework/kernel_registry.h"
++
++#include "core/framework/op_kernel.h"
++#include "core/providers/neutron/neutron_fwd.h"
++
++using namespace onnxruntime::common;
++
++namespace {
++struct KernelRegistryAndStatus {
++  std::shared_ptr<onnxruntime::KernelRegistry> kernel_registry = std::make_shared<onnxruntime::KernelRegistry>();
++  onnxruntime::Status st;
++};
++}  // namespace
++
++namespace onnxruntime {
++
++namespace neutron {
++
++std::shared_ptr<NeutronStackAllocator> neutronAlloc(new NeutronStackAllocator());
++
++class ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 13, 18, uint8_t,
++                                                      DequantizeLinear);
++class ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 13, 18, int8_t,
++                                                      DequantizeLinear);
++class ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 13, 18, int32_t,
++                                                      DequantizeLinear);
++
++class ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 19, uint8_t, float,
++                                                      DequantizeLinear);
++class ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 19, int8_t, float,
++                                                      DequantizeLinear);
++class ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 19, int32_t, float,
++                                                      DequantizeLinear);
++
++class ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 13, 18, uint8_t,
++                                                      QuantizeLinear);
++class ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 13, 18, int8_t,
++                                                      QuantizeLinear);
++
++class ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 19, uint8_t, float,
++                                                      QuantizeLinear);
++class ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 19, int8_t, float,
++                                                      QuantizeLinear);
++
++class ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 10, int8_t,
++                                                      QLinearMatMul);
++class ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 10, uint8_t,
++                                                      QLinearMatMul);
++
++class ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kMSDomain, 1, uint8_t, MatMulIntegerToFloat);
++class ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kMSDomain, 1, int8_t, MatMulIntegerToFloat);
++
++class ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 10, uint8_t, MatMulInteger);
++class ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(kNeutronExecutionProvider, kOnnxDomain, 10, int8_t, MatMulInteger);
++
++static Status RegisterNeutronKernels(KernelRegistry& kernel_registry) {
++  static const BuildKernelCreateInfoFn function_table[] = {
++    BuildKernelCreateInfo<ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 13, 18, uint8_t,DequantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 13, 18, int8_t, DequantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 13, 18, int32_t, DequantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 19, uint8_t, float, DequantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 19, int8_t, float, DequantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 19, int32_t, float, DequantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 13, 18, uint8_t, QuantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 13, 18, int8_t, QuantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 19, uint8_t, float, QuantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TWO_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 19, int8_t, float, QuantizeLinear)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 10, int8_t, QLinearMatMul)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 10, uint8_t, QLinearMatMul)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kMSDomain, 1, uint8_t, MatMulIntegerToFloat)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kMSDomain, 1, int8_t, MatMulIntegerToFloat)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 10, uint8_t, MatMulInteger)>,
++    BuildKernelCreateInfo<ONNX_OPERATOR_TYPED_KERNEL_CLASS_NAME(
++                          kNeutronExecutionProvider, kOnnxDomain, 10, int8_t, MatMulInteger)>,
++  };
++
++  for (auto& function_table_entry : function_table) {
++    KernelCreateInfo info = function_table_entry();
++    if (info.kernel_def != nullptr) {  // filter disabled entries where type is void
++      ORT_RETURN_IF_ERROR(kernel_registry.Register(std::move(info)));
++    }
++  }
++
++  return Status::OK();
++}
++} // namespace neutron
++
++NeutronExecutionProvider::NeutronExecutionProvider(uint32_t neutron_flags)
++    : IExecutionProvider(onnxruntime::kNeutronExecutionProvider),
++      neutron_flags_(neutron_flags) {
++   onnxruntime::neutron::neutronAlloc->Init();
++}
++
++NeutronExecutionProvider::~NeutronExecutionProvider() {}
++
++/* Utils */
++
++KernelRegistryAndStatus GetNeutronKernelRegistry() {
++  KernelRegistryAndStatus ret;
++  ret.st = ::onnxruntime::neutron::RegisterNeutronKernels(*ret.kernel_registry);
++  return ret;
++}
++
++std::shared_ptr<KernelRegistry> NeutronExecutionProvider::GetKernelRegistry() const {
++  static KernelRegistryAndStatus k = GetNeutronKernelRegistry();
++  ORT_THROW_IF_ERROR(k.st);
++  return k.kernel_registry;
++}
++
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/neutron_execution_provider.h b/onnxruntime/core/providers/neutron/neutron_execution_provider.h
+new file mode 100644
+index 0000000000..60253fa067
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_execution_provider.h
+@@ -0,0 +1,28 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/execution_provider.h"
++
++
++namespace onnxruntime {
++
++class NeutronExecutionProvider : public IExecutionProvider {
++ public:
++  explicit NeutronExecutionProvider(uint32_t neutron_flags);
++  virtual ~NeutronExecutionProvider();
++
++  std::shared_ptr<KernelRegistry> GetKernelRegistry() const override;
++
++  const void* GetExecutionHandle() const noexcept override {
++    return nullptr;
++  }
++
++ private:
++  uint32_t neutron_flags_;
++
++};
++
++Status RegisterNeutronKernels(KernelRegistry& kernel_registry);
++
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/neutron_fwd.h b/onnxruntime/core/providers/neutron/neutron_fwd.h
+new file mode 100644
+index 0000000000..1610ed6815
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_fwd.h
+@@ -0,0 +1,10 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++namespace onnxruntime {
++namespace neutron {
++template <typename T>
++KernelCreateInfo BuildKernelCreateInfo();
++}
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/neutron_kernel.h b/onnxruntime/core/providers/neutron/neutron_kernel.h
+new file mode 100644
+index 0000000000..e7f3cdced2
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_kernel.h
+@@ -0,0 +1,31 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/providers/neutron/neutron_allocator.h"
++#include "core/providers/neutron/neutron_execution_provider.h"
++
++namespace onnxruntime {
++namespace neutron {
++
++/*
++  Remember: using AllocatorPtr = std::shared_ptr<IAllocator>;
++*/
++
++class NeutronKernel : public OpKernel {
++ public:
++  explicit NeutronKernel(const OpKernelInfo& info)
++      : OpKernel(info),
++        provider_(const_cast<NeutronExecutionProvider*>(static_cast<const NeutronExecutionProvider*>(info.GetExecutionProvider()))) {
++          
++        }
++
++
++ private:
++  NeutronExecutionProvider* provider_;
++
++};
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/neutron_provider_factory.cc b/onnxruntime/core/providers/neutron/neutron_provider_factory.cc
+new file mode 100644
+index 0000000000..7422c2f77c
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_provider_factory.cc
+@@ -0,0 +1,34 @@
++// Copyright (c) NXP. All rights reserved.
++
++//#include "core/providers/shared_library/provider_api.h"
++
++#include "core/providers/neutron/neutron_provider_factory.h"
++#include "core/providers/neutron/neutron_execution_provider.h"
++#include "core/providers/neutron/neutron_provider_factory_creator.h"
++#include "core/session/abi_session_options_impl.h"
++
++namespace onnxruntime {
++
++struct NeutronProviderFactory : IExecutionProviderFactory {
++  NeutronProviderFactory(uint32_t neutron_flags) : neutron_flags_(neutron_flags) {}
++  ~NeutronProviderFactory() override = default;
++  std::unique_ptr<IExecutionProvider> CreateProvider() override;
++
++ private:
++  uint32_t neutron_flags_;
++};
++
++std::unique_ptr<IExecutionProvider> NeutronProviderFactory::CreateProvider() {
++  return std::make_unique<NeutronExecutionProvider>(neutron_flags_);
++}
++
++std::shared_ptr<IExecutionProviderFactory> NeutronProviderFactoryCreator::Create(uint32_t neutron_flags) {
++  return std::make_shared<onnxruntime::NeutronProviderFactory>(neutron_flags);
++}
++}  // namespace onnxruntime
++
++ORT_API_STATUS_IMPL(OrtSessionOptionsAppendExecutionProvider_Neutron,
++                    _In_ OrtSessionOptions* options, uint32_t neutron_flags) {
++  options->provider_factories.push_back(onnxruntime::NeutronProviderFactoryCreator::Create(neutron_flags));
++  return nullptr;
++}
+diff --git a/onnxruntime/core/providers/neutron/neutron_provider_factory_creator.h b/onnxruntime/core/providers/neutron/neutron_provider_factory_creator.h
+new file mode 100644
+index 0000000000..23f364f291
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/neutron_provider_factory_creator.h
+@@ -0,0 +1,13 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include <memory>
++
++#include "core/providers/providers.h"
++
++namespace onnxruntime {
++struct NeutronProviderFactoryCreator {
++  static std::shared_ptr<IExecutionProviderFactory> Create(uint32_t neutron_flags);
++};
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/common.h b/onnxruntime/core/providers/neutron/ops/common.h
+new file mode 100644
+index 0000000000..3042614598
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/common.h
+@@ -0,0 +1,48 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/providers/common.h"
++
++namespace onnxruntime {
++namespace neutron {
++
++/*
++    From CPU Provider implementation
++*/
++
++static void PrepareForQDQ(const TensorShape& input_shape,
++                          const Tensor& scale,
++                          const Tensor* zero_point_ptr,
++                          int64_t axis,
++                          int64_t& block_count,
++                          int64_t& broadcast_dim,
++                          int64_t& block_size) {
++  if (IsScalarOr1ElementVector(&scale)) {  // per-tensor QuantizeLinear/DequantizeLinear
++    block_count = 1;
++    broadcast_dim = 1;
++    block_size = static_cast<size_t>(input_shape.Size());
++
++    // enforce that zero point are scalars
++    ORT_ENFORCE(zero_point_ptr == nullptr || IsScalarOr1ElementVector(zero_point_ptr),
++                "x_zero_point must be null or a scalar or 1D tensor or size 1.");
++  } else {  // per-channel QuantizeLinear/DequantizeLinear
++    const int64_t axis_no_neg = HandleNegativeAxis(axis, input_shape.NumDimensions());
++    block_count = input_shape.SizeToDimension(onnxruntime::narrow<size_t>(axis_no_neg));
++    broadcast_dim = input_shape[onnxruntime::narrow<size_t>(axis_no_neg)];
++    block_size = input_shape.SizeFromDimension(SafeInt<size_t>(axis_no_neg) + 1);
++
++    // if an axis was specified, ensure the scale and zero point are compatible
++    ORT_ENFORCE(scale.Shape().NumDimensions() == 1 && scale.Shape()[0] == broadcast_dim,
++                "scale must be 1D tensor with size ",
++                broadcast_dim);
++    ORT_ENFORCE(zero_point_ptr == nullptr ||
++               (zero_point_ptr->Shape().NumDimensions() == 1 && zero_point_ptr->Shape()[0] == broadcast_dim),
++                "x_zero_point must be null or 1D tensor with size ",
++                broadcast_dim);
++  }
++}
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/dequantize_linear.cc b/onnxruntime/core/providers/neutron/ops/dequantize_linear.cc
+new file mode 100644
+index 0000000000..cc96eb3986
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/dequantize_linear.cc
+@@ -0,0 +1,119 @@
++// Copyright (c) NXP. All rights reserved.
++
++#include "core/providers/neutron/ops/dequantize_linear.h"
++#include "core/framework/element_type_lists.h"
++#include "core/framework/op_kernel.h"
++#include "core/framework/float16.h"
++#include "core/mlas/inc/mlas.h"
++#include "core/providers/neutron/ops/common.h"
++#include "core/providers/neutron/neutron_fwd.h"
++
++
++namespace onnxruntime {
++namespace neutron {
++
++
++#define REGISTER_DQ_KERNEL_TYPED(T)                               \
++  ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_EX(                        \
++      DequantizeLinear,                                           \
++      kOnnxDomain,                                                \
++      13, 18,                                                     \
++      T,                                                          \
++      kNeutronExecutionProvider,                                  \
++      (*KernelDefBuilder::Create())                               \
++          .TypeConstraint("T", DataTypeImpl::GetTensorType<T>()), \
++      DequantizeLinear<T>);
++
++
++#define REGISTER_DQ_KERNEL_TYPED_19(T)                                     \
++  ONNX_OPERATOR_TWO_TYPED_KERNEL_EX(                                       \
++      DequantizeLinear,                                                    \
++      kOnnxDomain,                                                         \
++      19,                                                                  \
++      T, float,                                                            \
++      kNeutronExecutionProvider,                                           \
++      (*KernelDefBuilder::Create())                                        \
++          .TypeConstraint("T1", DataTypeImpl::GetTensorType<T>())          \
++          .TypeConstraint("T2", DataTypeImpl::GetTensorType<float>()),     \
++      DequantizeLinear<T>);
++
++REGISTER_DQ_KERNEL_TYPED(uint8_t)
++REGISTER_DQ_KERNEL_TYPED(int8_t)
++REGISTER_DQ_KERNEL_TYPED(int32_t)
++REGISTER_DQ_KERNEL_TYPED_19(int8_t)
++REGISTER_DQ_KERNEL_TYPED_19(uint8_t)
++REGISTER_DQ_KERNEL_TYPED_19(int32_t)
++
++
++/*
++    From CPU Provider implementation
++*/
++
++template <typename T, typename OutT>
++struct DequantizeLinearApply {
++  void op(int64_t N, int64_t broadcast_dim, int64_t block_size,
++          const T* input, const OutT* scale, OutT* output, const T* zero_point) {
++    for (size_t n = 0; n < static_cast<size_t>(N); n++) {
++      for (size_t bd = 0; bd < static_cast<size_t>(broadcast_dim); bd++) {
++        auto zp = zero_point ? static_cast<int32_t>(zero_point[bd]) : 0;
++        auto sc = static_cast<float>(scale[bd]);
++        for (size_t bs = 0; bs < static_cast<size_t>(block_size); bs++) {
++          *output++ = static_cast<OutT>(static_cast<float>(static_cast<int32_t>(*input++) - zp) * sc);
++        }
++      }
++    }
++  }
++};
++
++// formula is Y = (X - ZeroPoint) * Scale
++template <typename T>
++Status DequantizeLinear<T>::Compute(OpKernelContext* ctx) const {
++  auto& x = *ctx->Input<Tensor>(0);
++  auto& x_scale = *ctx->Input<Tensor>(1);
++  auto* x_zero_point = ctx->Input<Tensor>(2);
++
++  const auto& x_shape = x.Shape();
++  auto& y = *ctx->Output(0, x_shape);
++
++  int64_t N;
++  int64_t broadcast_dim;
++  int64_t block_size;
++
++  PrepareForQDQ(x.Shape(), x_scale, x_zero_point, axis_, N, broadcast_dim, block_size);
++
++  const T* zero_point = x_zero_point ? x_zero_point->Data<T>() : nullptr;
++
++  if constexpr (boost::mp11::mp_contains<boost::mp11::mp_append<element_type_lists::AllFloat8,
++                                                                TypeList<int32_t>>,
++                                         T>::value) {
++    ORT_ENFORCE(zero_point == nullptr ||
++                    std::all_of(zero_point,
++                                zero_point + x_zero_point->Shape().Size(),
++                                [](T zp) { return zp == T{0}; }),
++                "DequantizeLinear with type int32 or float8 should have no zero point or all zero points should be 0");
++  }
++
++
++  const auto to = x_scale.GetElementType();
++  const T* input = x.Data<T>();
++
++  if (to == ONNX_NAMESPACE::TensorProto::FLOAT) {
++    const float* scale = x_scale.Data<float>();
++    float* output = y.MutableData<float>();
++    DequantizeLinearApply<T, float>().op(N, broadcast_dim, block_size, input, scale, output, zero_point);
++  } else if (to == ONNX_NAMESPACE::TensorProto::FLOAT16) {
++    const MLFloat16* scale = x_scale.Data<MLFloat16>();
++    MLFloat16* output = y.MutableData<MLFloat16>();
++    DequantizeLinearApply<T, MLFloat16>().op(N, broadcast_dim, block_size, input, scale, output, zero_point);
++  } else if (to == ONNX_NAMESPACE::TensorProto::BFLOAT16) {
++    ORT_THROW("DequantizeLinear into BFLOAT16 is not implemented yet.");
++  } else {
++    ORT_THROW("DequantizeLinear only outputs FLOAT16, FLOAT or BFLOAT16.");
++  }
++
++  return Status::OK();
++}
++
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/dequantize_linear.h b/onnxruntime/core/providers/neutron/ops/dequantize_linear.h
+new file mode 100644
+index 0000000000..9f4b98428d
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/dequantize_linear.h
+@@ -0,0 +1,33 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/framework/op_kernel_info.h"
++#include "core/providers/neutron/neutron_kernel.h"
++
++
++namespace onnxruntime {
++namespace neutron {
++
++/*
++    From CPU Provider implementation
++*/
++
++template <typename T>
++class DequantizeLinear final : public NeutronKernel {
++ public:
++  explicit DequantizeLinear(const OpKernelInfo& info) : NeutronKernel(info) {
++    if (!info.GetAttr<int64_t>("axis", &axis_).IsOK()) {
++      axis_ = 1;
++    }
++  }
++
++  Status Compute(OpKernelContext* ctx) const override;
++
++ private:
++  int64_t axis_;
++};
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/matmul_integer.cc b/onnxruntime/core/providers/neutron/ops/matmul_integer.cc
+new file mode 100644
+index 0000000000..51cf60755e
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/matmul_integer.cc
+@@ -0,0 +1,344 @@
++// Copyright (c) Microsoft Corporation. All rights reserved.
++// Licensed under the MIT License.
++
++#include "core/providers/neutron/ops/matmul_integer.h"
++#include "core/framework/op_kernel.h"
++#include "core/providers/neutron/neutron_fwd.h"
++
++#include "core/providers/cpu/math/matmul_helper.h"
++#include "core/util/math_cpuonly.h"
++#include "core/util/qmath.h"
++
++#include <algorithm>
++
++#if NEUTRON_AARCH64
++#include "core/providers/neutron/platform/NeutronDriver.h"
++#endif
++
++namespace onnxruntime {
++namespace neutron {
++
++#ifndef NDEBUG
++extern double time_diff(struct timespec start_time, struct timespec end_time);
++#endif
++
++extern std::shared_ptr<NeutronStackAllocator> neutronAlloc;
++
++ONNX_OPERATOR_TYPED_KERNEL_EX(                                             \
++    MatMulInteger,                                                         \
++    kOnnxDomain,                                                           \
++    10,                                                                    \
++    uint8_t,                                                               \
++    kNeutronExecutionProvider,                                             \
++    KernelDefBuilder()                                                     \
++        .TypeConstraint("T1", DataTypeImpl::GetTensorType<uint8_t>())      \
++        .TypeConstraint("T2", {DataTypeImpl::GetTensorType<uint8_t>(),     \
++                               DataTypeImpl::GetTensorType<int8_t>()})     \
++        .TypeConstraint("T3", DataTypeImpl::GetTensorType<int32_t>()),     \
++    MatMulInteger);
++
++ONNX_OPERATOR_TYPED_KERNEL_EX(                                             \
++    MatMulInteger,                                                         \
++    kOnnxDomain,                                                           \
++    10,                                                                    \
++    int8_t,                                                                \
++    kNeutronExecutionProvider,                                             \
++    KernelDefBuilder()                                                     \
++        .TypeConstraint("T1", DataTypeImpl::GetTensorType<int8_t>())       \
++        .TypeConstraint("T2", DataTypeImpl::GetTensorType<int8_t>())       \
++        .TypeConstraint("T3", DataTypeImpl::GetTensorType<int32_t>()),     \
++    MatMulInteger);
++
++Status MatMulInteger::PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                                     /*out*/ bool& is_packed,
++                                     /*out*/ PrePackedWeights* prepacked_weights) {
++ try {
++    if (!useCPU) {
++      switch (input_idx) {
++      case IN_A:
++        break;
++      case IN_B:
++        {
++          m_b_rows = tensor.Shape()[1];
++          m_b_cols = tensor.Shape()[0];
++
++          if (m_b_rows % 16 || (m_b_rows * 16 >= 1024*1024))
++              throw std::bad_alloc();
++
++          m_handle = neutronAlloc->getMemoryHandle();
++          m_header = (uint32_t*) neutronAlloc->Alloc(16*sizeof(uint32_t), m_handle);
++          m_b_neutron = (int8_t*) neutronAlloc->Alloc(m_b_rows * m_b_cols, m_handle);
++
++          const int8_t *b_data = static_cast<const int8_t*>(tensor.DataRaw());
++          for(uint32_t i=0; i<m_b_cols; i++) {
++            for(uint32_t j=0; j<m_b_rows; j++) {
++              m_b_neutron[m_b_cols*j+i] = b_data[m_b_rows*i+j];
++            }
++          }
++          clean_cache(m_b_neutron, m_b_rows*m_b_cols);
++
++          // m_b_bias
++          m_b_row_sum = (int32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(int32_t), m_handle);
++          for (uint32_t i=0; i< m_b_rows; i++){
++            int32_t row_sum = 0;
++            for (uint32_t j=0; j< m_b_cols; j++) {
++              row_sum += *(m_b_neutron + i * m_b_cols + j);
++            }
++            m_b_row_sum[i] = row_sum;
++          }
++          m_b_bias = (int32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(int32_t), m_handle);
++
++          // m_b_factors
++          m_b_factors = (uint32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(uint32_t), m_handle);
++          float scale = 1;
++          float *pfloat = &scale;
++          uint32_t u32 = *(uint32_t*) pfloat;
++
++          uint32_t scaler = (u32 >>8) & 0x7fff ; // extract mantissa (15bits)
++          int8_t exp_tmp = (u32 >> 23) & 0xff; // extract exponent
++
++          scaler = (exp_tmp==0) ? 0 :  scaler | 0x8000; // add hidden bit or zero out (if zero or subnormal
++          exp_tmp = -(exp_tmp -142); // we subtract FP32 offset as well as 16bit growth of our scaler (126 is power of -1 so mantissa is in range 0.5 to 1, 126 + 16=142, where 16 is the factor we multiply by in scaler)
++          int8_t exp = (exp_tmp>63) ? 63 : exp_tmp; // ensure that we don't exceed available shift bits (note that this step could, in theory be skipped if this never happens. Not sure if we can take the chance)
++          //if (exp == 63)
++          //      printf("scalar %0d, exp %0d", (uint32_t)scaler, (uint32_t)exp);
++          scaler = (exp<<16) | scaler; // merge scaler and downshift factor into the Neutron 32bit scaler format (16bit scaler in LSB and then 6bits of downshift)
++
++          for (uint32_t i=0; i< m_b_rows; i++){
++            m_b_factors[i] = scaler;
++          }
++          clean_cache(m_b_factors, m_b_rows*sizeof(uint32_t));
++        }
++        break;
++      case IN_A_ZERO_POINT:
++        {
++          m_dynamic_bias = false;
++          m_a_zp = *(static_cast<const uint8_t*>(tensor.DataRaw()));
++
++          for (uint32_t i=0; i< m_b_rows; i++){
++            m_b_bias[i] = (int32_t)( - m_b_row_sum[i] * m_a_zp );
++          }
++          clean_cache(m_b_bias, m_b_rows*sizeof(int32_t));
++        }
++        break;
++      case IN_B_ZERO_POINT:
++        // we assume B has ZP equal to 0
++        // todo: implement a check
++        break;
++      }
++    }
++  }
++  catch (const std::bad_alloc &e) {
++    // Do not delegate this instance if out of memory
++    printf("[NeutronEP:MatMulInteger] W[%d, %d] will be executed on CPU\n", m_b_cols, m_b_rows);
++    useCPU = true;
++
++    // Fast CPU prepacking
++    return MatMulIntegerBase::PrePack(tensor, input_idx, alloc, is_packed, prepacked_weights);
++  }
++  return Status::OK();
++}
++
++
++Status MatMulInteger::Compute(OpKernelContext* ctx) const {
++  struct timespec t1, t2, t3, t4, t5;
++
++#ifndef NDEBUG
++  printf("MatMulInteger::Compute\n");
++#endif
++
++  const auto* a = ctx->Input<Tensor>(IN_A);
++  const auto* b = packed_b_ ? nullptr : ctx->Input<Tensor>(IN_B);
++
++  if (!useCPU && m_header && m_b_neutron) {
++
++    clock_gettime(CLOCK_REALTIME, &t1);
++
++    if (m_dynamic_bias) {
++          uint8_t a_zp = *(static_cast<const uint8_t*>(ctx->Input<Tensor>(IN_A_ZERO_POINT)->DataRaw()));
++
++          for (uint32_t i=0; i< m_b_rows; i++){
++            m_b_bias[i] = (int32_t)( - m_b_row_sum[i] * a_zp );
++          }
++
++          //TODO: move it to matmul call
++          clean_cache(m_b_bias, m_b_rows*sizeof(int32_t));
++    }
++
++    neutronAlloc->pushMemoryState(m_handle);
++
++    // non-transposed b
++    uint32_t neutron_a_rows = a->Shape()[1];
++    uint32_t neutron_a_cols = a->Shape()[2];
++    uint32_t neutron_b_rows = b ? b->Shape()[1] : m_b_rows;
++    uint32_t neutron_b_cols = b ? b->Shape()[0] : m_b_cols;
++    if (neutron_a_cols != neutron_b_cols) {
++      printf("Neutron dimenssions do not match!\n");
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t2);
++
++    uint32_t a_size = neutron_a_rows * neutron_a_cols * sizeof(uint8_t);
++    uint8_t *a_neutron = (uint8_t *) neutronAlloc->AllocReserved(a_size, m_handle);
++    auto  a_data = static_cast<const uint8_t*>(a->DataRaw());
++    memcpy(a_neutron, a_data, a_size);
++
++    uint32_t y_size = neutron_a_rows * neutron_b_rows * sizeof(int32_t);
++    int32_t *y_neutron = (int32_t *) neutronAlloc->AllocReserved(y_size, m_handle);
++
++    m_header[0] = 0;
++    m_header[1] = 0;
++    m_header[2] = neutron_a_rows;
++    m_header[3] = neutron_a_cols;
++    m_header[4] = neutron_b_rows;
++    m_header[5] = (uint8_t *)a_neutron - (uint8_t *)m_header;
++    m_header[6] = (uint8_t *)m_b_neutron - (uint8_t *)m_header;
++    m_header[7] = (uint8_t *)m_b_bias - (uint8_t *)m_header;
++    m_header[8] = (uint8_t *)m_b_factors - (uint8_t *)m_header;
++    m_header[9] = (uint8_t *)y_neutron - (uint8_t *)m_header;
++    m_header[10] = 0; // m_y_zp;
++    m_header[11] = 4; // result num bytes
++
++    clock_gettime(CLOCK_REALTIME, &t3);
++
++    NeutronError ret = ENONE;
++    ret = matmul((const void *)m_header, 16*sizeof(uint32_t), (const void*)a_neutron, a_size, (const void*)y_neutron, y_size, m_handle);
++    if (ret != ENONE){
++        printf("matmul() error %d\n", ret);
++        return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "matmul() error");
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t4);
++
++    Tensor* y = ctx->Output(OUT_Y, {1, neutron_a_rows, neutron_b_rows});
++    int32_t* y_data = static_cast<int32_t*>(y->MutableDataRaw());
++    memcpy(y_data, y_neutron, sizeof(int32_t) * neutron_a_rows * m_b_rows);
++
++    neutronAlloc->popMemoryState(m_handle);
++    clock_gettime(CLOCK_REALTIME, &t5);
++
++#ifndef NDEBUG
++    printf("Neutron MatMulIntegerToFloat [%d,%d]*[%d,%d]: in_copy %f us, matmul %f us, out_copy %f\n",
++            neutron_a_rows, neutron_a_cols, neutron_b_cols, neutron_b_rows, time_diff(t1,t3), time_diff(t3,t4), time_diff(t4,t5));
++#endif
++
++#ifndef NDEBUG
++    printf("\nA shape=%ld %ld %ld\n\n",a->Shape()[0],a->Shape()[1],a->Shape()[2]);
++    printf("\n");
++    for (uint32_t i=0; i<neutron_a_rows; i++) {
++      for (uint32_t j=0; j<neutron_b_rows; j++) {
++        printf("C[%d][%d]=%f ",i,j,y_data[i * neutron_b_rows + j] * 1.0);
++      }
++      printf("\n");
++    }
++    printf("Neutron: Prepared matmul in %f us\n", time_diff(t1,t3));
++    printf("Neutron: Computed matmul in %f us\n", time_diff(t3,t4));
++    printf("Neutron: Copying result in %f us\n", time_diff(t4,t5));
++#endif
++  }
++#ifdef NDEBUG
++  else
++#endif
++ {
++     clock_gettime(CLOCK_REALTIME, &t1);
++
++  // validate zero points
++  uint8_t a_offset = 0;
++  const auto* a_zero_point = ctx->Input<Tensor>(IN_A_ZERO_POINT);
++  if (a_zero_point != nullptr) {
++    ORT_ENFORCE(IsScalarOr1ElementVector(a_zero_point),
++                "MatmulInteger : input1 zero point must be a scalar or 1D tensor of size 1");
++    a_offset = *(static_cast<const uint8_t*>(a_zero_point->DataRaw()));
++  }
++
++  bool is_b_zp_per_column = false;
++  uint8_t b_default_offset = 0;
++  const uint8_t* b_offset_ptr = &b_default_offset;
++  const auto* b_zero_point = ctx->Input<Tensor>(IN_B_ZERO_POINT);
++  if (b_zero_point != nullptr) {
++    ORT_ENFORCE(IsBQuantParamSupported(b_zero_point->Shape(), b ? b->Shape() : b_shape_),
++                "MatmulInteger : B zero point is not valid");
++    is_b_zp_per_column = !IsScalarOr1ElementVector(b_zero_point);
++    b_offset_ptr = static_cast<const uint8_t*>(b_zero_point->DataRaw());
++  }
++
++  MatMulComputeHelper helper;
++  const uint8_t* b_data;
++  bool b_is_signed;
++  if (nullptr != b) {
++    ORT_RETURN_IF_ERROR(helper.Compute(a->Shape(), b->Shape(), nullptr, b_zero_point ? &b_zero_point->Shape() : nullptr));
++    b_data = static_cast<const uint8_t*>(b->DataRaw());
++    b_is_signed = b->IsDataType<int8_t>();
++  } else {
++    ORT_RETURN_IF_ERROR(helper.Compute(a->Shape(), b_shape_, nullptr, b_zero_point ? &b_zero_point->Shape() : nullptr));
++    b_data = static_cast<const uint8_t*>(packed_b_.get());
++    b_is_signed = b_is_signed_;
++  }
++
++  Tensor* y = ctx->Output(OUT_Y, helper.OutputShape());
++  // Bail out early if the output is going to be empty
++  if (y->Shape().Size() == 0)
++    return Status::OK();
++
++  const uint8_t* a_data = static_cast<const uint8_t*>(a->DataRaw());
++  auto* y_data = y->MutableData<int32_t>();
++
++  MLAS_GEMM_QUANT_SHAPE_PARAMS gemm_shape;
++  gemm_shape.M = static_cast<size_t>(helper.M());
++  gemm_shape.N = static_cast<size_t>(helper.N());
++  gemm_shape.K = static_cast<size_t>(helper.K());
++  gemm_shape.AIsSigned = a->IsDataType<int8_t>();
++  gemm_shape.BIsSigned = b_is_signed;
++
++  const size_t batch_size = helper.OutputOffsets().size();
++  std::vector<MLAS_GEMM_QUANT_DATA_PARAMS> gemm_data_vec(batch_size);
++
++  for (size_t batch = 0; batch < batch_size; batch++) {
++    auto& gemm_params = gemm_data_vec[batch];
++    gemm_params.lda = gemm_shape.K;
++    gemm_params.ZeroPointA = a_offset;
++    gemm_params.ldb = gemm_shape.N;
++    gemm_params.ZeroPointB = b_offset_ptr + helper.RightZeroPointOffsets()[batch];
++    gemm_params.PerColumnZeroPoints = is_b_zp_per_column;
++    gemm_params.ldc = gemm_shape.N;
++    gemm_params.BIsPacked = bool(packed_b_);
++    gemm_params.A = a_data + helper.LeftOffsets()[batch];
++    gemm_params.B = b_data + helper.RightOffsets()[batch];
++    gemm_params.C = y_data + helper.OutputOffsets()[batch];
++  }
++  MlasGemmBatch(gemm_shape, gemm_data_vec.data(), batch_size, ctx->GetOperatorThreadPool());
++
++ clock_gettime(CLOCK_REALTIME, &t4);
++
++#ifndef NDEBUG
++    // non-transposed b
++    uint32_t neutron_a_rows = a->Shape()[1];
++    uint32_t neutron_a_cols = a->Shape()[2];
++    uint32_t neutron_b_rows = b ? b->Shape()[1] : m_b_rows;
++    uint32_t neutron_b_cols = b ? b->Shape()[0] : m_b_cols;
++
++    printf("CPU MatMulInteger [%d,%d,%d]*[%d,%d]: matmul %f us\n",
++            (uint32_t) a->Shape()[0], neutron_a_rows, neutron_a_cols, neutron_b_cols, neutron_b_rows, time_diff(t1,t4));
++#endif
++
++#ifndef NDEBUG
++    // Dump the output
++    const Tensor* y = ctx->Output<Tensor>(0);
++    printf("\nY shape=%ld %ld %ld\n\n",y->Shape()[0],y->Shape()[1],y->Shape()[2]);
++    const float *y_data = static_cast<const float*>(y->DataRaw());
++    printf("\n");
++    for (int i=0; i<y->Shape()[1]; i++) {
++      for (int j=0; j<y->Shape()[2]; j++) {
++        printf("Y[%d][%d]=%f ",i,j,y_data[i * y->Shape()[2] + j]);
++      }
++      printf("\n");
++    }
++    printf("CPU: Computed MatMulIntegerToFloat in %f us\n", time_diff(t1,t4));
++#endif
++  }
++
++  return Status::OK();
++}
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/matmul_integer.h b/onnxruntime/core/providers/neutron/ops/matmul_integer.h
+new file mode 100644
+index 0000000000..a455587b99
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/matmul_integer.h
+@@ -0,0 +1,54 @@
++// Copyright 2024 NXP
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/framework/op_kernel_info.h"
++#include "core/providers/neutron/neutron_kernel.h"
++#include "core/providers/cpu/quantization/matmul_integer_base.h"
++
++namespace onnxruntime {
++namespace neutron {
++
++class MatMulInteger final : public MatMulIntegerBase {
++ public:
++  MatMulInteger(const OpKernelInfo& info) : MatMulIntegerBase(info) {}
++
++  Status PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                 /*out*/ bool& is_packed,
++                 /*out*/ PrePackedWeights* prepacked_weights) override;
++
++  Status Compute(OpKernelContext* context) const override;
++
++  enum InputTensors : int {
++    IN_A = 0,
++    IN_B = 1,
++    IN_A_ZERO_POINT = 2,
++    IN_B_ZERO_POINT = 3
++  };
++
++  enum OutputTensors : int { OUT_Y = 0 };
++
++ protected:
++  int GetBIdx() const override { return IN_B; }
++
++  // neutron parameters
++  size_t   m_handle{0};
++  uint32_t *m_header{NULL};
++  int8_t   *m_b_neutron{NULL};
++  bool     m_dynamic_bias{true};
++  int32_t  *m_b_bias{NULL};
++  int32_t  *m_b_row_sum{NULL};
++  uint32_t *m_b_factors{NULL};
++
++  //pre-packing
++  uint8_t  m_a_zp;
++  uint32_t m_b_rows;
++  uint32_t m_b_cols;
++
++  bool useCPU{false};
++
++};
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.cc b/onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.cc
+new file mode 100644
+index 0000000000..c9c472e50c
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.cc
+@@ -0,0 +1,502 @@
++// Copyright (c) NXP. All rights reserved.
++
++#include "core/providers/neutron/ops/matmul_integer_to_float.h"
++#include "core/framework/op_kernel.h"
++#include "core/providers/neutron/neutron_fwd.h"
++
++// CPU matmulintegertofloat, remove when neutron integrated
++#include "core/common/narrow.h"
++#include "core/common/safeint.h"
++#include "core/mlas/inc/mlas.h"
++#include "core/providers/cpu/math/element_wise_ops.h"
++#include "core/providers/cpu/math/matmul_helper.h"
++#include "core/util/math_cpuonly.h"
++#include "core/util/qmath.h"
++
++#include <algorithm>
++
++#if NEUTRON_AARCH64
++#include "core/providers/neutron/platform/NeutronDriver.h"
++#endif
++
++namespace onnxruntime {
++namespace neutron {
++
++#ifndef NDEBUG
++extern double time_diff(struct timespec start_time, struct timespec end_time);
++#endif
++
++extern std::shared_ptr<NeutronStackAllocator> neutronAlloc;
++
++ONNX_OPERATOR_TYPED_KERNEL_EX(                                              \
++    MatMulIntegerToFloat,                                                   \
++    kMSDomain,                                                              \
++    1,                                                                      \
++    uint8_t,                                                                \
++    kNeutronExecutionProvider,                                              \
++    KernelDefBuilder()                                                      \
++        .TypeConstraint("T1", DataTypeImpl::GetTensorType<uint8_t>())       \
++        .TypeConstraint("T2", { DataTypeImpl::GetTensorType<uint8_t>(),     \
++                                DataTypeImpl::GetTensorType<int8_t>() })    \
++        .TypeConstraint("T3", DataTypeImpl::GetTensorType<float>()),        \
++    MatMulIntegerToFloat);
++
++ONNX_OPERATOR_TYPED_KERNEL_EX(                                              \
++    MatMulIntegerToFloat,                                                   \
++    kMSDomain,                                                              \
++    1,                                                                      \
++    int8_t,                                                                 \
++    kNeutronExecutionProvider,                                              \
++    KernelDefBuilder()                                                      \
++        .TypeConstraint("T1", DataTypeImpl::GetTensorType<int8_t>())        \
++        .TypeConstraint("T2", DataTypeImpl::GetTensorType<int8_t>())        \
++        .TypeConstraint("T3", DataTypeImpl::GetTensorType<float>()),        \
++    MatMulIntegerToFloat);
++
++
++void ScaleOutput(const Tensor& scale, Tensor& output) {
++  ProcessBroadcastSpanFuncs funcs{
++      [](BroadcastHelper& per_iter_bh) {
++        per_iter_bh.OutputEigen<float>() = per_iter_bh.ScalarInput0<float>() * per_iter_bh.EigenInput1<float>().array();
++      },
++      [](BroadcastHelper& per_iter_bh) {
++        per_iter_bh.OutputEigen<float>() = per_iter_bh.EigenInput0<float>().array() * per_iter_bh.ScalarInput1<float>();
++      },
++      [](BroadcastHelper& per_iter_bh) {
++        per_iter_bh.OutputEigen<float>() = per_iter_bh.EigenInput0<float>().cwiseProduct(per_iter_bh.EigenInput1<float>());
++      }};
++
++  InputBroadcaster input_broadcaster(scale, output);
++  OutputBroadcaster output_broadcaster(input_broadcaster.GetSpanSize(),
++                                       output);
++  BroadcastHelper broadcast_helper(input_broadcaster, output_broadcaster);
++
++  BroadcastLooper(broadcast_helper, funcs);
++}
++
++Status MatMulIntegerToFloatBase::ComputeCommon(OpKernelContext* ctx,
++                                               const uint8_t* a_data,
++                                               const TensorShape& a_shape,
++                                               float a_scale,
++                                               uint8_t a_zp,
++                                               bool a_is_signed,
++                                               const Tensor* b_tensor,
++                                               const Tensor* b_scale_tensor,
++                                               const Tensor* b_zp_tensor,
++                                               const Tensor* bias_tensor) const {
++  MatMulComputeHelper helper;
++  ORT_RETURN_IF_ERROR(helper.Compute(a_shape,
++                                     b_tensor ? b_tensor->Shape() : b_shape_,
++                                     b_scale_tensor ? &b_scale_tensor->Shape() : nullptr,
++                                     b_zp_tensor ? &b_zp_tensor->Shape() : nullptr));
++  Tensor* y = ctx->Output(OUT_Y, helper.OutputShape());
++
++  // Bail out early if the output is going to be empty
++  if (y->Shape().Size() == 0)
++    return Status::OK();
++
++  auto* y_data = y->MutableData<float>();
++  const auto* bias_data = bias_tensor != nullptr ? bias_tensor->Data<float>() : nullptr;
++
++  // process zero point of b
++  bool is_b_zp_per_column = false;
++  uint8_t b_zp_default = 0;
++  const uint8_t* b_zp_ptr = &b_zp_default;
++  if (nullptr != b_zp_tensor) {
++    ORT_ENFORCE(IsBQuantParamSupported(b_zp_tensor->Shape(), b_tensor ? b_tensor->Shape() : b_shape_),
++                "MatmulInteger : b zero point is not valid");
++
++    is_b_zp_per_column = !IsScalarOr1ElementVector(b_zp_tensor);
++    b_zp_ptr = static_cast<const uint8_t*>(b_zp_tensor->DataRaw());
++  }
++
++  // process scale of b
++  bool is_b_scale_per_column = false;
++  float multiplier_per_tensor = a_scale;
++  const float* b_scale_data = &multiplier_per_tensor;
++  std::vector<float> multipliers_per_column;
++  if (nullptr != b_scale_tensor) {
++    is_b_scale_per_column = !IsScalarOr1ElementVector(b_scale_tensor);
++    const float* b_scale_tensor_data = b_scale_tensor->Data<float>();
++
++    if (is_b_scale_per_column) {
++      multipliers_per_column.reserve(narrow<size_t>(b_scale_tensor->Shape().Size()));
++      std::transform(b_scale_tensor_data,
++                     b_scale_tensor_data + b_scale_tensor->Shape().Size(),
++                     std::back_inserter(multipliers_per_column),
++                     [&a_scale](float b_scale) {
++                       return a_scale * b_scale;
++                     });
++      b_scale_data = multipliers_per_column.data();
++    } else {
++      multiplier_per_tensor *= *b_scale_tensor_data;
++    }
++  }
++
++  // batch gemm
++  MLAS_GEMM_QUANT_SHAPE_PARAMS gemm_shape;
++  gemm_shape.M = static_cast<size_t>(helper.M());
++  gemm_shape.N = static_cast<size_t>(helper.N());
++  gemm_shape.K = static_cast<size_t>(helper.K());
++  gemm_shape.AIsSigned = a_is_signed;
++  gemm_shape.BIsSigned = b_tensor ? b_tensor->IsDataType<int8_t>() : b_is_signed_;
++
++  const size_t num_gemms = helper.OutputOffsets().size();
++  std::vector<MLAS_QGEMM_SCALE_BIAS_OUTPUT_PROCESSOR> gemm_scale_procs;
++  gemm_scale_procs.reserve(num_gemms);
++  std::vector<MLAS_GEMM_QUANT_DATA_PARAMS> gemm_data_vec(num_gemms);
++
++  for (size_t gemm_idx = 0; gemm_idx < num_gemms; gemm_idx++) {
++    gemm_scale_procs.emplace_back(y_data + helper.OutputOffsets()[gemm_idx],
++                                  gemm_shape.N,
++                                  b_scale_data + helper.RightScaleOffsets()[gemm_idx],
++                                  bias_data,
++                                  MLAS_QGEMM_OUTPUT_MODE::ZeroMode,
++                                  is_b_scale_per_column ? MLAS_QUANTIZATION_GRANULARITY::PerColumn : MLAS_QUANTIZATION_GRANULARITY::PerMatrix);
++    auto& params = gemm_data_vec[gemm_idx];
++    params.OutputProcessor = &(gemm_scale_procs[gemm_idx]);
++    params.A = a_data + helper.LeftOffsets()[gemm_idx];
++    params.lda = gemm_shape.K;
++    params.ZeroPointA = a_zp;
++    params.BIsPacked = bool(packed_b_);
++    params.B = b_tensor ? static_cast<const uint8_t*>(b_tensor->DataRaw()) + helper.RightOffsets()[gemm_idx] : packed_b_.get();
++    params.ldb = gemm_shape.N;
++    params.ZeroPointB = b_zp_ptr + helper.RightZeroPointOffsets()[gemm_idx];
++    params.PerColumnZeroPoints = is_b_zp_per_column;
++    params.C = reinterpret_cast<int32_t*>(y_data + helper.OutputOffsets()[gemm_idx]);
++    params.ldc = gemm_shape.N;
++  }
++
++  MlasGemmBatch(gemm_shape, gemm_data_vec.data(), num_gemms, ctx->GetOperatorThreadPool());
++
++  return Status::OK();
++}
++
++
++void MatMulIntegerToFloat::FixupScaleTensor(const Tensor*& a_scale_tensor, const Tensor*& b_scale_tensor) {
++  const TensorShape a_scale_shape = a_scale_tensor->Shape();
++  const TensorShape b_scale_shape = b_scale_tensor->Shape();
++  if (!IsScalarOr1ElementVector(a_scale_tensor)) {
++    size_t a_scale_rank = a_scale_shape.NumDimensions();
++    if (a_scale_rank == 1 || a_scale_shape[a_scale_rank - 1] != 1) {
++      std::swap(a_scale_tensor, b_scale_tensor);
++    }
++  } else if (!IsScalarOr1ElementVector(b_scale_tensor)) {
++    size_t b_scale_rank = b_scale_shape.NumDimensions();
++    if (b_scale_rank > 1 && b_scale_shape[b_scale_rank - 2] != 1) {
++      std::swap(a_scale_tensor, b_scale_tensor);
++    }
++  }
++}
++
++Status MatMulIntegerToFloat::PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                                     /*out*/ bool& is_packed,
++                                     /*out*/ PrePackedWeights* prepacked_weights) {
++ try {
++    if (!useCPU) {
++      switch (input_idx) {
++      case IN_A:
++        break;
++      case IN_B:
++        {
++          m_b_rows = tensor.Shape()[1];
++          m_b_cols = tensor.Shape()[0];
++
++          if ((m_b_rows % 16) || (m_b_rows * 16 >= 1024*1024))
++              throw std::bad_alloc();
++
++          m_handle = neutronAlloc->getMemoryHandle();
++          m_header = (uint32_t*) neutronAlloc->Alloc(16*sizeof(uint32_t), m_handle);
++          m_b_neutron = (int8_t*) neutronAlloc->Alloc(m_b_rows * m_b_cols, m_handle);
++          const int8_t *b_data = static_cast<const int8_t*>(tensor.DataRaw());
++          for(uint32_t i=0; i<m_b_cols; i++) {
++            for(uint32_t j=0; j<m_b_rows; j++) {
++              m_b_neutron[m_b_cols*j+i] = b_data[m_b_rows*i+j];
++            }
++          }
++          clean_cache(m_b_neutron, m_b_rows*m_b_cols);
++
++          // Neutron expects the bias as a parameter anyway.
++          m_b_bias = (int32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(int32_t), m_handle);
++          for (uint32_t i=0; i< m_b_rows; i++){
++            int32_t row_sum = 0;
++            for (uint32_t j=0; j< m_b_cols; j++) {
++              row_sum += *(m_b_neutron + i * m_b_cols + j);
++            }
++            m_b_bias[i] = row_sum;
++          }
++
++          m_b_factors = (uint32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(uint32_t), m_handle);
++          float scale = 1;
++          float *pfloat = &scale;
++          uint32_t u32 = *(uint32_t*) pfloat;
++
++          uint32_t scaler = (u32 >>8) & 0x7fff ; // extract mantissa (15bits)
++          int8_t exp_tmp = (u32 >> 23) & 0xff; // extract exponent
++
++          scaler = (exp_tmp==0) ? 0 :  scaler | 0x8000; // add hidden bit or zero out (if zero or subnormal
++          exp_tmp = -(exp_tmp -142); // we subtract FP32 offset as well as 16bit growth of our scaler (126 is power of -1 so mantissa is in range 0.5 to 1, 126 + 16=142, where 16 is the factor we multiply by in scaler)
++          int8_t exp = (exp_tmp>63) ? 63 : exp_tmp; // ensure that we don't exceed available shift bits (note that this step could, in theory be skipped if this never happens. Not sure if we can take the chance)
++          //if (exp == 63)
++          //      printf("scalar %0d, exp %0d", (uint32_t)scaler, (uint32_t)exp);
++          scaler = (exp<<16) | scaler; // merge scaler and downshift factor into the Neutron 32bit scaler format (16bit scaler in LSB and then 6bits of downshift)
++
++          //TODO: optimize space too
++          for (uint32_t i=0; i< m_b_rows; i++){
++            m_b_factors[i] = scaler;
++          }
++          clean_cache(m_b_factors,m_b_rows*sizeof(uint32_t));
++        }
++        break;
++      case IN_A_SCALE:
++        {
++          m_dynamic_scale = false;
++          m_a_scale_data = *tensor.Data<float>();
++        }
++        break;
++      case IN_B_SCALE:
++        {
++          // support scale per tensor and per channel
++          if (!m_dynamic_scale) {
++            uint32_t scale_size = tensor.Shape().NumDimensions() ?
++                                  tensor.Shape()[0] : 1;
++            m_out_scale.resize(scale_size);
++            for (size_t i = 0; i < m_out_scale.size(); i++){
++              m_out_scale[i] = tensor.Data<float>()[i] * m_a_scale_data;
++            }
++          }
++        }
++        break;
++      case IN_A_ZERO_POINT:
++        {
++          m_dynamic_bias = false;
++          m_a_zp = *(static_cast<const uint8_t*>(tensor.DataRaw()));
++          for (uint32_t i=0; i< m_b_rows; i++){
++            m_b_bias[i] = (int32_t)( - m_b_bias[i] * m_a_zp );
++          }
++          clean_cache(m_b_bias, m_b_rows*sizeof(int32_t));
++        }
++        break;
++      case IN_B_ZERO_POINT:
++        // we assume B has ZP equal to 0
++        // todo: implement a check
++        break;
++      case IN_BIAS:
++        {
++          m_output_bias = tensor.Data<float>();
++        }
++        break;
++      }
++    }
++  }
++  catch (const std::bad_alloc &e) {
++    // Do not delegate this instance if out of memory
++    printf("[NeutronEP:MatMulIntegerToFloat] W[%d, %d] will be executed on CPU\n", m_b_cols, m_b_rows);
++    useCPU = true;
++
++    //Fast CPU prepaking
++    return MatMulIntegerBase::PrePack(tensor, input_idx, alloc, is_packed, prepacked_weights);
++  }
++  return Status::OK();
++}
++
++Status MatMulIntegerToFloat::Compute(OpKernelContext* ctx) const {
++  struct timespec t1, t2, t3, t4, t5;
++
++#ifndef NDEBUG
++  printf("MatMulIntegerToFloat::Compute\n");
++#endif
++
++  const Tensor* a = ctx->Input<Tensor>(IN_A);
++  const Tensor* b = packed_b_ ? nullptr : ctx->Input<Tensor>(IN_B);
++
++  if (!useCPU && m_header && m_b_neutron && m_b_factors) {
++
++    clock_gettime(CLOCK_REALTIME, &t1);
++
++    neutronAlloc->pushMemoryState(m_handle);
++
++    // non-transposed b
++    uint32_t neutron_a_rows = a->Shape()[1];
++    uint32_t neutron_a_cols = a->Shape()[2];
++    uint32_t neutron_b_rows = b ? b->Shape()[1] : m_b_rows;
++    uint32_t neutron_b_cols = b ? b->Shape()[0] : m_b_cols;
++    if (neutron_a_cols != neutron_b_cols) {
++      printf("Neutron dimenssions do not match!\n");
++    }
++
++    const float *out_scale_data = NULL;
++    bool scale_per_tensor = false;
++    std::vector<float> dyn_out_scale;
++
++    if (!m_dynamic_scale) {
++        out_scale_data = m_out_scale.data();
++        scale_per_tensor = (m_out_scale.size() == 1);
++    } else {
++        float a_scale_data = *(static_cast<const float *>(ctx->Input<Tensor>(IN_A_SCALE)->DataRaw()));
++
++        const Tensor* b_scale = ctx->Input<Tensor>(IN_B_SCALE);
++        uint32_t scale_size = b_scale->Shape().NumDimensions() ? b_scale->Shape()[0] : 1;
++
++        dyn_out_scale.resize(scale_size);
++        for (size_t i = 0; i < dyn_out_scale.size(); i++) {
++            dyn_out_scale[i] = a_scale_data * (static_cast<const float*>(b_scale->DataRaw()))[i];
++        }
++        out_scale_data = dyn_out_scale.data();
++        scale_per_tensor = (dyn_out_scale.size() == 1);
++    }
++
++    if (m_dynamic_bias) {
++        uint8_t a_zp = *(static_cast<const uint8_t*>(ctx->Input<Tensor>(IN_A_ZERO_POINT)->DataRaw()));
++        for (uint32_t i=0; i< m_b_rows; i++) {
++            m_b_bias[i] = (int32_t)( - m_b_bias[i] * a_zp);
++        }
++        clean_cache(m_b_bias, m_b_rows*sizeof(int32_t));
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t2);
++
++    uint32_t a_size = neutron_a_rows * neutron_a_cols * sizeof(uint8_t);
++    uint8_t *a_neutron = (uint8_t *) neutronAlloc->AllocReserved(a_size, m_handle);
++    auto  a_data = static_cast<const uint8_t*>(a->DataRaw());
++    memcpy(a_neutron, a_data, a_size);
++
++    uint32_t y_size = neutron_a_rows * neutron_b_rows * sizeof(int32_t);
++    int32_t *y_neutron = (int32_t *) neutronAlloc->AllocReserved(y_size, m_handle);
++
++    m_header[0] = 0;
++    m_header[1] = 0;
++    m_header[2] = neutron_a_rows;
++    m_header[3] = neutron_a_cols;
++    m_header[4] = neutron_b_rows;
++    m_header[5] = (uint8_t *)a_neutron - (uint8_t *)m_header;
++    m_header[6] = (uint8_t *)m_b_neutron - (uint8_t *)m_header;
++    m_header[7] = (uint8_t *)m_b_bias - (uint8_t *)m_header;
++    m_header[8] = (uint8_t *)m_b_factors - (uint8_t *)m_header;
++    m_header[9] = (uint8_t *)y_neutron - (uint8_t *)m_header;
++    m_header[10] = 0; // m_y_zp;
++    m_header[11] = 4; // result num bytes
++
++    clock_gettime(CLOCK_REALTIME, &t3);
++
++    NeutronError ret = ENONE;
++    ret = matmul((const void *)m_header, 16*sizeof(uint32_t), (const void*)a_neutron, a_size, (const void*)y_neutron, y_size, m_handle);
++    if (ret != ENONE){
++        printf("matmul() error %d\n", ret);
++        return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "matmul() error");
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t4);
++
++    Tensor* y = ctx->Output(OUT_Y, {1, neutron_a_rows, neutron_b_rows});
++    float* y_data = static_cast<float*>(y->MutableDataRaw());
++
++    int32_t* input = y_neutron;
++    auto* output = y_data;
++    for (uint32_t i=0; i<static_cast<uint32_t>(neutron_a_rows); i++) {
++      for (uint32_t j=0; j<static_cast<uint32_t>(neutron_b_rows); j++) {
++        uint32_t scale_idx = scale_per_tensor ? 0 : j;
++        if (m_output_bias) {
++          *output++ = static_cast<float>(m_output_bias[j]) + static_cast<float>(static_cast<int32_t>(*input++)) * static_cast<float>(out_scale_data[scale_idx]);
++        } else {
++          *output++ = static_cast<float>(static_cast<int32_t>(*input++)) * static_cast<float>(out_scale_data[scale_idx]);
++        }
++      }
++    }
++
++    neutronAlloc->popMemoryState(m_handle);
++    clock_gettime(CLOCK_REALTIME, &t5);
++
++#ifndef NDEBUG
++    printf("Neutron MatMulIntegerToFloat [%d,%d]*[%d,%d]: in_copy %f us, matmul %f us, dequant %f\n",
++           neutron_a_rows, neutron_a_cols, neutron_b_cols, neutron_b_rows, time_diff(t1,t3), time_diff(t3,t4), time_diff(t4,t5));
++#endif
++
++#ifndef NDEBUG
++    printf("\nA shape=%ld %ld %ld\n\n",a->Shape()[0],a->Shape()[1],a->Shape()[2]);
++    printf("\n");
++    for (uint32_t i=0; i<neutron_a_rows; i++) {
++      for (uint32_t j=0; j<neutron_b_rows; j++) {
++        printf("C[%d][%d]=%f ",i,j,y_data[i * neutron_b_rows + j] * 1.0);
++      }
++      printf("\n");
++    }
++    printf("Neutron: Prepared matmul in %f us\n", time_diff(t1,t3));
++    printf("Neutron: Computed matmul in %f us\n", time_diff(t3,t4));
++    printf("Neutron: Copying result in %f us\n", time_diff(t4,t5));
++    printf("Neutron: Dequant of MatMulIntegerToFloat in %f us\n", time_diff(t5,t6));
++#endif
++  }
++#ifdef NDEBUG
++  else
++#endif
++  {
++    clock_gettime(CLOCK_REALTIME, &t1);
++    const Tensor* a_scale_tensor = ctx->Input<Tensor>(IN_A_SCALE);
++    const Tensor* b_scale_tensor = ctx->Input<Tensor>(IN_B_SCALE);
++    FixupScaleTensor(a_scale_tensor, b_scale_tensor);
++    bool is_a_scale_scalar = IsScalarOr1ElementVector(a_scale_tensor);
++    bool is_b_scale_supported = IsBQuantParamSupported(b_scale_tensor->Shape(), nullptr != b ? b->Shape() : b_shape_);
++
++    // validate zero point of a
++    uint8_t a_zero_point = 0;
++    const Tensor* a_zero_point_tensor = ctx->Input<Tensor>(IN_A_ZERO_POINT);
++    if (a_zero_point_tensor != nullptr) {
++      ORT_ENFORCE(IsScalarOr1ElementVector(a_zero_point_tensor),
++                  "MatMulIntegerToFloat : input a zero point must be a scalar or 1D tensor of size 1. Per-Channel is not supported yet.");
++      a_zero_point = *(static_cast<const uint8_t*>(a_zero_point_tensor->DataRaw()));
++    }
++
++    const Tensor* b_zp_tensor = ctx->Input<Tensor>(IN_B_ZERO_POINT);
++    ORT_RETURN_IF_ERROR(ComputeCommon(
++                                      ctx,
++                                      static_cast<const uint8_t*>(a->DataRaw()),
++                                      a->Shape(),
++                                      is_a_scale_scalar ? *a_scale_tensor->Data<float>() : 1.f,
++                                      a_zero_point,
++                                      a->IsDataType<int8_t>(),
++                                      b,
++                                      is_b_scale_supported ? b_scale_tensor : nullptr,
++                                      b_zp_tensor,
++                                      ctx->Input<Tensor>(IN_BIAS)));
++
++    if (!is_a_scale_scalar) {
++      ScaleOutput(*a_scale_tensor, *ctx->Output<Tensor>(0));
++    }
++    if (!is_b_scale_supported) {
++      ScaleOutput(*b_scale_tensor, *ctx->Output<Tensor>(0));
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t4);
++
++#ifndef NDEBUG
++    // non-transposed b
++    uint32_t neutron_a_rows = a->Shape()[1];
++    uint32_t neutron_a_cols = a->Shape()[2];
++    uint32_t neutron_b_rows = b ? b->Shape()[1] : m_b_rows;
++    uint32_t neutron_b_cols = b ? b->Shape()[0] : m_b_cols;
++
++    printf("CPU MatMulIntegerToFloat [%d,%d]*[%d,%d]: matmul %f us\n",
++           neutron_a_rows, neutron_a_cols, neutron_b_cols, neutron_b_rows, time_diff(t1,t4));
++#endif
++
++#ifndef NDEBUG
++    // Dump the output
++    const Tensor* y = ctx->Output<Tensor>(0);
++    printf("\nY shape=%ld %ld %ld\n\n",y->Shape()[0],y->Shape()[1],y->Shape()[2]);
++    const float *y_data = static_cast<const float*>(y->DataRaw());
++    printf("\n");
++    for (int i=0; i<y->Shape()[1]; i++) {
++      for (int j=0; j<y->Shape()[2]; j++) {
++        printf("Y[%d][%d]=%f ",i,j,y_data[i * y->Shape()[2] + j]);
++      }
++      printf("\n");
++    }
++    printf("CPU: Computed MatMulIntegerToFloat in %f us\n", time_diff(t1,t4));
++#endif
++  }
++  return Status::OK();
++}
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.h b/onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.h
+new file mode 100644
+index 0000000000..343474348b
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/matmul_integer_to_float.h
+@@ -0,0 +1,82 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/framework/op_kernel_info.h"
++#include "core/providers/neutron/neutron_kernel.h"
++#include "core/providers/cpu/quantization/matmul_integer_base.h"
++
++
++namespace onnxruntime {
++namespace neutron {
++
++class MatMulIntegerToFloatBase : public MatMulIntegerBase {
++ public:
++  MatMulIntegerToFloatBase(const OpKernelInfo& info) : MatMulIntegerBase(info) {}
++
++  enum OutputTensors : int { OUT_Y = 0 };
++
++ protected:
++  Status ComputeCommon(OpKernelContext* ctx,
++                       const uint8_t* a_data,
++                       const TensorShape& a_shape,
++                       float a_scale,
++                       uint8_t a_zp,
++                       bool a_is_signed,
++                       const Tensor* b_tensor,
++                       const Tensor* b_scale,
++                       const Tensor* b_zp,
++                       const Tensor* bias_tensor) const;
++};
++
++class MatMulIntegerToFloat final : public MatMulIntegerToFloatBase {
++ public:
++  MatMulIntegerToFloat(const OpKernelInfo& info) : MatMulIntegerToFloatBase(info) {}
++
++  Status PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                 /*out*/ bool& is_packed,
++                 /*out*/ PrePackedWeights* prepacked_weights) override;
++  
++  Status Compute(OpKernelContext* context) const override;
++
++  enum InputTensors : int {
++    IN_A = 0,
++    IN_B = 1,
++    IN_A_SCALE = 2,
++    IN_B_SCALE = 3,
++    IN_A_ZERO_POINT = 4,
++    IN_B_ZERO_POINT = 5,
++    IN_BIAS = 6
++  };
++
++ protected:
++  int GetBIdx() const override { return IN_B; }
++
++  // neutron parameters
++  size_t    m_handle{0};
++  uint32_t* m_header{NULL};
++  int8_t   *m_b_neutron{NULL};
++  int32_t  *m_b_bias{NULL};
++  uint32_t *m_b_factors{NULL};
++
++  //pre-packing
++  float m_a_scale_data;
++  bool m_dynamic_scale{true};
++  bool m_dynamic_bias{true};
++  uint8_t  m_a_zp;
++  uint32_t m_b_rows;
++  uint32_t m_b_cols;
++  const float  *m_output_bias{NULL};
++  std::vector<float> m_out_scale;
++  bool useCPU{false};
++
++ private:
++  // a scale and b scale may be switched in fusion stage because of lack of shape information.
++  // Fix them up before computation.
++  static void FixupScaleTensor(const Tensor*& a_scale_tensor, const Tensor*& b_scale_tensor);
++};
++
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/qlinear_matmul.cc b/onnxruntime/core/providers/neutron/ops/qlinear_matmul.cc
+new file mode 100644
+index 0000000000..b21d22f3e5
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/qlinear_matmul.cc
+@@ -0,0 +1,358 @@
++// Copyright (c) NXP. All rights reserved.
++
++#include "core/providers/neutron/ops/qlinear_matmul.h"
++#include "core/framework/op_kernel.h"
++#include "core/providers/neutron/neutron_fwd.h"
++
++
++// CPU matmul, remove when neutron integrated
++#include "core/common/narrow.h"
++#include "core/providers/cpu/math/matmul_helper.h"
++#include "core/providers/common.h"
++#include "core/util/math_cpuonly.h"
++#include "core/util/qmath.h"
++#include "core/mlas/inc/mlas.h"
++#if NEUTRON_AARCH64
++#include "core/providers/neutron/platform/NeutronDriver.h"
++#endif
++#include "core/providers/neutron/neutron_allocator.h"
++
++namespace onnxruntime {
++namespace neutron {
++
++#ifndef NDEBUG
++double time_diff(struct timespec start_time, struct timespec end_time)
++{
++  double ns_diff = (double)(end_time.tv_sec - start_time.tv_sec) * 1e9 + (end_time.tv_nsec - start_time.tv_nsec);
++  return ns_diff / 1e3;
++}
++#endif
++
++extern std::shared_ptr<NeutronStackAllocator> neutronAlloc;
++
++ONNX_OPERATOR_TYPED_KERNEL_EX(                                        \
++    QLinearMatMul,                                                    \
++    kOnnxDomain,                                                      \
++    10,                                                               \
++    int8_t,                                                           \
++    kNeutronExecutionProvider,                                        \
++    KernelDefBuilder()                                                \
++        .TypeConstraint("T1", DataTypeImpl::GetTensorType<int8_t>())  \
++        .TypeConstraint("T2", DataTypeImpl::GetTensorType<int8_t>())  \
++        .TypeConstraint("T3", DataTypeImpl::GetTensorType<int8_t>()), \
++    QLinearMatMul);
++
++
++ONNX_OPERATOR_TYPED_KERNEL_EX(                                           \
++    QLinearMatMul,                                                       \
++    kOnnxDomain,                                                         \
++    10,                                                                  \
++    uint8_t,                                                             \
++    kNeutronExecutionProvider,                                           \
++    KernelDefBuilder()                                                   \
++        .TypeConstraint("T1", DataTypeImpl::GetTensorType<uint8_t>())    \
++        .TypeConstraint("T2", { DataTypeImpl::GetTensorType<uint8_t>(),  \
++                                DataTypeImpl::GetTensorType<int8_t>() }) \
++        .TypeConstraint("T3", DataTypeImpl::GetTensorType<uint8_t>()),   \
++    QLinearMatMul);
++
++
++/*
++    From CPU Provider
++*/
++
++Status QLinearMatMul::PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                              /*out*/ bool& is_packed,
++                              /*out*/ PrePackedWeights* prepacked_weights) {
++  try {
++    if (!useCPU) {
++      switch (input_idx) {
++      case IN_A:
++        break;
++      case IN_A_SCALE:
++        m_a_scale_data = *(tensor.Data<float>());
++        break;
++      case IN_A_ZERO_POINT:
++        m_a_zp = *(static_cast<const uint8_t*>(tensor.DataRaw()));
++        break;
++      case IN_B:
++        {
++          m_b_rows = tensor.Shape()[1];
++          m_b_cols = tensor.Shape()[0];
++
++          if ((m_b_rows % 16) || (m_b_rows * 16 >= 1024*1024))
++            throw std::bad_alloc();
++
++          m_handle = neutronAlloc->getMemoryHandle();
++          m_header = (uint32_t*) neutronAlloc->Alloc(16*sizeof(uint32_t), m_handle);
++
++          m_b_neutron = (int8_t*) neutronAlloc->Alloc(m_b_rows * m_b_cols, m_handle);
++          const int8_t *b_data = static_cast<const int8_t*>(tensor.DataRaw());
++          for(uint32_t i=0; i<m_b_cols; i++) {
++            for(uint32_t j=0; j<m_b_rows; j++) {
++              m_b_neutron[m_b_cols*j+i] = b_data[m_b_rows*i+j];
++            }
++          }
++          clean_cache(m_b_neutron, m_b_rows*m_b_cols);
++
++          m_b_bias = (int32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(int32_t), m_handle);
++          for (uint32_t i=0; i< m_b_rows; i++){
++            int32_t row_sum = 0;
++            for (uint32_t j=0; j< m_b_cols; j++) {
++              row_sum += *(m_b_neutron + i * m_b_cols + j);
++            }
++            m_b_bias[i] = row_sum;
++          }
++        }
++        break;
++      case IN_B_SCALE:
++        m_b_scale_data = tensor.Data<float>();
++        break;
++      case IN_B_ZERO_POINT:
++        // we assume B has ZP equal to 0
++        // todo: implement a check
++        break;
++      case IN_Y_SCALE:
++        {
++          auto y_scale_data = *(tensor.Data<float>());
++
++          const int64_t output_scale_size = m_b_rows;
++          for (int64_t i = 0; i < output_scale_size; i++)
++            m_output_scales.push_back(m_a_scale_data * m_b_scale_data[narrow<size_t>(i)] / y_scale_data);
++
++          m_b_factors = (uint32_t *)neutronAlloc->Alloc(m_b_rows*sizeof(uint32_t), m_handle);
++
++          for (uint32_t i=0; i< m_b_rows; i++){
++            float *pfloat = &(m_output_scales[i]);
++            uint32_t u32 = *(uint32_t*) pfloat;
++
++            uint32_t scaler = (u32 >>8) & 0x7fff ; // extract mantissa (15bits)
++            int8_t exp_tmp = (u32 >> 23) & 0xff; // extract exponent
++
++            scaler = (exp_tmp==0) ? 0 :  scaler | 0x8000; // add hidden bit or zero out (if zero or subnormal
++            exp_tmp = -(exp_tmp -142); // we subtract FP32 offset as well as 16bit growth of our scaler (126 is power of -1 so mantissa is in range 0.5 to 1, 126 + 16=142, where 16 is the factor we multiply by in scaler)
++            int8_t exp = (exp_tmp>63) ? 63 : exp_tmp; // ensure that we don't exceed available shift bits (note that this step could, in theory be skipped if this never happens. Not sure if we can take the chance)
++            //if (exp == 63)
++            //      printf("scalar %0d, exp %0d", (uint32_t)scaler, (uint32_t)exp);
++            scaler = (exp<<16) | scaler; // merge scaler and downshift factor into the Neutron 32bit scaler format (16bit scaler in LSB and then 6bits of downshift)
++
++            m_b_factors[i] = scaler;
++          }
++          clean_cache(m_b_factors, m_b_rows*sizeof(uint32_t));
++        }
++        break;
++      case IN_Y_ZERO_POINT:
++        {
++          m_y_zp = *(static_cast<const uint8_t*>(tensor.DataRaw()));
++          for (uint32_t i=0; i< m_b_rows; i++){
++            m_b_bias[i] = (int32_t)(m_y_zp / m_output_scales[i] - m_b_bias[i] * m_a_zp);
++          }
++          clean_cache(m_b_bias, m_b_rows*sizeof(int32_t));
++        }
++        break;
++      }
++    }
++  }
++  catch (const std::bad_alloc &e) {
++    // Do not delegate this instance if out of memory
++    printf("[NeutronEP:QLinearMatMul} W{%d, %d} will be executed on CPU\n", m_b_cols, m_b_rows);
++    useCPU = true;
++
++    //Fast CPU pre-packing
++    return MatMulIntegerBase::PrePack(tensor, input_idx, alloc, is_packed, prepacked_weights);
++  }
++  return Status::OK();
++  /*
++  (void)tensor;
++  (void)input_idx;
++  (void)alloc;
++  (void)is_packed;
++  (void)prepacked_weights;
++  return Status::OK();
++  */
++}
++
++Status QLinearMatMul::Compute(OpKernelContext* ctx) const {
++/* @TODO, based in cpu for testing. Modify to add neutron management */
++  const auto* a = ctx->Input<Tensor>(IN_A);
++  const auto* b = packed_b_ ? nullptr : ctx->Input<Tensor>(IN_B);
++
++  //  printf("[QLinearMatMul] Input A ptr : %p \n", a->DataRaw());
++  //  printf("[QLinearMatMul] Input B ptr : %p \n", b->DataRaw());
++
++  // validate offsets
++  const auto* a_offset = ctx->Input<Tensor>(IN_A_ZERO_POINT);
++  const auto* b_offset = ctx->Input<Tensor>(IN_B_ZERO_POINT);
++  const auto* y_offset = ctx->Input<Tensor>(IN_Y_ZERO_POINT);
++  ORT_ENFORCE(IsScalarOr1ElementVector(a_offset),
++              "QLinearMatmul : input zero point must be a scalar or 1D tensor of size 1");
++  ORT_ENFORCE(IsBQuantParamSupported(b_offset->Shape(), b ? b->Shape() : b_shape_),
++              "QLinearMatmul : weight zero point must be a scalar, 1D tensor of size 1, or last to second dimension is 1");
++  ORT_ENFORCE(IsScalarOr1ElementVector(y_offset),
++              "QLinearMatmul : result zero point must be a scalar or 1D tensor of size 1");
++
++  // validate scale
++  const auto* a_scale = ctx->Input<Tensor>(IN_A_SCALE);
++  const auto* b_scale = ctx->Input<Tensor>(IN_B_SCALE);
++  const auto* y_scale = ctx->Input<Tensor>(IN_Y_SCALE);
++  ORT_ENFORCE(IsScalarOr1ElementVector(a_scale),
++              "QLinearMatmul : input scale must be a scalar or 1D tensor of size 1");
++  ORT_ENFORCE(IsBQuantParamSupported(b_scale->Shape(), b ? b->Shape() : b_shape_),
++              "QLinearMatmul : weight scale must be a scalar, 1D tensor of size 1, or last to second dimension is 1");
++  ORT_ENFORCE(IsScalarOr1ElementVector(y_scale),
++              "QLinearMatmul : result scale must be a scalar or 1D tensor of size 1");
++
++  MatMulComputeHelper helper;
++  const uint8_t* b_data;
++  bool b_is_signed;
++  if (nullptr != b) {
++    ORT_RETURN_IF_ERROR(helper.Compute(a->Shape(), b->Shape(), &b_scale->Shape(), &b_offset->Shape()));
++    b_data = static_cast<const uint8_t*>(b->DataRaw());
++    b_is_signed = b->IsDataType<int8_t>();
++  } else {
++    ORT_RETURN_IF_ERROR(helper.Compute(a->Shape(), b_shape_, &b_scale->Shape(), &b_offset->Shape()));
++    b_data = static_cast<const uint8_t*>(packed_b_.get());
++    b_is_signed = b_is_signed_;
++  }
++
++  Tensor* y = ctx->Output(OUT_Y, helper.OutputShape());
++  //  printf("[QLinearMatMul] Output Y ptr : %p \n", y->DataRaw());
++  // Bail out early if the output is going to be empty
++  if (y->Shape().Size() == 0)
++    return Status::OK();
++
++  struct timespec t1, t2, t3, t4, t5;
++
++  if (!useCPU && m_header && m_b_neutron && m_b_bias && m_b_factors) {
++    clock_gettime(CLOCK_REALTIME, &t1);
++
++    neutronAlloc->pushMemoryState(m_handle);
++
++    // non-transposed b
++    uint32_t neutron_a_rows = a->Shape()[1];
++    uint32_t neutron_a_cols = a->Shape()[2];
++    uint32_t neutron_b_rows = b ? b->Shape()[1] : b_shape_[1];
++    uint32_t neutron_b_cols = b ? b->Shape()[0] : b_shape_[0];
++    if (neutron_a_cols != neutron_b_cols) {
++      printf("Neutron dimenssions do not match!\n");
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t2);
++
++    uint32_t a_size = neutron_a_rows * neutron_a_cols;
++    uint8_t *a_neutron = (uint8_t *) neutronAlloc->AllocReserved(a_size*sizeof(uint8_t), m_handle);
++    auto  a_data = static_cast<const uint8_t*>(a->DataRaw());
++    memcpy(a_neutron, a_data, a_size);
++
++    clock_gettime(CLOCK_REALTIME, &t3);
++
++    uint32_t y_size = neutron_a_rows * neutron_b_rows;
++    uint8_t *y_neutron = (uint8_t *) neutronAlloc->AllocReserved(y_size * sizeof(uint8_t), m_handle);
++
++    m_header[0] = 0;
++    m_header[1] = 0;
++    m_header[2] = neutron_a_rows;
++    m_header[3] = neutron_a_cols;
++    m_header[4] = neutron_b_rows;
++    m_header[5] = (uint8_t *)a_neutron - (uint8_t *)m_header;
++    m_header[6] = (uint8_t *)m_b_neutron - (uint8_t *)m_header;
++    m_header[7] = (uint8_t *)m_b_bias - (uint8_t *)m_header;
++    m_header[8] = (uint8_t *)m_b_factors - (uint8_t *)m_header;
++    m_header[9] = (uint8_t *)y_neutron - (uint8_t *)m_header;
++    m_header[10] = m_y_zp;
++    m_header[11] = 1; // result num bytes
++
++    NeutronError ret = ENONE;
++    ret = matmul((const void *)m_header, 16*sizeof(uint32_t), (const void*)a_neutron, a_size, (const void*)y_neutron, y_size, m_handle);
++    if (ret != ENONE){
++        printf("matmul() error %d\n", ret);
++        return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "matmul() error");
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t4);
++    memcpy(static_cast<uint8_t*>(y->MutableDataRaw()), y_neutron, neutron_a_rows * m_b_rows);
++
++    neutronAlloc->popMemoryState(m_handle);
++    clock_gettime(CLOCK_REALTIME, &t5);
++
++#ifndef NDEBUG
++    printf("NeutronEP: QlinearMatmul [%d,%d]*[%d,%d]: in_copy %f us, matmul %f us, dequant %f\n",
++            neutron_a_rows, neutron_a_cols, neutron_b_cols, neutron_b_rows, time_diff(t1,t3), time_diff(t3,t4), time_diff(t4,t5));
++#endif
++
++#ifndef NDEBUG
++    printf("Neutron: Computed QLinearMatmul of size %ld * %ld * %ld in %f us\n", helper.M(),helper.N(),helper.K(),time_diff(t1,t5));
++#endif
++  }
++  else
++  {
++    const auto* b_scale_data = b_scale->Data<float>();
++    auto a_scale_data = *(a_scale->Data<float>());
++    auto y_scale_data = *(y_scale->Data<float>());
++
++    const int64_t output_scale_size = b_scale->Shape().Size();
++    std::vector<float> output_scales(narrow<size_t>(output_scale_size));
++    for (int64_t i = 0; i < output_scale_size; i++) {
++      output_scales[narrow<size_t>(i)] = (a_scale_data * b_scale_data[narrow<size_t>(i)] / y_scale_data);
++    }
++
++    const size_t num_gemms = helper.OutputOffsets().size();
++    MLAS_GEMM_QUANT_SHAPE_PARAMS gemm_shape;
++    gemm_shape.M = static_cast<size_t>(helper.M());
++    gemm_shape.N = static_cast<size_t>(helper.N());
++    gemm_shape.K = static_cast<size_t>(helper.K());
++    gemm_shape.AIsSigned = a->IsDataType<int8_t>();
++    gemm_shape.BIsSigned = b_is_signed;
++
++    AllocatorPtr alloc;
++    ORT_RETURN_IF_ERROR(ctx->GetTempSpaceAllocator(&alloc));
++    auto gemm_output_data = alloc->Alloc(SafeInt<size_t>(gemm_shape.M) *
++                                         gemm_shape.N * sizeof(int32_t) * num_gemms);
++    BufferUniquePtr gemm_output_buffer(gemm_output_data, BufferDeleter(std::move(alloc)));
++    auto* gemm_output = static_cast<int32_t*>(gemm_output_buffer.get());
++
++    std::vector<MLAS_GEMM_QUANT_DATA_PARAMS> gemm_params(num_gemms);
++    std::vector<MLAS_QGEMM_REQUANT_OUTPUT_PROCESSOR> requant_procs;
++    requant_procs.reserve(num_gemms);
++
++    bool is_output_signed = y->IsDataType<int8_t>();
++    int32_t output_offset = is_output_signed ? *(static_cast<const int8_t*>(y_offset->DataRaw()))
++      : *(static_cast<const uint8_t*>(y_offset->DataRaw()));
++    auto b_zp_data = static_cast<const uint8_t*>(b_offset->DataRaw());
++    for (size_t i = 0; i < num_gemms; i++) {
++      gemm_params[i].A = static_cast<const uint8_t*>(a->DataRaw()) + helper.LeftOffsets()[i];
++      gemm_params[i].lda = gemm_shape.K;
++      gemm_params[i].ZeroPointA = *(static_cast<const uint8_t*>(a_offset->DataRaw()));
++
++      gemm_params[i].B = b_data + helper.RightOffsets()[i];
++      gemm_params[i].ldb = gemm_shape.N;
++      gemm_params[i].BIsPacked = bool(packed_b_);
++      gemm_params[i].ZeroPointB = b_zp_data + helper.RightZeroPointOffsets()[i];
++
++      gemm_params[i].C = gemm_output + (gemm_shape.M * gemm_shape.N * i);
++      gemm_params[i].ldc = gemm_shape.N;
++
++      gemm_params[i].PerColumnZeroPoints = !IsScalarOr1ElementVector(b_offset);
++
++      requant_procs.emplace_back(static_cast<uint8_t*>(y->MutableDataRaw()) + helper.OutputOffsets()[i],
++                                 static_cast<size_t>(helper.N()),
++                                 nullptr,
++                                 output_scales.data() + helper.RightScaleOffsets()[i],
++                                 output_scales.size() > 1,
++                                 output_offset,
++                                 is_output_signed);
++      gemm_params[i].OutputProcessor = &(requant_procs[i]);
++    }
++
++    clock_gettime(CLOCK_REALTIME, &t3);
++    MlasGemmBatch(gemm_shape, gemm_params.data(), num_gemms, ctx->GetOperatorThreadPool());
++    clock_gettime(CLOCK_REALTIME, &t4);
++#ifndef NDEBUG
++    printf("CPU: Computed QLinearMatmul of size %ld * %ld * %ld in %f us\n", helper.M(),helper.N(),helper.K(),time_diff(t3,t4));
++#endif
++  }
++
++  return Status::OK();
++}
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/qlinear_matmul.h b/onnxruntime/core/providers/neutron/ops/qlinear_matmul.h
+new file mode 100644
+index 0000000000..64051fbf13
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/qlinear_matmul.h
+@@ -0,0 +1,198 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/framework/op_kernel_info.h"
++#include "core/providers/neutron/neutron_kernel.h"
++#include "core/providers/cpu/quantization/matmul_integer_base.h"
++
++
++namespace onnxruntime {
++namespace neutron {
++
++/*
++    From CPU Provider implementation
++*/
++
++
++class QLinearMatMul : public MatMulIntegerBase {
++ public:
++  explicit QLinearMatMul(const OpKernelInfo& info) : MatMulIntegerBase(info) {}
++
++  Status Compute(OpKernelContext* ctx) const override;
++
++  Status PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                 /*out*/ bool& is_packed,
++                 /*out*/ PrePackedWeights* prepacked_weights) override;
++
++  enum InputTensors : int {
++    IN_A = 0,
++    IN_A_SCALE = 1,
++    IN_A_ZERO_POINT = 2,
++    IN_B = 3,
++    IN_B_SCALE = 4,
++    IN_B_ZERO_POINT = 5,
++    IN_Y_SCALE = 6,
++    IN_Y_ZERO_POINT = 7
++  };
++
++  enum OutputTensors : int {
++    OUT_Y = 0
++  };
++
++  int GetAIdx() const override { return IN_A; }
++  int GetBIdx() const override { return IN_B; }
++
++  // neutron parameters
++  size_t    m_handle{0};
++  uint32_t* m_header{NULL};
++  int8_t   *m_b_neutron{NULL};
++  int32_t  *m_b_bias{NULL};
++  uint32_t *m_b_factors{NULL};
++
++  //pre-packing
++  float    m_a_scale_data;
++  uint8_t  m_a_zp;
++  uint8_t  m_y_zp;
++  uint32_t m_b_rows;
++  uint32_t m_b_cols;
++  const float  *m_b_scale_data;
++  std::vector<float> m_output_scales;
++
++  bool useCPU{false};
++};
++
++
++/* Used only for cpu matmul - testing purposes */
++
++class MatMulIntegerBase : public NeutronKernel {
++ public:
++  MatMulIntegerBase(const OpKernelInfo& info) : NeutronKernel(info) {}
++
++  Status PrePack(const Tensor& tensor, int input_idx, AllocatorPtr alloc,
++                 /*out*/ bool& is_packed,
++                 /*out*/ PrePackedWeights* prepacked_weights) override {
++    is_packed = false;
++
++    // only pack Matrix B
++    if (input_idx == GetBIdx()) {
++      // Only handle the common case of a 2D weight matrix. Additional matrices
++      // could be handled by stacking the packed buffers.
++      b_shape_ = tensor.Shape();
++      if (b_shape_.NumDimensions() != 2) {
++        return Status::OK();
++      }
++
++      auto a_elem_type = Node().InputDefs()[GetAIdx()]->TypeAsProto()->tensor_type().elem_type();
++      bool a_is_signed = ONNX_NAMESPACE::TensorProto_DataType_INT8 == a_elem_type;
++
++      b_is_signed_ = tensor.IsDataType<int8_t>();
++
++      size_t K = static_cast<size_t>(b_shape_[0]);
++      size_t N = static_cast<size_t>(b_shape_[1]);
++
++      const auto* b_data = static_cast<const uint8_t*>(tensor.DataRaw());
++
++      std::optional<Tensor> b_trans_buffer;
++      if (IsBTransposed()) {
++        std::swap(K, N);
++        b_data = quantization::TransPoseInputData(b_data, b_trans_buffer, alloc, N, K);
++      }
++      const size_t packed_b_size = MlasGemmPackBSize(N, K, a_is_signed, b_is_signed_);
++      if (packed_b_size == 0) {
++        return Status::OK();
++      }
++
++      packed_b_ = IAllocator::MakeUniquePtr<void>(alloc, packed_b_size, true);
++      // Initialize memory to 0 as there could be some padding associated with pre-packed
++      // buffer memory and we don not want it uninitialized and generate different hashes
++      // if and when we try to cache this pre-packed buffer for sharing between sessions.
++      memset(packed_b_.get(), 0, packed_b_size);
++      MlasGemmPackB(N, K, b_data, N, a_is_signed, b_is_signed_, packed_b_.get());
++
++      bool share_prepacked_weights = (prepacked_weights != nullptr);
++      if (share_prepacked_weights) {
++        prepacked_weights->buffers_.push_back(std::move(packed_b_));
++        prepacked_weights->buffer_sizes_.push_back(packed_b_size);
++      }
++
++      is_packed = true;
++    }
++    return Status::OK();
++  }
++
++  Status UseSharedPrePackedBuffers(std::vector<BufferUniquePtr>& prepacked_buffers,
++                                   int input_idx,
++                                   /*out*/ bool& used_shared_buffers) override {
++    used_shared_buffers = false;
++
++    if (input_idx == GetBIdx()) {
++      used_shared_buffers = true;
++      packed_b_ = std::move(prepacked_buffers[0]);
++    }
++
++    return Status::OK();
++  }
++
++ protected:
++  /**
++   * @return input index of Matrix B, the weight tensor
++   */
++  virtual int GetAIdx() const { return 0; }
++  virtual int GetBIdx() const = 0;
++
++  virtual bool IsBTransposed() const {
++    return false;
++  }
++
++  // Check if quantization parameter of B is supported.
++  // It should be in one of the formats below:
++  // 1. Scalar
++  // 2. 1D tensor with size equal to 1 or last dimension of B_shape if B_shape is a 2D tensor
++  // 3. Equal to B_shape except that the second to last is 1
++  bool IsBQuantParamSupported(const TensorShape& B_quant_param_shape, const TensorShape& B_shape) const {
++    int64_t B_quant_param_rank = B_quant_param_shape.NumDimensions();
++    int64_t B_shape_rank = B_shape.NumDimensions();
++    if (B_quant_param_rank == 0 ||                                       // scalar
++        (B_quant_param_rank == 1 && B_quant_param_shape.Size() == 1)) {  // 1D tensor with size 1
++      return true;
++    }
++
++    if (B_quant_param_rank == 1 &&
++        B_shape_rank == 2 &&
++        B_quant_param_shape[0] == B_shape[1]) {
++      return true;
++    }
++
++    if (B_quant_param_rank != B_shape_rank ||
++        B_quant_param_rank <= 1 ||
++        B_quant_param_shape[SafeInt<size_t>(B_quant_param_rank) - 2] != 1) {
++      return false;
++    }
++
++    for (int64_t rank = 0; rank < B_quant_param_rank; rank++) {
++      if (rank != B_quant_param_rank - 2 &&
++          B_quant_param_shape[onnxruntime::narrow<size_t>(rank)] != B_shape[onnxruntime::narrow<size_t>(rank)]) {
++        return false;
++      }
++    }
++
++    return true;
++  }
++
++  bool b_is_signed_{true};
++  TensorShape b_shape_;
++  IAllocatorUniquePtr<void> packed_b_;
++};
++
++
++
++
++
++
++
++
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/quantize_linear.cc b/onnxruntime/core/providers/neutron/ops/quantize_linear.cc
+new file mode 100644
+index 0000000000..78c0bac2e8
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/quantize_linear.cc
+@@ -0,0 +1,144 @@
++// Copyright (c) NXP. All rights reserved.
++
++#include "core/providers/neutron/ops/quantize_linear.h"
++#include "core/framework/element_type_lists.h"
++#include "core/util/qmath.h"
++#include "core/providers/neutron/ops/common.h"
++#include "core/providers/neutron/neutron_fwd.h"
++
++
++namespace onnxruntime {
++namespace neutron {
++
++
++#define REGISTER_Q_KERNEL_TYPED(T)                                         \
++  ONNX_OPERATOR_VERSIONED_TYPED_KERNEL_EX(                                 \
++      QuantizeLinear,                                                      \
++      kOnnxDomain,                                                         \
++      13, 18,                                                              \
++      T,                                                                   \
++      kNeutronExecutionProvider,                                           \
++      (*KernelDefBuilder::Create())                                        \
++          .TypeConstraint("T1", DataTypeImpl::GetTensorType<float>())      \
++          .TypeConstraint("T2", DataTypeImpl::GetTensorType<T>()),         \
++      QuantizeLinear<T>);
++
++
++#define REGISTER_Q_KERNEL_TYPED_19(T)                                      \
++  ONNX_OPERATOR_TWO_TYPED_KERNEL_EX(                                       \
++      QuantizeLinear,                                                      \
++      kOnnxDomain,                                                         \
++      19,                                                                  \
++      T, float,                                                            \
++      kNeutronExecutionProvider,                                           \
++      (*KernelDefBuilder::Create())                                        \
++          .TypeConstraint("T1", DataTypeImpl::GetTensorType<float>())      \
++          .TypeConstraint("T2", DataTypeImpl::GetTensorType<T>()),         \
++      QuantizeLinear<T>);
++
++
++REGISTER_Q_KERNEL_TYPED(uint8_t)
++REGISTER_Q_KERNEL_TYPED(int8_t)
++REGISTER_Q_KERNEL_TYPED_19(int8_t)
++REGISTER_Q_KERNEL_TYPED_19(uint8_t)
++
++/*
++    From CPU Provider implementation
++*/
++
++template <typename InputType, typename OutputType>
++void ParQuantizeLinear(const InputType* Input,
++                       OutputType* Output,
++                       size_t N,
++                       InputType Scale,
++                       size_t bd,
++                       const OutputType* ZeroPoint,
++                       bool saturate,
++                       concurrency::ThreadPool* thread_pool) {
++  if constexpr (!boost::mp11::mp_contains<element_type_lists::AllFloat8, OutputType>::value) {
++    ORT_UNUSED_PARAMETER(saturate);
++    ParQuantizeLinearStd(Input, Output, N, Scale,
++                            ZeroPoint != nullptr ?
++                                ZeroPoint[bd] :
++                                (OutputType)0,
++                            thread_pool);
++  } else {
++    ParQuantizeLinearSat(Input, Output, N, Scale,
++                            ZeroPoint != nullptr ?
++                                ZeroPoint[bd] :
++                                OutputType(static_cast<InputType>(static_cast<float>(0)), true),
++                            saturate, thread_pool);
++  }
++}
++
++template <typename T, typename InT>
++void ComputeLoop(OpKernelContext* ctx,
++                 const InT* input, const InT* scale, const T* zero_point, T* output,
++                 int64_t N, int64_t broadcast_dim, int64_t block_size, bool saturate) {
++  for (size_t n = 0; n < static_cast<size_t>(N); n++) {
++    for (size_t bd = 0; bd < static_cast<size_t>(broadcast_dim); bd++) {
++      ParQuantizeLinear(input, output,
++                        static_cast<size_t>(block_size),
++                        scale[bd], bd, zero_point, saturate,
++                        ctx->GetOperatorThreadPool());
++      input += block_size;
++      output += block_size;
++    }
++  }
++}
++
++// formula is Y = X / Scale + ZeroPoint
++template <typename T>
++Status QuantizeLinear<T>::Compute(OpKernelContext* ctx) const {
++  auto& x = *ctx->Input<Tensor>(0);
++  auto& y_scale = *ctx->Input<Tensor>(1);
++  auto* y_zero_point = ctx->Input<Tensor>(2);
++  const auto& x_shape = x.Shape();
++  auto& y = *ctx->Output(0, x_shape);
++
++  int64_t N;
++  int64_t broadcast_dim;
++  int64_t block_size;
++  PrepareForQDQ(x.Shape(), y_scale, y_zero_point, axis_, N, broadcast_dim, block_size);
++
++  const T* zero_point = y_zero_point != nullptr ? y_zero_point->Data<T>() : nullptr;
++
++  /* Override output tensor's buffer */
++  auto y_type = y.DataType();
++  auto vec_x_shape = x_shape.AsShapeVector();
++  auto out_size = std::accumulate(vec_x_shape.begin(), vec_x_shape.end(), sizeof(T), std::multiplies<uint32_t>());
++
++#if NEUTRON_AARCH64
++  auto allocator = Info().GetAllocator(OrtMemType::OrtMemTypeDefault);
++  //auto allocator = ctx->GetAllocator({OrtDevice::NPU, OrtDevice::MemType::DEFAULT, DEFAULT_CPU_ALLOCATOR_DEVICE_ID});
++#else
++  auto allocator = Info().GetAllocator(OrtMemType::OrtMemTypeCPU);
++#endif
++  auto buffer = allocator->Alloc(out_size);
++
++  auto out_tensor = Tensor(y_type, x_shape,
++                    /* alloc*/  buffer,
++                    /* deleter*/ allocator,
++                    /* offset*/ 0);
++
++  T* out_ptr = out_tensor.MutableData<T>();
++#ifndef NDEBUG
++  printf("[QuantizeLinear] Output ptr: %p \n", out_ptr);
++#endif
++  if (x.IsDataType<float>()) {
++    ComputeLoop<T, float>(ctx, x.Data<float>(), y_scale.Data<float>(), zero_point,
++                          out_ptr, N, broadcast_dim, block_size, saturate_);
++  } else {
++    ORT_THROW("Unsupported input type.");
++  }
++
++  OrtValue out_ort;
++  Tensor::InitOrtValue(std::move(out_tensor), out_ort);
++  ORT_RETURN_IF_ERROR(ctx->ForceMLValue(0, std::move(out_ort)));
++
++  return Status::OK();
++}
++
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/ops/quantize_linear.h b/onnxruntime/core/providers/neutron/ops/quantize_linear.h
+new file mode 100644
+index 0000000000..7bace6898c
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/ops/quantize_linear.h
+@@ -0,0 +1,37 @@
++// Copyright (c) NXP. All rights reserved.
++
++#pragma once
++
++#include "core/framework/op_kernel.h"
++#include "core/framework/op_kernel_info.h"
++#include "core/providers/neutron/neutron_kernel.h"
++
++
++namespace onnxruntime {
++namespace neutron {
++
++/*
++    From CPU Provider implementation
++*/
++
++template <typename T>
++class QuantizeLinear final : public NeutronKernel {
++ public:
++  explicit QuantizeLinear(const OpKernelInfo& info) : NeutronKernel(info) {
++    if (!info.GetAttr<int64_t>("axis", &axis_).IsOK()) {
++      axis_ = 1;
++    }
++    if (!info.GetAttr<int64_t>("saturate", &saturate_).IsOK()) {
++      saturate_ = 1;
++    }
++  }
++
++  Status Compute(OpKernelContext* context) const override;
++
++ private:
++  int64_t axis_;
++  int64_t saturate_;
++};
++
++}  // namespace neutron
++}  // namespace onnxruntime
+diff --git a/onnxruntime/core/providers/neutron/platform/NeutronDriver.h b/onnxruntime/core/providers/neutron/platform/NeutronDriver.h
+new file mode 100644
+index 0000000000..6001210bc2
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/platform/NeutronDriver.h
+@@ -0,0 +1,213 @@
++/*
++ * Copyright 2022-2024 NXP
++ * All rights reserved.
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#ifndef NEUTRON_DRIVER_H
++#define NEUTRON_DRIVER_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++#include <stddef.h>
++#include <stdint.h>
++#include <stdbool.h>
++
++#include "NeutronErrors.h"
++#include <stdbool.h>
++
++NeutronError allocateBuffer(uint64_t size, void **pBuffer, _Bool userspace);
++NeutronError releaseBuffer(void *buffer);
++NeutronError clean_cache(const void* addr, int size);
++NeutronError matmul(const void* info, int size_info, const void* in, int size_in, const void* out, int size_out, int idx_slot);
++
++/* Neutron Driver error category codes */
++typedef enum ERROR_CATEGORY_DRIVER {
++    ERROR_CATEGORY_DRIVER_GENERIC,        /* Generic error category */
++    ERROR_CATEGORY_DRIVER_UNSUPPORTED,    /* Unsupported function */
++    ERROR_CATEGORY_DRIVER_UCODE,          /* Microcode bad magic or version incompatible. */
++    ERROR_CATEGORY_DRIVER_INVALID,        /* Invalid arguments */
++    ERROR_CATEGORY_DRIVER_BAD_HANDLE,     /* Bad inference handle */
++    ERROR_CATEGORY_DRIVER_NO_MEMORY,      /* Not enough memory */
++    ERROR_CATEGORY_DRIVER_INTERNAL_FAULT, /* Internal error */
++    ERROR_CATEGORY_DRIVER_UNKNOWN_ARCH,   /* Unknown architecture */
++    ERROR_CATEGORY_DRIVER_TRACE_NOT_RUN,  /* Tracing did not run, but trace buffer was requested. */
++    ERROR_CATEGORY_DRIVER_TIMEOUT         /* Timeout error. */
++} ERROR_CATEGORY_DRIVER;
++
++/// Trace configuration to enable kernel level tracing.
++#define TRACE_CONFIG_KERNEL_LEVEL (1U << 0)
++
++/// Trace confinguration to enable job level tracing.
++#define TRACE_CONFIG_JOB_LEVEL (1U << 1)
++
++// Macro to define where to allocate memory for NeutronCtx
++#ifndef NO_HEAP_USAGE
++#define NO_HEAP_USAGE 0
++#endif
++
++/* Neutron Driver errors */
++#define GEN_NEUTRON_DRIVER_ERROR(category, code) GEN_NEUTRON_ERROR(ERROR_COMPONENT_DRIVER, category, code)
++#define GEN_NEUTRON_DRIVER_GENERIC_ERROR()       GEN_NEUTRON_DRIVER_ERROR(ERROR_CATEGORY_DRIVER_GENERIC, __LINE__)
++
++/// Type definition for a Neutron model handle. This is an identifier used to uniquely identify a model.
++/// The convention is that the value NEUTRON_INVALID_HANDLE handle corresponds to an invalid handle.
++typedef void *NeutronModelHandle;
++
++typedef struct {
++    /// Neutron microcode buffer address.
++    /// The Neutron microcode is generated by the Neutron converter tool.
++    /// The microcode buffer is allocated and initialized by the application or ML framework.
++    /// The microcode buffer is passed by reference to the Neutron firmware.
++    /// The microcode buffer is specific for a given ML model.
++    const void *microcode;
++
++    /// Neutron weights buffer address.
++    /// The Neutron weights is generated by the Neutron converter tool.
++    /// The weights buffer is allocated and initialized by the application or ML framework.
++    /// The weights buffer address is passed by reference to the Neutron-firmware.
++    /// The weights buffer is specific for a given ML model.
++    const void *weights;
++
++    /// Neutron kernels buffer address.
++    /// The Neutron kernels are generated by the Neutron converter tool.
++    /// The kernels buffer is allocated and initialized by the application or ML framework.
++    /// The kernels buffer address is passed by reference to the Neutron-firmware.
++    /// The kernels buffer is specific for a given ML model.
++    const void *kernels;
++
++    /// Timeout seconds for the microcode running.
++    /// This timeout is the uplimit seconds that a user expect to complete, default 60.
++    uint32_t timeoutSeconds;
++
++} NeutronModelConfig;
++
++typedef struct {
++    /// The input buffers of the model.
++    /// The input buffers are allocated and initialized by the application or ML framework.
++    /// The input buffers are passed by reference to the Neutron firmware.
++    const void **inputs;
++
++    /// The output buffers of the model.
++    /// The output buffers are allocated by the application or ML framework.
++    /// The output buffers are passed by reference to the Neutron firmware.
++    void **outputs;
++
++    /// Scratch buffer required for computing model intermediate results.
++    /// If NULL, this buffer has to be allocated by the driver.
++    void *scratch;
++
++    /// Scratch buffer required for prefetching model weights from FLASH to SRAM.
++    /// This buffer is used only for Neutron-C targets when the weight prefetch option was explicitly used.
++    /// If NULL, this buffer has to be allocated by the driver.
++    void *scratchWeights;
++
++} NeutronDataConfig;
++
++typedef struct {
++    /// Sets whether tracing should be executed during firmware run or not.
++    /// If set to 0, tracing will not run.
++    /// If set to 1 - kernel level tracing.
++    /// If set to 2 - job level tracing.
++    /// If set to 3 - mixed level tracing
++    uint32_t traceConfig;
++
++    /// Buffer to store collected trace data.
++    /// If it is NULLPTR, driver will allocate the memory, otherwise, application can.
++    char *traceBuffer;
++
++    /// What is the allocated memory for buffer. Needed to check if appending string will be out of bounds.
++    /// Application should set this, if the buffer is allocated by application, otherwise driver will set the value.
++    size_t traceBufferSize;
++} NeutronTraceConfig;
++
++/// This structure contains the prototypes for functions that have a custom implementation.
++/// Any new functions or variables must be added at the end.
++typedef struct {
++    /// This function performs the copying from FLASH to SRAM.
++    void (*copy)(void *dst, void *src, uint32_t size, uint32_t channel);
++    /// This is a blocking function that checks if the current copy has finished.
++    void (*wait)(uint32_t channel);
++} NeutronConfig;
++
++/* Invalid handle, returned by neutronModelPrepare() if an error occurred. */
++#define NEUTRON_INVALID_HANDLE NULL
++
++/// - Initialize the Neutron Driver library, setting initial values, do memory allocation
++///   for internal data structures, do memory mapping.
++NeutronError neutronInit();
++
++/// - Deinitialize the Neutron Driver library, releasing any resources aquired by neutronInit
++NeutronError neutronDeinit();
++
++/// - Prepare Neutron execution for a model with custom firmware.
++/// - This function is only available for Neutron-S.
++NeutronError neutronCustomPrepare(int32_t *inputSize, int32_t numInputs, int32_t *outputSize, int32_t numOutputs,
++                                  const void *firmware, size_t firmwareSize, NeutronModelHandle *hdl);
++
++/// - Run Neutron custom firmware and get the results.
++/// - This function is only available for Neutron-S.
++NeutronError neutronCustomExec(NeutronModelHandle hdl, const NeutronDataConfig *neutron_dcfg);
++
++/// - Setup the input and output data ptr to use Neutron memory area.
++/// - The input and ouput data ptr is stored in neutron_dcfg.
++NeutronError neutronDataSetup(NeutronModelHandle hdl, NeutronDataConfig *neutron_dcfg);
++
++/// - Prepare Neutron execution for a model with the given configuration.
++/// - This function only prepares the execution by transferring the parameters to the firmware.
++/// - This function allows caching a model and then running the same model but with different
++///   input data (assuming the new input data replaces the old input data by reusing the same buffers).
++/// - In case external allocated memory shall be used for the ModelHandle, e.g. from the Tensorflow
++///   tensor arena, hdl shall be a pointer to the start of the allocated memory block.
++//    If a pointer to NULL is passed, memory will be allocated by the driver
++///   from HEAP. If no HEAP is available, an error will be thrown.
++NeutronError neutronModelPrepare(const NeutronModelConfig *mcfg, NeutronModelHandle *hdl);
++
++/// - Unprepare Neutron execution handle.
++/// - This function releases the internal context data structures and the reserved handle.
++NeutronError neutronModelUnprepare(NeutronModelHandle hdl);
++
++/// - Perform Neutron execution in blocking mode.
++NeutronError neutronRunBlocking(NeutronModelHandle hdl, const NeutronDataConfig *dcfg);
++
++/// - Perform Neutron execution in non-blocking mode.
++/// - This functionality is only available for Neutron-S.
++NeutronError neutronRunNonBlocking(NeutronModelHandle hdl, const NeutronDataConfig *dcfg);
++
++/// - Wait (block) for Neutron completion.
++/// - This functionality is only available for Neutron-S.
++NeutronError neutronWait(NeutronModelHandle hdl, const NeutronDataConfig *dcfg);
++
++/// - Query if the job is done by Neutron.
++/// - This functionality is only available for neutronRunNonBlocking.
++NeutronError neutronIsReady(NeutronModelHandle hdl, bool *isReady);
++
++#ifndef NDEBUG
++/// - Set tracing information.
++void neutronSetTrace(NeutronModelHandle hdl, NeutronTraceConfig *tcfg);
++
++/// - Get tracing result to buffer.
++NeutronError neutronGetTrace(NeutronModelHandle hdl, char **buffer, size_t *size);
++#endif
++
++/// - Perform power management to suspend Neutron hardware.
++//  - This function disables the clock for Neutron.
++NeutronError neutronSuspend();
++
++/// - Perform power management to resume Neutron hardware.
++//  - This function enables the clock for Neutron.
++NeutronError neutronResume();
++
++/// - Used to initialize custom API's or variables implemented by external application.
++NeutronError neutronSetConfig(NeutronConfig *config);
++
++/// - Used to get NeutronContext size.
++size_t neutronGetModelContextSize();
++
++/// Other functions to control the state of driver/firmware.
++#ifdef __cplusplus
++}
++#endif
++#endif // NEUTRON_DRIVER_H
+diff --git a/onnxruntime/core/providers/neutron/platform/NeutronErrors.h b/onnxruntime/core/providers/neutron/platform/NeutronErrors.h
+new file mode 100644
+index 0000000000..761edaaac2
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/platform/NeutronErrors.h
+@@ -0,0 +1,45 @@
++/*
++ * Copyright 2022-2023 NXP
++ * All rights reserved.
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#ifndef NEUTRON_ERRORS_H
++#define NEUTRON_ERRORS_H
++
++#include <stdint.h>
++
++typedef int32_t NeutronError;
++
++/*
++    Generate error code.
++    A code is composed of (from least to most significant bit):
++        3 bits = component id
++        5 bits = category id
++        23 bits = code
++        1 bit = sign
++*/
++#define GEN_NEUTRON_ERROR(component, category, code) ((NeutronError)( \
++    ((component & 0xF) << 0) |                                        \
++    ((category  & 0xF) << 3) |                                        \
++    ((code & 0x7FFFFF) << 8)                                          \
++    ))
++
++#define ENONE 0
++
++#define GET_ERROR_COMPONENT(e) ((e >> 0) & 0x00000007)
++#define GET_ERROR_CATEGORY(e)  ((e >> 3) & 0x0000001F)
++#define GET_ERROR_CODE(e)      ((e >> 8) & 0x007FFFFF)
++
++
++/* Components ids*/
++// DO NOT USE 0x0 as component magic number!
++typedef enum ERROR_COMPONENT_ID {
++	ERROR_COMPONENT_LIBRARY  = 0x1,
++	ERROR_COMPONENT_FIRMWARE = 0x2,
++	ERROR_COMPONENT_DRIVER   = 0x3
++} ERROR_COMPONENT_ID;
++
++
++#endif // NEUTRON_ERRORS_H
+diff --git a/onnxruntime/core/providers/neutron/platform/README.md b/onnxruntime/core/providers/neutron/platform/README.md
+new file mode 100644
+index 0000000000..06585729a1
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/platform/README.md
+@@ -0,0 +1,3 @@
++# Neutron Execution Provider: Platform
++
++Place here all related/required elements from Neutron-SW
+diff --git a/onnxruntime/core/providers/neutron/symbols.txt b/onnxruntime/core/providers/neutron/symbols.txt
+new file mode 100644
+index 0000000000..1e26e18a8e
+--- /dev/null
++++ b/onnxruntime/core/providers/neutron/symbols.txt
+@@ -0,0 +1 @@
++OrtSessionOptionsAppendExecutionProvider_Neutron
+diff --git a/onnxruntime/core/providers/provider_factory_creators.h b/onnxruntime/core/providers/provider_factory_creators.h
+index 41e418d9eb..1bcc518da9 100644
+--- a/onnxruntime/core/providers/provider_factory_creators.h
++++ b/onnxruntime/core/providers/provider_factory_creators.h
+@@ -105,3 +105,7 @@
+ #if defined(USE_AZURE)
+ #include "core/providers/azure/azure_provider_factory_creator.h"
+ #endif
++
++#if defined(USE_NEUTRON)
++#include "core/providers/neutron/neutron_provider_factory_creator.h"
++#endif
+diff --git a/onnxruntime/core/providers/shared_library/provider_api.h b/onnxruntime/core/providers/shared_library/provider_api.h
+index b84825236a..9307ca3a38 100644
+--- a/onnxruntime/core/providers/shared_library/provider_api.h
++++ b/onnxruntime/core/providers/shared_library/provider_api.h
+@@ -274,6 +274,7 @@ constexpr const char* kMIGraphXExecutionProvider = "MIGraphXExecutionProvider";
+ constexpr const char* kQnnExecutionProvider = "QNNExecutionProvider";
+ constexpr const char* kCpuExecutionProvider = "CPUExecutionProvider";
+ constexpr const char* kAzureExecutionProvider = "AzureExecutionProvider";
++constexpr const char* kNeutronExecutionProvider = "NeutronExecutionProvider";
+ 
+ template <typename T>
+ using IAllocatorUniquePtr = std::unique_ptr<T, std::function<void(T*)>>;
+diff --git a/onnxruntime/python/onnxruntime_pybind_state.cc b/onnxruntime/python/onnxruntime_pybind_state.cc
+index 7af659851e..48317ce250 100644
+--- a/onnxruntime/python/onnxruntime_pybind_state.cc
++++ b/onnxruntime/python/onnxruntime_pybind_state.cc
+@@ -1260,6 +1260,11 @@ std::unique_ptr<IExecutionProvider> CreateExecutionProviderInstance(
+     return onnxruntime::QNNProviderFactoryCreator::Create(
+                cit == provider_options_map.end() ? ProviderOptions{} : cit->second, &session_options)
+         ->CreateProvider();
++#endif
++  } else if (type == kNeutronExecutionProvider) {
++#ifdef USE_NEUTRON
++    // @TODO: Leverage flags
++    return onnxruntime::NeutronProviderFactoryCreator::Create(0)->CreateProvider();
+ #endif
+   } else {
+     // check whether it is a dynamic load EP:
+diff --git a/onnxruntime/test/onnx/TestCase.cc b/onnxruntime/test/onnx/TestCase.cc
+index 6b9b20faf8..ae3e6ffcf1 100644
+--- a/onnxruntime/test/onnx/TestCase.cc
++++ b/onnxruntime/test/onnx/TestCase.cc
+@@ -796,7 +796,7 @@ void LoadTests(const std::vector<std::basic_string<PATH_CHAR_TYPE>>& input_paths
+       auto test_case_dir = model_info->GetDir();
+       auto test_case_name_in_log = test_case_name + ORT_TSTR(" in ") + test_case_dir.native();
+ 
+-#if !defined(ORT_MINIMAL_BUILD) && !defined(USE_QNN) && !defined(USE_VSINPU)
++#if !defined(ORT_MINIMAL_BUILD) && !defined(USE_QNN) && !defined(USE_VSINPU) && !defined(USE_NEUTRON)
+       // to skip some models like *-int8 or *-qdq
+       if ((reinterpret_cast<OnnxModelInfo*>(model_info.get()))->HasDomain(ONNX_NAMESPACE::AI_ONNX_TRAINING_DOMAIN) ||
+           (reinterpret_cast<OnnxModelInfo*>(model_info.get()))->HasDomain(ONNX_NAMESPACE::AI_ONNX_PREVIEW_TRAINING_DOMAIN)) {
+diff --git a/onnxruntime/test/onnx/main.cc b/onnxruntime/test/onnx/main.cc
+index 93a1bf9f30..4a738372e6 100644
+--- a/onnxruntime/test/onnx/main.cc
++++ b/onnxruntime/test/onnx/main.cc
+@@ -48,7 +48,7 @@ void usage() {
+       "\t-v: verbose\n"
+       "\t-n [test_case_name]: Specifies a single test case to run.\n"
+       "\t-e [EXECUTION_PROVIDER]: EXECUTION_PROVIDER could be 'cpu', 'cuda', 'dnnl', 'tensorrt', 'vsinpu'"
+-      "'openvino', 'rocm', 'migraphx', 'acl', 'armnn', 'xnnpack', 'webgpu', 'nnapi', 'qnn', 'snpe' or 'coreml'. "
++      "'openvino', 'rocm', 'migraphx', 'acl', 'armnn', 'xnnpack', 'webgpu', 'nnapi', 'qnn', 'snpe', 'coreml' or `neutron`. "
+       "Default: 'cpu'.\n"
+       "\t-p: Pause after launch, can attach debugger and continue\n"
+       "\t-x: Use parallel executor, default (without -x): sequential executor.\n"
+@@ -220,6 +220,7 @@ int real_main(int argc, char* argv[], Ort::Env& env) {
+   bool enable_migraphx = false;
+   bool enable_webgpu = false;
+   bool enable_xnnpack = false;
++  bool enable_neutron = false;
+   bool override_tolerance = false;
+   double atol = 1e-5;
+   double rtol = 1e-5;
+@@ -312,7 +313,9 @@ int real_main(int argc, char* argv[], Ort::Env& env) {
+             enable_webgpu = true;
+           } else if (!CompareCString(optarg, ORT_TSTR("xnnpack"))) {
+             enable_xnnpack = true;
+-          } else {
++          } else if (!CompareCString(optarg, ORT_TSTR("neutron"))) {
++            enable_neutron = true;
++          }else {
+             usage();
+             return -1;
+           }
+@@ -719,6 +722,14 @@ select from 'TF8', 'TF16', 'UINT8', 'FLOAT', 'ITENSOR'. \n)");
+ #else
+       fprintf(stderr, "ArmNN is not supported in this build\n");
+       return -1;
++#endif
++    }
++    if (enable_neutron) {
++#ifdef USE_NEUTRON
++      Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Neutron(sf, 0));
++#else
++      fprintf(stderr, "Neutron is not supported in this build\n");
++      return -1;
+ #endif
+     }
+     if (enable_rocm) {
+diff --git a/onnxruntime/test/perftest/command_args_parser.cc b/onnxruntime/test/perftest/command_args_parser.cc
+index e40544d950..193b2387bd 100644
+--- a/onnxruntime/test/perftest/command_args_parser.cc
++++ b/onnxruntime/test/perftest/command_args_parser.cc
+@@ -38,8 +38,8 @@ namespace perftest {
+       "\t-A: Disable memory arena\n"
+       "\t-I: Generate tensor input binding (Free dimensions are treated as 1.)\n"
+       "\t-c [parallel runs]: Specifies the (max) number of runs to invoke simultaneously. Default:1.\n"
+-      "\t-e [cpu|cuda|dnnl|tensorrt|openvino|dml|acl|nnapi|coreml|qnn|snpe|rocm|migraphx|xnnpack|vitisai|webgpu]: Specifies the provider 'cpu','cuda','dnnl','tensorrt', "
+-      "'openvino', 'dml', 'acl', 'nnapi', 'coreml', 'qnn', 'snpe', 'rocm', 'migraphx', 'xnnpack', 'vitisai' or 'webgpu'. "
++      "\t-e [cpu|cuda|dnnl|tensorrt|openvino|dml|acl|nnapi|coreml|qnn|snpe|rocm|migraphx|xnnpack|vitisai|webgpu|neutron]: Specifies the provider 'cpu','cuda','dnnl','tensorrt', "
++      "'openvino', 'dml', 'acl', 'nnapi', 'coreml', 'qnn', 'snpe', 'rocm', 'migraphx', 'xnnpack', 'vitisai', 'webgpu' or 'neutron'. "
+       "Default:'cpu'.\n"
+       "\t-b [tf|ort]: backend to use. Default:ort\n"
+       "\t-r [repeated_times]: Specifies the repeated times if running in 'times' test mode.Default:1000.\n"
+@@ -285,6 +285,8 @@ static bool ParseSessionConfigs(const std::string& configs_string,
+           test_config.machine_config.provider_type_name = onnxruntime::kVitisAIExecutionProvider;
+         } else if (!CompareCString(optarg, ORT_TSTR("webgpu"))) {
+           test_config.machine_config.provider_type_name = onnxruntime::kWebGpuExecutionProvider;
++        } else if (!CompareCString(optarg, ORT_TSTR("neutron"))) {
++          test_config.machine_config.provider_type_name = onnxruntime::kNeutronExecutionProvider;
+         } else {
+           return false;
+         }
+diff --git a/onnxruntime/test/perftest/ort_test_session.cc b/onnxruntime/test/perftest/ort_test_session.cc
+index e69c87b254..ca2b5601f4 100644
+--- a/onnxruntime/test/perftest/ort_test_session.cc
++++ b/onnxruntime/test/perftest/ort_test_session.cc
+@@ -27,6 +27,10 @@
+ #include "core/providers/dml/dml_session_options_config_keys.h"
+ #endif
+ 
++#ifdef USE_NEUTRON
++#include "core/providers/neutron/neutron_provider_factory.h"
++#endif
++
+ #ifdef _WIN32
+ #define strdup _strdup
+ #endif
+@@ -633,6 +637,13 @@ select from 'TF8', 'TF16', 'UINT8', 'FLOAT', 'ITENSOR'. \n)");
+     session_options.AppendExecutionProvider_VitisAI(vitisai_session_options);
+ #else
+     ORT_THROW("VitisAI is not supported in this build\n");
++#endif
++  } else if (provider_name_ == onnxruntime::kNeutronExecutionProvider) {
++#ifdef USE_NEUTRON
++    Ort::ThrowOnError(
++        OrtSessionOptionsAppendExecutionProvider_Neutron(session_options, 0));
++#else
++    ORT_THROW("Neutron is not supported in this build\n");
+ #endif
+   } else if (!provider_name_.empty() &&
+              provider_name_ != onnxruntime::kCpuExecutionProvider &&
+diff --git a/onnxruntime/test/providers/base_tester.cc b/onnxruntime/test/providers/base_tester.cc
+index dea39bc99d..c47a3efe62 100644
+--- a/onnxruntime/test/providers/base_tester.cc
++++ b/onnxruntime/test/providers/base_tester.cc
+@@ -715,6 +715,8 @@ void BaseTester::RunWithConfig(size_t* number_of_pre_packed_weights_counter,
+           execution_provider = DefaultDmlExecutionProvider();
+         else if (provider_type == onnxruntime::kWebGpuExecutionProvider)
+           execution_provider = DefaultWebGpuExecutionProvider();
++        else if (provider_type == onnxruntime::kNeutronExecutionProvider)
++          execution_provider = DefaultNeutronExecutionProvider();
+ 
+         // skip if execution provider is disabled
+         if (execution_provider == nullptr)
+diff --git a/onnxruntime/test/util/default_providers.cc b/onnxruntime/test/util/default_providers.cc
+index d57a22f024..ebe211aac8 100644
+--- a/onnxruntime/test/util/default_providers.cc
++++ b/onnxruntime/test/util/default_providers.cc
+@@ -228,6 +228,15 @@ std::unique_ptr<IExecutionProvider> DefaultArmNNExecutionProvider(bool enable_ar
+ #endif
+ }
+ 
++std::unique_ptr<IExecutionProvider> DefaultNeutronExecutionProvider(uint32_t neutron_flags) {
++#ifdef USE_NEUTRON
++  return NeutronProviderFactoryCreator::Create(neutron_flags)->CreateProvider();
++#else
++  ORT_UNUSED_PARAMETER(neutron_flags);
++  return nullptr;
++#endif
++}
++
+ std::unique_ptr<IExecutionProvider> DefaultRocmExecutionProvider(bool test_tunable_op) {
+ #ifdef USE_ROCM
+   OrtROCMProviderOptions provider_options{};
+diff --git a/onnxruntime/test/util/include/default_providers.h b/onnxruntime/test/util/include/default_providers.h
+index ed95bf67f1..626edeca46 100644
+--- a/onnxruntime/test/util/include/default_providers.h
++++ b/onnxruntime/test/util/include/default_providers.h
+@@ -18,6 +18,7 @@ std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_Cuda(c
+ std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_Cuda(const OrtCUDAProviderOptionsV2* provider_options);
+ std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_Dnnl(const OrtDnnlProviderOptions* provider_options);
+ std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_MIGraphX(const OrtMIGraphXProviderOptions* params);
++std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_Neutron(uint32_t neutron_flags);
+ std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_Nnapi(
+     uint32_t flags, const optional<std::string>& partitioning_stop_ops_list);
+ // std::shared_ptr<IExecutionProviderFactory> CreateExecutionProviderFactory_Tvm(const char*);
+@@ -56,6 +57,7 @@ std::unique_ptr<IExecutionProvider> DefaultVSINPUExecutionProvider();
+ std::unique_ptr<IExecutionProvider> DefaultRknpuExecutionProvider();
+ std::unique_ptr<IExecutionProvider> DefaultAclExecutionProvider(bool enable_fast_math = false);
+ std::unique_ptr<IExecutionProvider> DefaultArmNNExecutionProvider(bool enable_arena = true);
++std::unique_ptr<IExecutionProvider> DefaultNeutronExecutionProvider(uint32_t neutron_flags = 0);
+ std::unique_ptr<IExecutionProvider> DefaultRocmExecutionProvider(bool test_tunable_op = false);
+ std::unique_ptr<IExecutionProvider> DefaultCoreMLExecutionProvider(bool use_mlprogram = false);
+ std::unique_ptr<IExecutionProvider> DefaultSnpeExecutionProvider();
+diff --git a/onnxruntime/test/util/include/providers.h b/onnxruntime/test/util/include/providers.h
+index a73b237ae1..4f5b86f25c 100644
+--- a/onnxruntime/test/util/include/providers.h
++++ b/onnxruntime/test/util/include/providers.h
+@@ -40,3 +40,6 @@
+ #ifdef USE_CANN
+ #include "core/providers/cann/cann_provider_factory.h"
+ #endif
++#ifdef USE_NEUTRON
++#include "core/providers/neutron/neutron_provider_factory.h"
++#endif
+-- 
+2.34.1
+
