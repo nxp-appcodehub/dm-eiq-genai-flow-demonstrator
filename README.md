@@ -27,7 +27,7 @@ It's a subset of the full project: **eIQ GenAI Flow Pro**.
 
 The complete version of the Flow offers more options for **models**, **features**, **customization**, **RAG fine-tuning** and **better performance** on audio tasks. 
 
-For more details, use the [NXP Community Forum Voice Technology](https://community.nxp.com/t5/Voice-Technology/bd-p/Voice).
+For more details, use the [NXP Community Forum Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs).
 
 ---
 ## Table of Contents
@@ -327,7 +327,7 @@ The demonstrator binary file must be executed from the eiq_gen_ai_flow directory
 <a name="support"></a>
 ## Support
 
-For more general technical questions, use the [NXP Community Forum Voice Technology](https://community.nxp.com/t5/Voice-Technology/bd-p/Voice).
+For more general technical questions, use the [NXP Community Forum Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs).
 
 ---
 <a name="release-notes"></a>
