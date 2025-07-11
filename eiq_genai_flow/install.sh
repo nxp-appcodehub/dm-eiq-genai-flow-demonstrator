@@ -16,7 +16,7 @@ manual_date_instructions() {
     echo "The date and time cannot be set automatically."
     echo "To set the date manually, use the following command:"
     echo "sudo date -s 'YYYY-MM-DD HH:MM:SS'"
-    echo "For example: date -s '2025-03-31 12:34:56'"
+    echo "For example: date -s '2025-06-20 12:34:56'"
     echo "---------------------------------------------"
 }
 
@@ -29,7 +29,7 @@ fi
 
 # Set a default date: To retrieve the date from the internet, the local date must not be more than three months behind."
 echo "Set a temporary date"
-date -s '2025-03-31 12:34:56'
+date -s '2025-06-20 12:34:56'
 
 # Fetch the current date and time from httpbin.org
 internet_date=$(curl -sI https://httpbin.org/get | grep -i '^date:' | cut -d' ' -f3-)

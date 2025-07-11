@@ -2,6 +2,12 @@ This meta-layer customizes the BSP to enable LLM operations on the Neutron NPU.
 
 Please refer to the sections below for details.
 
+> **Note:** The meta-layer is for the EVK i.MX95 A1 revision only on Q1 BSP (L6.12.3_1.0.0). It's not necessary for EVK with i.MX95 B0 revision or BSPs > Q1 2025. 
+>
+> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration without the need of the meta-layer on an EVK with i.MX95 B0 revision
+>
+> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration for LLMs by replacing the /lib/firmware/NeutronFwllm.elf by the one present in the meta-layer on an EVK with i.MX95 A1 revision 
+>
 
 I. Adding the meta-eiq-genai-flow layer to your build
 =====================================================

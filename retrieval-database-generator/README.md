@@ -4,12 +4,13 @@
 
 [![License badge](https://img.shields.io/badge/License-Proprietary-red)](./LICENSE.txt)
 [![Board badge](https://img.shields.io/badge/Board-i.MX_95-blue)](https://www.nxp.com/products/iMX95)
+[![Board badge](https://img.shields.io/badge/Board-i.MX_8MPLUS-blue)](https://www.nxp.com/products/IMX8MPLUS)
 ![Language badge](https://img.shields.io/badge/Language-Python-yellow)
 ![Category badge](https://img.shields.io/badge/Category-AI/ML-green)
 
 <div style="text-align: justify;">
 
-The **Retrieval Database Generator** is a pipeline designed to generate and test a RAG database compatible with the **eIQ GenAI Flow** application for **NXP i.MX95** devices.
+The **Retrieval Database Generator** is a pipeline designed to generate and test a RAG database compatible with the **eIQ GenAI Flow** application for **NXP i.MX95** and **NXP i.MX 8MPLUS** devices.
 </div>
 
 ---
@@ -22,7 +23,6 @@ The **Retrieval Database Generator** is a pipeline designed to generate and test
 2. **Retrieval**: Each query is encoded into an embedding using the same model. The query embedding is then compared to the database embeddings and the most similar to the query are added to the prompt.
 3. **Generation**: A LLM receives the formated prompt and generates an answer.
 </div>
-
 ---
 ## Features
 
@@ -81,10 +81,7 @@ These are the steps for creating a RAG database.
 <a name="0-optional-parse-pdf-files"></a>
 ### 0. (Optional) Parse PDF Files
 
-To parse PDFs into Markdown files, install [Docling](https://github.com/docling-project/docling/tree/main):
-```bash
-pip install docling==2.14.0
-```
+[Docling](https://github.com/docling-project/docling/tree/main) is used to parse PDFs into Markdown files.
 
 > **Note:** [Set up a Hugging Face environment](#optional-setting-up-a-hugging-face-environment-) may be needed before running Docling.
 > 
@@ -185,6 +182,21 @@ python -m rag -v
 
 ---
 
+## 📝 Jupyter Notebooks (Optional GUI Alternative)
+
+If you prefer working in a Jupyter Notebook environment instead of the command line, two example notebooks are available:
+
+- [`generate_retrieval_database.ipynb`](example_notebooks/generate_retrieval_database.ipynb) — A step-by-step example to generate your RAG database (PDF parsing, chunking, and embeddings) from the [Medical.pdf](notebooks/Medical.pdf) file.
+- [`run_llm_with_rag.ipynb`](example_notebooks/run_llm_with_rag.ipynb) — An interactive notebook to test chunk retrieval and answer generation with supported Hugging Face LLM.
+
+> ⚠️ You still need to meet all environment and model requirements (e.g., GPU, Hugging Face access) when using these notebooks.
+
+To launch the notebooks, run:
+```bash
+jupyter notebook
+```
+---
+
 <a name="support"></a>
 ## Support
 
@@ -195,7 +207,7 @@ For more general technical questions, use the [NXP Community Forum](https://comm
 ## Release Notes
 | Version | Description / Update                     | Date                       |
 |---------|------------------------------------------|----------------------------|
-| 1.0     | Initial release on Application Code Hub. | March 31<sup>th</sup> 2025 |
+| 1.1     | Initial release on Application Code Hub. | June 20<sup>th</sup> 2025 |
 
 <br>
 <p align="center">

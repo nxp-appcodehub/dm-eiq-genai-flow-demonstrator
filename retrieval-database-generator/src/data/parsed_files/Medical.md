@@ -20,8 +20,6 @@ Blood glucose monitoring means checking the blood glucose level to help keep it 
 
 
 
-2.1 Blood Glucose Monitoring
-
 
 
 ## How is the insulin given?
@@ -35,10 +33,6 @@ There are three ways insulin can be given:
 ## Where do I inject the insulin?
 
 There are three main areas where insulin can be injected:
-
-- 1. Abdomen    2.  Legs    3.  Buttock
-
-
 
 ## Using insulin to treat type 1 diabetes
 
@@ -54,11 +48,13 @@ Insulin pump therapy is another option for delivering insulin. It is rarely used
 
 
 
+- 1. Abdomen    2.  Legs    3.  Buttock
+
+
+
 ## Rotation &amp; care of injection sites
 
 - · Inspect and palpate (touch) injection site for lumps or bruising. If present, avoid injecting into that area until it has resolved.
 - · Rotate injection sites to prevent lumps from occurring. Correct rotation involves spacing insulin injections at least 1cm apart (approx. width of one adult   nger) in the fi same injection zone. Your health care professional will advise you on this.
 - · Injecting through clothes is not a good idea as this may cause an infection at the site and the insulin may not get delivered into the subcutaneous layer and therefore may not work.
-- · Use a new needle for each injection.
-
-3.1 Using Insulin
+- • Use a new needle for each injection.

@@ -8,6 +8,7 @@
 # by the applicable license terms, then you may not retain, install, activate
 # or otherwise use the software.
 
+import os
 import re
 from colorama import Fore
 from docling.document_converter import DocumentConverter
@@ -59,10 +60,13 @@ class DoclingParser:
         new_markdown_file = markdown_file.replace("<!-- image -->", "")
         return new_markdown_file
 
-    def parse(self, input_file: str, destination_path: str) -> None:
+    def parse(self, input_file: str, destination_path: str) -> str:
+        file_name = os.path.splitext(os.path.basename(input_file))[0]
+        output_path = os.path.join(destination_path, file_name + ".md")
         result = self.converter.convert(source=input_file, max_num_pages=self.max_num_pages)
         content = result.document.export_to_markdown()
         cleaned_content = self.clean_tables_from_markdown(content)
         cleaned_content = self.clean_images_from_markdown(cleaned_content)
-        save_markdown(destination_path=destination_path + '.md', content=cleaned_content)
-        print(Fore.LIGHTGREEN_EX, "\rSaved: ", destination_path + '.md', Fore.RESET)
+        save_markdown(destination_path=output_path, content=cleaned_content)
+        print(Fore.LIGHTGREEN_EX, "\rSaved: ", output_path, Fore.RESET)
+        return cleaned_content
