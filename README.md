@@ -3,10 +3,11 @@
 
 [![License badge](https://img.shields.io/badge/License-Proprietary-red)](./eiq_genai_flow/LICENSE.txt)
 [![Board badge](https://img.shields.io/badge/Board-i.MX_95-blue)](https://www.nxp.com/products/iMX95)
+[![Board badge](https://img.shields.io/badge/Board-i.MX_8MPLUS-blue)](https://www.nxp.com/products/IMX8MPLUS)
 [![Language badge](https://img.shields.io/badge/Language-Python-yellow)]()
 [![Category badge](https://img.shields.io/badge/Category-AI/ML-green)]()
 
-**eIQ GenAI Flow** is a software pipeline for AI-powered experiences on edge devices. Currently, the Flow supports **conversational AI** on the **NXP i.MX 95**. 
+**eIQ GenAI Flow** is a software pipeline for AI-powered experiences on edge devices. Currently, the Flow supports **conversational AI** on the **NXP i.MX 95** and **NXP i.MX 8MPLUS**. . 
 
 ---
 ## Overview
@@ -92,12 +93,21 @@ to manually fetch any missing LFS files.
 ### BSP selection
 This demo requires a Linux BSP available at [Embedded Linux for i.MX Applications Processors](https://www.nxp.com/design/design-center/software/embedded-software/i-mx-software/embedded-linux-for-i-mx-applications-processors:IMXLINUX).
 
-Although the demo can work on the regular NXP Q1 2025 BSP, it works best on the BSP customized with the [meta-eiq-genai-flow](meta-eiq-genai-flow) available in the package. This meta-layer updates:
+For i.MX8MP EVK, the NPU Acceleration is unavailable. LLM pipeline will run on CPUs for this platform. Therefore there is not a custom BSP and the default BSP is the only choice.
+
+For i.MX95, although the demo can work on the regular NXP Q1 2025 BSP (L6.12.3-1.0.0), it works best on the BSP customized with the [meta-eiq-genai-flow](meta-eiq-genai-flow) available in the package. This meta-layer updates:
 * **Linux kernel:** matmul Neutron C-API
 * **Device tree:** dedicated Continuous Memory Allocation (CMA) area for Neutron
 * **Onnxruntime:** add Neutron Execution Provider
 * **Neutron assets:** driver and firmware for matmul operations handling.
- 
+
+> **Note:** The meta-layer is for the EVK i.MX95 A1 revision only on Q1 BSP (L6.12.3_1.0.0). It's not necessary for EVK with i.MX95 B0 revision or BSPs > Q1 2025.  
+>
+> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration for LLMs without the need of the meta-layer on an EVK with i.MX95 B0 revision
+>
+> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration for LLMs by replacing the /lib/firmware/NeutronFwllm.elf by the one present in the meta-layer on an EVK with i.MX95 A1 revision
+>
+
 See [README](meta-eiq-genai-flow/README) in [meta-eiq-genai-flow](meta-eiq-genai-flow) for build details.
  
 This customization benefits are an important CPU load reduction plus a faster Time-To-First-Token (TTFT) on LLM operations. See LLM Benchmark section for details.
@@ -131,7 +141,7 @@ To run the demo, use the following command:
 > 
 > **Note**: The trial period has a timeout of 2 hours.
 > 
-> **Note:**  Cache is currently not enabled in i.MX 95. Every time this application is executed, the warm up time is required (less than a minute).
+> **Note:**  Cache is currently not enabled in i.MX 95 or i.MX8MP. Every time this application is executed, the warm up time is required (less than a minute).
 > 
 > Run ```./eiq_genai_flow --help``` to see available options.
 
@@ -180,11 +190,22 @@ To enable continuous ASR, pass the `-c` flag. In this mode, ASR remains active u
 
 **📊 ASR Benchmarks**
 
+i.MX95:
+
 | Audio Duration | Transcription Time <br/>(after end of speech) | 
 |:--------------:|:---------------------------------------------:|
 |       3s       |                     1.4s                      | 	  
 |       6s       |                     2.5s                      |  
 |       9s       |                     3.3s                      | 
+
+
+i.MX8MP:
+
+| Audio Duration | Transcription Time <br/>(after end of speech) | 
+|:--------------:|:---------------------------------------------:|
+|       3s       |                     1.9s                      | 	  
+|       6s       |                     3.5s                      |  
+|       9s       |                     5.3s                      | 
 
 On LibriSpeech test-clean, in streaming, Word Error Rate (WER) = 4.1.
 
@@ -231,6 +252,7 @@ Expected performances of the Danube-INT8 model :
 
 | Platform |   Accelerator   | Time-To-First-Token (TTFT) | Tok/s |               Command               |
 |:--------:|:---------------:|:--------------------------:|:-----:|:-----------------------------------:|
+|  i.MX8MP  | CPU (4 threads) |           0.94s            | 8.66 |   `./eiq_genai_flow -b`             |
 |  i.MX95  | CPU (6 threads) |           0.94s            | 9.38  |   `./eiq_genai_flow -b`             |
 |  i.MX95  |  NPU (Neutron)  |           0.59s            | 9.72  | `./eiq_genai_flow -b --use_neutron` |
 
@@ -270,7 +292,7 @@ To enable NPU acceleration, pass the `--use-neutron` flag when running the pipel
 <a name="hardware"></a>
 ## Hardware
 
-To run the `eIQ GenAI Flow`, an [i.MX95](https://www.nxp.com/products/iMX95) EVK (either 19x19 or 15x15) is required. The demo's audio setup is based on the onboard [WM8962 codec](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/58279/1/WM8962_v4.2.pdf), which manages both input and output through a single 3.5mm jack connector CTIA.  
+To run the `eIQ GenAI Flow`, an [i.MX95](https://www.nxp.com/products/iMX95) EVK (either 19x19 or 15x15) or [i.MX8MP](https://www.nxp.com/products/IMX8MPLUS) EVK is required. The demo's audio setup is based on the onboard [WM8962 codec](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/58279/1/WM8962_v4.2.pdf), which manages both input and output through a single 3.5mm jack connector CTIA.  
 
 To use the audio functionalities, the following setups are possible:  
 
@@ -340,9 +362,9 @@ For more general technical questions, use the [NXP Community Forum Generative AI
     <th>Date</th>
   </tr>
   <tr>
-    <td>1.0</td>
+    <td>1.1</td>
     <td>Initial release on Application Code Hub.<br> This is solely for evaluation and development<br>in combination with an NXP Product.</td>
-    <td>March 31<sup>th</sup> 2025</td>
+    <td>June 20<sup>th</sup> 2025</td>
   </tr>
 </table>
 

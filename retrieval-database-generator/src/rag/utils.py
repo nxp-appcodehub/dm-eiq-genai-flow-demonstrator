@@ -183,6 +183,38 @@ def summarize_dict(dictionary: dict | list) -> dict | list:
     return {key: summarize_value(value) for key, value in dictionary.items()}
 
 
+def format_list(data_list, max_length=300, depth:int = 0):
+    """
+    Wrap long lists for readability
+    :param data_list:
+    :param max_length:
+    :param depth:
+    :return:
+    """
+    prefix = depth * "    " + "   "
+    formatted = pformat(data_list, compact=True, width=max_length)
+    return textwrap.indent(formatted, prefix=prefix)  # Indent for readability
+
+
+def print_dict(dictionary: dict, depth: int = 0):
+    """
+    Print a dictionary
+    :param dictionary:
+    :param depth:
+    :return: None
+    """
+    tabulation = "    " * depth
+    for name, value in dictionary.items():
+        if isinstance(value, list) or isinstance(value, np.ndarray):
+            print(Fore.BLUE, f"{tabulation}- {name}: ", Fore.RESET)
+            print(format_list(summarize_dict(value), depth=depth))
+        elif isinstance(value, dict):
+            print(Fore.BLUE, f"{tabulation}- {name}: ", Fore.RESET)
+            print_dict(value, depth=depth+1)
+        else:
+            print(Fore.BLUE, f"{tabulation}- {name}: ", Fore.RESET, value)
+
+
 def pretty_print(name: str, result_dictionary: dict) -> None:
     """
     Print RAG results in a structured and cleaner format.
@@ -192,27 +224,16 @@ def pretty_print(name: str, result_dictionary: dict) -> None:
 
     separator = "=" * 70
     padding = (len(separator) - len(name) - 2) // 2  # Subtract 2 for spacing around the text
-
-    # Wrap long lists for readability
-    def format_list(data_list, max_length=300, depth:int = 0):
-        prefix = depth * "    " + "   "
-        formatted = pformat(data_list, compact=True, width=max_length)
-        return textwrap.indent(formatted, prefix=prefix)  # Indent for readability
+    if len(name) % 2 == 0:
+        padding_left = padding
+        padding_right = padding - 1
+    else:
+        padding_left = padding
+        padding_right = padding
 
     # Print Boxed Results
-    print(Fore.BLUE, Style.BRIGHT, f"{'=' * padding} {name} {'=' * padding}", Style.RESET_ALL)
+    print(Fore.BLUE, Style.BRIGHT, f"{'=' * padding_left} {name} {'=' * padding_right}", Style.RESET_ALL)
 
-    def print_dict(dictionary: dict, depth: int = 0):
-        tabulation = "    " * depth
-        for name, value in dictionary.items():
-            if isinstance(value, list) or isinstance(value, np.ndarray):
-                print(Fore.BLUE, f"{tabulation}- {name}: ", Fore.RESET)
-                print(format_list(summarize_dict(value), depth=depth))
-            elif isinstance(value, dict):
-                print(Fore.BLUE, f"{tabulation}- {name}: ", Fore.RESET)
-                print_dict(value, depth=depth+1)
-            else:
-                print(Fore.BLUE, f"{tabulation}- {name}: ", Fore.RESET, value)
     print_dict(result_dictionary)
     print()
 

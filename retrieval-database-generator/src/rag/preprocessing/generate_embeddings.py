@@ -17,14 +17,17 @@ from rag.utils import load_json, save_pkl, get_file_list
 from rag.models.embedding_models.embedding_models import EmbeddingModel
 
 
-def generate_embeddings(files_to_keep: list[str],) -> None:
+def generate_embeddings(files_to_keep: list[str],
+                        input_folder: str = None,
+                        output_folder: str = None
+                        ) -> dict:
     """
     Create embeddings from the chunks files saved in --origin-folder. If --files-to-keep is left to the default value
     all files will be used.
     """
     src_dir_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    origin_folder = os.path.join(src_dir_path, "data", "chunked_files")
-    saving_folder = os.path.join(src_dir_path, "data")
+    origin_folder = os.path.join(src_dir_path, "data", "chunked_files") if input_folder is None else input_folder
+    saving_folder = os.path.join(src_dir_path, "data") if output_folder is None else output_folder
 
     data = {}
 
@@ -80,6 +83,8 @@ def generate_embeddings(files_to_keep: list[str],) -> None:
     destination_path = os.path.join(saving_folder, "rag_database.pkl")
     save_pkl(destination_path=destination_path, data=data)
     print(Fore.LIGHTGREEN_EX, "\rSuccessfully saved rag_database.pkl at: ", destination_path, Fore.RESET)
+
+    return data
 
 
 def main():

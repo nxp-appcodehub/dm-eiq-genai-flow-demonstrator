@@ -31,6 +31,26 @@ class AvailableChunkingStrategies(str, Enum):
     FIXED = "fixed"
 
 
+def merge_dicts_with_new_keys(dict1: dict, dict2: dict) -> dict:
+    """
+    Function to merge dictionaries with new keys
+    :param dict1:
+    :param dict2:
+    :return: dict1 + dict2 with incremented ids
+    """
+
+    if dict1 == {}:
+        return dict2
+
+    result = dict1.copy()  # Start with a copy of the first dictionary
+    offset = len(dict1)  # Offset for new keys
+
+    for i, (key, value) in enumerate(dict2.items(), start=1):
+        new_key = str(offset + i)
+        result[new_key] = value
+
+    return result
+
 def init_text_splitter(chunking_method: str, chunk_size: int, chunk_overlap: int) -> tuple:
     """
     Initialize a text splitter based on the specified chunking method.
@@ -92,16 +112,21 @@ def init_text_splitter(chunking_method: str, chunk_size: int, chunk_overlap: int
 def generate_chunks(files_to_keep: list[str],
                     chunk_size: int,
                     chunk_overlap: int,
-                    chunking_method: AvailableChunkingStrategies) -> None:
+                    chunking_method: AvailableChunkingStrategies,
+                    input_folder: str = None,
+                    output_folder: str = None
+                    ) -> dict:
     """
     Create chunks from markdown files.
     """
 
     src_dir_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    origin_folder = os.path.join(src_dir_path, "data", "parsed_files")
-    saving_folder = os.path.join(src_dir_path, "data", "chunked_files")
+    origin_folder = os.path.join(src_dir_path, "data", "parsed_files") if input_folder is None else input_folder
+    saving_folder = os.path.join(src_dir_path, "data", "chunked_files") if output_folder is None else output_folder
 
-    text_splitter, splitter_name = init_text_splitter(chunking_method, chunk_size, chunk_overlap)
+    text_splitter, splitter_name = init_text_splitter(chunking_method.value, chunk_size, chunk_overlap)
+
+    all_chunks = {}
 
     if files_to_keep == ["all"]:
         files_to_keep = get_file_list(repo_path=origin_folder, extensions=[".md"])
@@ -126,9 +151,9 @@ def generate_chunks(files_to_keep: list[str],
             chunks = text_splitter.generate_hirag_chunks(data)
 
         else:
-            all_chunks = text_splitter.split_text(data)
+            splited_chunks = text_splitter.split_text(data)
             chunks = {}
-            for id, chunk in enumerate(all_chunks):
+            for id, chunk in enumerate(splited_chunks):
                 chunks[id] = {
                     "chunks": [chunk],
                     "source": file_name
@@ -141,6 +166,11 @@ def generate_chunks(files_to_keep: list[str],
         destination_path = os.path.join(saving_folder, saved_file_name)
         save_json(destination_path=destination_path, data=chunks)
         print(Fore.LIGHTGREEN_EX, f"\rSuccessfully saved {saved_file_name} at: ", destination_path, Fore.RESET)
+
+        all_chunks = merge_dicts_with_new_keys(all_chunks, chunks)
+
+    text_splitter = None
+    return all_chunks
 
 
 def main():

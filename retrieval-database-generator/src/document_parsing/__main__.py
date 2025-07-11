@@ -58,7 +58,7 @@ def main():
             print(Fore.LIGHTGREEN_EX, f"\rLoaded: {file_path}", Fore.RESET)
             if os.path.isfile(file_path):
                 parser.parse(input_file=file_path,
-                             destination_path=os.path.join(saving_folder, (os.path.splitext(file_name)[0])))
+                             destination_path=saving_folder)
             else:
                 raise ValueError(f"There is no {file_name} in {origin_folder}.")
 
