@@ -103,7 +103,7 @@ For i.MX95, although the demo can work on the regular NXP Q1 2025 BSP (L6.12.3-1
 
 > **Note:** The meta-layer is for the EVK i.MX95 A1 revision only on Q1 BSP (L6.12.3_1.0.0). It's not necessary for EVK with i.MX95 B0 revision or BSPs > Q1 2025.  
 >
-> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration for LLMs without the need of the meta-layer on an EVK with i.MX95 B0 revision
+> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) on an EVK with i.MX95 B0 revision, Neutron acceleration is not supported. It will be available in a next package.
 >
 > **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration for LLMs by replacing the /lib/firmware/NeutronFwllm.elf by the one present in the meta-layer on an EVK with i.MX95 A1 revision
 >
@@ -254,7 +254,7 @@ Expected performances of the Danube-INT8 model :
 |:--------:|:---------------:|:--------------------------:|:-----:|:-----------------------------------:|
 |  i.MX8MP  | CPU (4 threads) |           0.94s            | 8.66 |   `./eiq_genai_flow -b`             |
 |  i.MX95  | CPU (6 threads) |           0.94s            | 9.38  |   `./eiq_genai_flow -b`             |
-|  i.MX95  |  NPU (Neutron)  |           0.59s            | 9.72  | `./eiq_genai_flow -b --use_neutron` |
+|  i.MX95 A1 |  NPU (Neutron)  |           0.59s            | 9.72  | `./eiq_genai_flow -b --use-neutron` |
 
 Wikitext-2 perplexity of this model is 17.69 compared to the float reference at 14.76.
 
