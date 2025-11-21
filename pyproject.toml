@@ -1,0 +1,56 @@
+[project]
+name = "eiq_genai_flow"
+version = "2.0.0"
+description = "Project integrating VIT wake word detection, Automatic Speech Recognition (ASR), Retrieval-Augmented Generation (RAG), Large Language Models (LLMs), and Text-to-Speech (TTS)."
+readme = "README.md"
+
+# Main runtime dependencies
+dependencies = [
+    "numpy==1.26.4; python_version <= '3.12'",
+    "numpy==2.2.3; python_version >= '3.13'",
+    "optimum==1.26.1",
+    "pyalsaaudio==0.11.0",
+    "posix-ipc==1.1.1",
+    "psutil==7.0.0",
+    "colorama==0.4.6",
+    "accelerate==1.7.0",
+    "onnx==1.18.0",
+    "silero-vad==5.1.2",
+    "sentence-transformers==4.1.0",
+    "sentencepiece==0.2.0",
+    "typer==0.16.0",
+    "pycryptodome==3.23.0",
+    "transformers==4.54.0",
+    "torch==2.7.1",
+    "scikit-learn==1.7.0",
+    "soundfile==0.13.1",
+    "Cython==3.2.1",
+    "onnxruntime==1.20.1; python_version <= '3.12'",
+    "onnxruntime==1.22.0; python_version >= '3.13'"
+]
+
+# Optional dependencies (for development)
+[project.optional-dependencies]
+dev = [
+    "tenacity==8.3.0",
+    "pandas==2.2.3",
+    "langchain-text-splitters==0.3.2",
+    "pdfminer.six==20240706",
+    "spacy==3.7.5",
+    "nltk==3.9.1",
+    "altgraph==0.17.4",
+]
+gui = [
+    "posix_ipc==1.1.1",
+    "PyQt6==6.9.1"
+]
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[tool.distutils.egg_info]
+egg_base = "."
+
+[tool.setuptools.packages.find]
+where = ["asr/src", "rag/src", "llm/src", "tts/src", "shared_utils", "gui/src", "gui/modules/chat_interface/src"]

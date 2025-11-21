@@ -1,0 +1,301 @@
+{
+    "67": {
+        "chunks": [
+            "The document is about diabetes, how to monitor blood sugar level, and how to use insulin."
+        ],
+        "complete_chunks": "What is the document about?;The document is about diabetes, how to monitor blood sugar level, and how to use insulin.",
+        "question": "What is the document about?",
+        "answer": "The document is about diabetes, how to monitor blood sugar level, and how to use insulin.",
+        "page": 1
+    },
+    "68": {
+        "chunks": [
+            "Before testing you blood sugar level, you should wash your hands, replace the lancet, and if you are a children wait for an adult who can read the result."
+        ],
+        "complete_chunks": "What are the recommended steps to follow before testing blood glucose levels?;Before testing you blood sugar level, you should wash your hands, replace the lancet, and if you are a children wait for an adult who can read the result.",
+        "question": "What are the recommended steps to follow before testing blood glucose levels?",
+        "answer": "Before testing you blood sugar level, you should wash your hands, replace the lancet, and if you are a children wait for an adult who can read the result.",
+        "page": 1
+    },
+    "69": {
+        "chunks": [
+            "The 3 methods to administrate insulin are the insulin pen, a pump, or a syringe and vial of insulin."
+        ],
+        "complete_chunks": "What are the different methods of administering insulin?;The 3 methods to administrate insulin are the insulin pen, a pump, or a syringe and vial of insulin.",
+        "question": "What are the different methods of administering insulin?",
+        "answer": "The 3 methods to administrate insulin are the insulin pen, a pump, or a syringe and vial of insulin.",
+        "page": 2
+    },
+    "70": {
+        "chunks": [
+            "You should avoid injecting insulin through clothes or into lumps or bruising areas. But you should rotate injection sites and use a new needle for each injection."
+        ],
+        "complete_chunks": "What are the key considerations when selecting an insulin injection site?;You should avoid injecting insulin through clothes or into lumps or bruising areas. But you should rotate injection sites and use a new needle for each injection.",
+        "question": "What are the key considerations when selecting an insulin injection site?",
+        "answer": "You should avoid injecting insulin through clothes or into lumps or bruising areas. But you should rotate injection sites and use a new needle for each injection.",
+        "page": 2
+    },
+    "71": {
+        "chunks": [
+            "You should rotate injection sites to prevent lumps from occurring. Correct rotation involves spacing insulin injections at least 1cm apart in the same injection zone."
+        ],
+        "complete_chunks": "Why is it important to rotate insulin injection sites?;You should rotate injection sites to prevent lumps from occurring. Correct rotation involves spacing insulin injections at least 1cm apart in the same injection zone.",
+        "question": "Why is it important to rotate insulin injection sites?",
+        "answer": "You should rotate injection sites to prevent lumps from occurring. Correct rotation involves spacing insulin injections at least 1cm apart in the same injection zone.",
+        "page": 2
+    },
+    "72": {
+        "chunks": [
+            "Injecting through clothes may cause an infection at the site and the insulin may not get delivered into the subcutaneous layer and therefore may not work."
+        ],
+        "complete_chunks": "What are the potential risks of injecting insulin through clothing?;Injecting through clothes may cause an infection at the site and the insulin may not get delivered into the subcutaneous layer and therefore may not work.",
+        "question": "What are the potential risks of injecting insulin through clothing?",
+        "answer": "Injecting through clothes may cause an infection at the site and the insulin may not get delivered into the subcutaneous layer and therefore may not work.",
+        "page": 2
+    },
+    "73": {
+        "chunks": [
+            "The insulin pump automatically monitosr blood sugar level and delivers insulin. It is rarely used at diagnosis but may be a suitable option as your child’s diabetes journey progresses."
+        ],
+        "complete_chunks": "How does an insulin pump work, and when might it be considered as a treatment option?;The insulin pump automatically monitosr blood sugar level and delivers insulin. It is rarely used at diagnosis but may be a suitable option as your child’s diabetes journey progresses.",
+        "question": "How does an insulin pump work, and when might it be considered as a treatment option?",
+        "answer": "The insulin pump automatically monitosr blood sugar level and delivers insulin. It is rarely used at diagnosis but may be a suitable option as your child’s diabetes journey progresses.",
+        "page": 2
+    },
+    "74": {
+        "chunks": [
+            "Reusing the same lancet can result in blood infections."
+        ],
+        "complete_chunks": "Why is it necessary to use a new lancet for each blood glucose test?;Reusing the same lancet can result in blood infections.",
+        "question": "Why is it necessary to use a new lancet for each blood glucose test?",
+        "answer": "Reusing the same lancet can result in blood infections.",
+        "page": 1
+    },
+    "75": {
+        "chunks": [
+            "The normal blood glucose range that should be maintained is typically between 4 and 8 mmols/L"
+        ],
+        "complete_chunks": "What is the normal blood glucose range that should be maintained?;The normal blood glucose range that should be maintained is typically between 4 qnd 8 mmols/L",
+        "question": "What is the normal blood glucose range that should be maintained?",
+        "answer": "The normal blood glucose range that should be maintained is typically between 4 and 8 mmols/L",
+        "page": 1
+    },
+    "76": {
+        "chunks": [
+            "When using a finger-lancing device it is essential to use a new lancet each time you test the blood glucose level."
+        ],
+        "complete_chunks": "What precautions should be taken when using a finger-lancing device?; When using a finger-lancing device it is essential to use a new lancet each time you test the blood glucose level.",
+        "question": "What precautions should be taken when using a finger-lancing device?",
+        "answer": " When using a finger-lancing device it is essential to use a new lancet each time you test the blood glucose level.",
+        "page": 1
+    },
+    "77": {
+        "chunks": [
+            "A drop of blood goes on the strip to measure blood glucose and/or blood ketone in the glucose meter."
+        ],
+        "complete_chunks": "How does a test strip work in measuring blood glucose and blood ketone levels?;A drop of blood goes on the strip to measure blood glucose and/or blood ketone in the glucose meter.",
+        "question": "How does a test strip work in measuring blood glucose and blood ketone levels?",
+        "answer": "A drop of blood goes on the strip to measure blood glucose and/or blood ketone in the glucose meter.",
+        "page": 1
+    },
+    "78": {
+        "chunks": [
+            " There are three main areas where insulin can be injected: the abdomen, the legs, and the buttock."
+        ],
+        "complete_chunks": "What are the three main areas where insulin can be injected?;There are three main areas where insulin can be injected: the abdomen, the legs, and the buttock.",
+        "question": "What are the three main areas where insulin can be injected?",
+        "answer": "There are three main areas where insulin can be injected: the abdomen, the legs, and the buttock.",
+        "page": 2
+    },
+    "79": {
+        "chunks": [
+            "Insulin is injected into the tissue layer between the skin and the muscle. This allows the insulin to be absorbed gradually."
+        ],
+        "complete_chunks": "How does subcutaneous insulin absorption work?;Insulin is injected into the tissue layer between the skin and the muscle. This allows the insulin to be absorbed gradually.",
+        "question": "How does subcutaneous insulin absorption work?",
+        "answer": "Insulin is injected into the tissue layer between the skin and the muscle. This allows the insulin to be absorbed gradually.",
+        "page": 2
+    },
+    "80": {
+        "chunks": [
+            "You should rotate the injection site is to prevent lumps from occurring."
+        ],
+        "complete_chunks": "What are the potential complications of not rotating insulin injection sites?;You should rotate the injection site is to prevent lumps from occurring.",
+        "question": "What are the potential complications of not rotating insulin injection sites?",
+        "answer": "You should rotate the injection site is to prevent lumps from occurring.",
+        "page": 2
+    },
+    "81": {
+        "chunks": [
+            "We use a glucose meter."
+        ],
+        "complete_chunks": "How do we do glucose measurement?;We use a glucose meter.",
+        "question": "How do we do glucose measurement?",
+        "answer": "We use a glucose meter.",
+        "page": 1
+    },
+    "82": {
+        "chunks": [
+            "It needs to be tested 5-7 times every day before meals."
+        ],
+        "complete_chunks": "How many times a day do we need to test blood glucose?;It needs to be tested 5-7 times every day before meals.",
+        "question": "How many times a day do we need to test blood glucose?",
+        "answer": "It needs to be tested 5-7 times every day before meals.",
+        "page": 1
+    },
+    "83": {
+        "chunks": [
+            "Before meals (breakfast, lunch, and dinner) and before bed."
+        ],
+        "complete_chunks": "At what moment should we test blood glucose?;Before meals (breakfast, lunch, and dinner) and before bed.",
+        "question": "At what moment should we test blood glucose?",
+        "answer": "Before meals (breakfast, lunch, and dinner) and before bed.",
+        "page": 1
+    },
+    "84": {
+        "chunks": [
+            "To control blood sugar levels in people with diabetes."
+        ],
+        "complete_chunks": "Why do we use insulin?;To control blood sugar levels in people with diabetes.",
+        "question": "Why do we use insulin?",
+        "answer": "To control blood sugar levels in people with diabetes.",
+        "page": 2
+    },
+    "85": {
+        "chunks": [
+            "Type 1 diabetes should be managed with insulin."
+        ],
+        "complete_chunks": "How do you manage type 1 diabetes?;Type 1 diabetes should be managed with insulin.",
+        "question": "How do you manage type 1 diabetes?",
+        "answer": "Type 1 diabetes should be managed with insulin.",
+        "page": 2
+    },
+    "86": {
+        "chunks": [
+            "There are three main areas: abdomen, legs, and buttock."
+        ],
+        "complete_chunks": "How to inject insulin?;There are three main areas: abdomen, legs, and buttock.",
+        "question": "How to inject insulin.",
+        "answer": "There are three main areas: abdomen, legs, and buttock.",
+        "page": 2
+    },
+    "87": {
+        "chunks": [
+            "To inject insulin, use a syringe, pen, or pump. Steps: 1. Wash skin with soap and water. 2. Choose a clean, dry injection site (arm or thigh). 3. Clean the site again before injection."
+        ],
+        "complete_chunks": "Tell me how to inject insulin.;To inject insulin, use a syringe, pen, or pump. Steps: 1. Wash skin with soap and water. 2. Choose a clean, dry injection site (arm or thigh). 3. Clean the site again before injection.",
+        "question": "Tell me how to inject insulin.",
+        "answer": "To inject insulin, use a syringe, pen, or pump. Steps: 1. Wash skin with soap and water. 2. Choose a clean, dry injection site (arm or thigh). 3. Clean the site again before injection.",
+        "page": 2
+    },
+    "88": {
+        "chunks": [
+            "There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin."
+        ],
+        "complete_chunks": "What are the document images?;There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin.",
+        "question": "What are the document images?",
+        "answer": "There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin."
+    },
+    "89": {
+        "chunks": [
+            "There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin."
+        ],
+        "complete_chunks": "Explain me the different images in the document.;There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin.",
+        "question": "Explain me the different images in the document.",
+        "answer": "There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin."
+    },
+    "90": {
+        "chunks": [
+            "There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin."
+        ],
+        "complete_chunks": "Can you describe me the three images in the document?;There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin.",
+        "question": "Can you describe me the three images in the document?",
+        "answer": "There are 3 figures in the document: a glucose meter, the 3 ways for injecting insulin, and the body areas where to inject insulin."
+    },
+    "91": {
+        "chunks": [
+            "A glucose meter and a new lancet."
+        ],
+        "complete_chunks": "What must be used for each blood glucose test?;A glucose meter and a new lancet.",
+        "question": "What must be used for each blood glucose test?",
+        "answer": "A glucose meter and a new lancet.",
+        "page": 1
+    },
+    "92": {
+        "chunks": [
+            "You should inspect and palpate the site for lumps or bruising."
+        ],
+        "complete_chunks": "What should be done before injecting insulin?;You should inspect and palpate the site for lumps or bruising.",
+        "question": "What should be done before injecting insulin?",
+        "answer": "You should inspect and palpate the site for lumps or bruising.",
+        "page": 2
+    },
+    "93": {
+        "chunks": [
+            "It is usually considered later in diabetes management."
+        ],
+        "complete_chunks": "Why is an insulin pump not commonly used at diagnosis?;It is usually considered later in diabetes management.",
+        "question": "Why is an insulin pump not commonly used at diagnosis?",
+        "answer": "It is usually considered later in diabetes management.",
+        "page": 2
+    },
+    "94": {
+        "chunks": [
+            "It can cause serious complications like organ damage and nerve problems."
+        ],
+        "complete_chunks": "What happens if blood glucose is too high for a long time?;It can cause serious complications like organ damage and nerve problems.",
+        "question": "What happens if blood glucose is too high for a long time?",
+        "answer": "It can cause serious complications like organ damage and nerve problems.",
+        "page": 1
+    },
+    "95": {
+        "chunks": [
+            "It can lead to dizziness, confusion, and even loss of consciousness."
+        ],
+        "complete_chunks": "What happens if blood glucose is too low?;It can lead to dizziness, confusion, and even loss of consciousness.",
+        "question": "What happens if blood glucose is too low?",
+        "answer": "It can lead to dizziness, confusion, and even loss of consciousness.",
+        "page": 2
+    },
+    "96": {
+        "chunks": [
+            "No, Type 1 is an autoimmune disease, while Type 2 is often related to lifestyle and insulin resistance."
+        ],
+        "complete_chunks": "Is Type 1 diabetes the same as Type 2 diabetes?;No, Type 1 is an autoimmune disease, while Type 2 is often related to lifestyle and insulin resistance.",
+        "question": "Is Type 1 diabetes the same as Type 2 diabetes?",
+        "answer": "No, Type 1 is an autoimmune disease, while Type 2 is often related to lifestyle and insulin resistance."
+    },
+    "97": {
+        "chunks": [
+            "Type 1 diabetes cannot be prevented, but Type 2 can often be managed with a healthy lifestyle."
+        ],
+        "complete_chunks": "Can diabetes be prevented?;Type 1 diabetes cannot be prevented, but Type 2 can often be managed with a healthy lifestyle.",
+        "question": "Can diabetes be prevented?",
+        "answer": "Type 1 diabetes cannot be prevented, but Type 2 can often be managed with a healthy lifestyle."
+    },
+    "98": {
+        "chunks": [
+            "No, only people with Type 1 and some with advanced Type 2 diabetes need insulin."
+        ],
+        "complete_chunks": "Do all people with diabetes need insulin?;No, only people with Type 1 and some with advanced Type 2 diabetes need insulin.",
+        "question": "Do all people with diabetes need insulin?",
+        "answer": "No, only people with Type 1 and some with advanced Type 2 diabetes need insulin."
+    },
+    "99": {
+        "chunks": [
+            "Yes, stress can cause blood sugar levels to rise."
+        ],
+        "complete_chunks": "Does stress affect blood glucose levels?;Yes, stress can cause blood sugar levels to rise.",
+        "question": "Does stress affect blood glucose levels?",
+        "answer": "Yes, stress can cause blood sugar levels to rise.",
+        "page": 1
+    },
+    "100": {
+        "chunks": [
+            "High ketone levels can indicate a dangerous condition called diabetic ketoacidosis (DKA)."
+        ],
+        "complete_chunks": "Why do people with diabetes sometimes need to check for ketones?;High ketone levels can indicate a dangerous condition called diabetic ketoacidosis (DKA).",
+        "question": "Why do people with diabetes sometimes need to check for ketones?",
+        "answer": "High ketone levels can indicate a dangerous condition called diabetic ketoacidosis (DKA)."
+    }
+}
