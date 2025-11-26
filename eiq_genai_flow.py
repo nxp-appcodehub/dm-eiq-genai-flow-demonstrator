@@ -523,6 +523,7 @@ class eIQGenAIFlow:
         self.egf_print(response, color=Fore.GREEN)
         if self.gui:
             self.gui.send_rsp(response)
+            self.gui.send_rsp(end_token)
 
     # =========================================================================
     # DOMAIN AND INTENT HANDLING
