@@ -149,13 +149,13 @@ fi
 if [[ "$EGF_CAPTURE_DEVICE" == "" ]]; then
     CAPTURE_DEVICE=""
 else
-    CAPTURE_DEVICE="--capture-device $CAPTURE_DEVICE"
+    CAPTURE_DEVICE="--capture-device $EGF_CAPTURE_DEVICE"
 fi
 
 if [[ "$EGF_PLAYBACK_DEVICE" == "" ]]; then
     PLAYBACK_DEVICE=""
 else
-    PLAYBACK_DEVICE="--playback-device $PLAYBACK_DEVICE"
+    PLAYBACK_DEVICE="--playback-device $EGF_PLAYBACK_DEVICE"
 fi
 
 cd $PROJECT_ROOT
