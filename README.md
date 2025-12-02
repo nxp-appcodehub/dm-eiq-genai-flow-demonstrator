@@ -49,6 +49,7 @@ For more details, use the [NXP Community Forum Generative AI & LLMs](https://com
 - [Audio setup](#audio-setup)
 - [GUI](#graphical-user-interface-gui)
 - [Troubleshooting](#troubleshooting)
+- [Support](#support)
 - [Release Notes](#release-notes)
 
 # Platforms supported and flow configuration recommendations
@@ -584,6 +585,14 @@ dtb-$(CONFIG_ARCH_MXC) += imx95-15x15-frdm-neutron.dtb
 The ONNX runtime version to use is the one delivered in the BSP. Any `pip install onnxruntime=="a different version"` would force the project to use a version non-compatible with Neutron.
 
 ---
+
+<a name="support"></a>
+## Support
+
+For more general technical questions, use the [NXP Community Forum Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs).
+
+---
+
 <a name="release-notes"></a>
 ## Release Notes
 | Version | Description / Update                     | Date                         |
