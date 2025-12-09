@@ -370,7 +370,11 @@ Use the `--output-mode tts` argument to enable TTS, or `--output-mode text` to d
 
 **⚙️ TTS API**
 
+This can be used in custom Python scripts. Create your script in the same directory as `eiq_genai_flow.py` and ensure that dependencies are installed (using `install.sh`). Then, you can run `python3 your_script.py`.
+
 ```python
+# script example
+import os
 from tts.inference import TTSPlayer
 from tts.config import MultiSpeakerTTS16kHzConfig, MultiSpeakerTTS16kHzQuantConfig
 
@@ -381,7 +385,10 @@ config = MultiSpeakerTTS16kHzQuantConfig(
   speed=0.52  # the greater, the faster
 )
 # it will generate speech and play it
-tts = TTSPlayer(config)
+tts = TTSPlayer(
+  config=config,
+  # playback_device="plughw:CARD=wm8962audio"  # optionally, configure the playback device
+)
 # whole text
 tts("Hello world!", eos=True)
 tts.join()  # wait until generation & audio playback are finished
@@ -390,6 +397,8 @@ for token in ["This", " is", " a", " sentence", ".", " Another", " one", "."]:
   tts(token)
 tts(eos=True)
 tts.join()  # wait until generation & audio playback are finished
+
+os._exit(0) # exit the program and avoid waiting for the timeout to end
 ```
 
 **📊 TTS Benchmark**
