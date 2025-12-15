@@ -253,7 +253,7 @@ class MainUI(QWidget):
         while self.running:
             try:
                 message, _ = self.egf_to_gui_queue.receive(timeout=1)
-                message = message.decode().strip()
+                message = message.decode()
 
                 if message.startswith("CON:"):
                     self.connected = True
