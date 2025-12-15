@@ -10,14 +10,14 @@ license-files = ["License"]
 
 # Main runtime dependencies
 dependencies = [
-    "typer==0.15.4",
-    "torch==2.7.0",
+    "typer",
+    "torch==2.7.1",
     "colorama==0.4.6",
-    "transformers==4.49.0",
+    "transformers>=4.49.0",
     "onnx==1.18.0",
-    "scikit-learn==1.6.1",
-    "numpy==2.2.3; python_version >= '3.13'",
+    "scikit-learn==1.7.0",
     "numpy==1.26.4; python_version <= '3.12'",
+    "numpy==2.2.3; python_version >= '3.13'",
     "onnxruntime==1.20.1; python_version <= '3.12'",
     "onnxruntime==1.22.0; python_version >= '3.13'"
 ]
@@ -29,7 +29,7 @@ dev = [
     "langchain-text-splitters==0.3.2",
     "spacy==3.8.7",
     "nltk==3.9.1",
-    "accelerate==0.30.1",
+    "accelerate==1.7.0",
     "datasets==3.2.0",
     "sentencepiece==0.2.0",
     "pytest==8.3.5",
