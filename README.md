@@ -272,27 +272,31 @@ To enable continuous ASR, pass the `-c` flag. In this mode, ASR remains active u
 
 **⚙️ ASR API**
 
+This code must be used within this directory. Please ensure dependencies are installed (using `install.sh`).
+
 ```python
 from asr.streaming.speech_to_text import SpeechToText
+from shared_utils.utils import get_default_playback_device
 
 asr = SpeechToText(
-    model_name='whisper-small.en', #  'whisper-small.en', 'moonshine-base', etc.
-    language='English',  # 'only for multilingual models: English, French, Chinese, etc.'
-    task='transcribe',  # 'only for multilingual models: transcribe' or 'translate'
+    model_name = 'whisper-small.en', #  'whisper-small.en', 'moonshine-base', etc.
+    language = 'English',  # 'only for multilingual models: English, French, Chinese, etc.'
+    task = 'transcribe',  # 'only for multilingual models: transcribe' or 'translate'
     source='mic',  # 'mic' or 'file',
-    audio_card_name='default',  # audio card name
-    stream_print=False # disable progressive text printing in the terminal
+    audio_card_name = get_default_playback_device(),  # specify the playback device
+    stream_print=False
 )
 
-''' transcribe speech from a file '''
-text_from_file = asr.file_to_text(audio_file='tests/data/sample_en.wav')
+''' transcribe speech from a file (requires source='file') '''
+text_from_file = asr.file_to_text(audio_file='asr/tests/data/sample_en.wav')
 print(text_from_file) # final text after end of transcription
 
-''' transcribe speech from the microphone '''
-text_from_mic = ''
-for text_from_mic in asr.mic_to_text():
-    pass # [optional] gui.send_qst(text_from_mic) can be used to feed a GUI
-print(text_from_mic)  # final text after end of transcription
+''' transcribe speech from the microphone (requires source='mic') '''
+while not input("\nPress Enter key..."): # keyboard
+    text_from_mic = ''
+    for text_from_mic in asr.mic_to_text():
+        pass
+    print(text_from_mic)  # final text after end of transcription
 ```
 
 **📊 ASR Benchmark**
