@@ -14,7 +14,7 @@ import logging
 from enum import Enum
 from rag.retrieval import Retriever
 from rag.config import Config as RAGConfig
-from shared_utils.utils import setup_logging, get_leaf_classes
+from rag.utils import setup_logging, get_leaf_classes
 from rag.models.embedding_models.embedding_models import EmbeddingModel
 
 logger = logging.getLogger(__name__)

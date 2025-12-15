@@ -15,9 +15,8 @@ import pickle
 import logging
 import numpy as np
 import torch.nn.functional as F
-from shared_utils.utils import pretty_log
 from rag.config import Config as RAGConfig
-from rag.utils import check_censored_word_presence
+from rag.utils import check_censored_word_presence, pretty_log
 from rag.models.embedding_models.embedding_models import EmbeddingModel
 
 logger = logging.getLogger(__name__)

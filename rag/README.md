@@ -28,12 +28,12 @@
 ---
 ## Features
 
-### Database generator
+### Database generator (PC only)
 * 📚 Advanced PDF document parsing leveraging [Docling](https://github.com/DS4SD/docling "Go to Docling repository").
 * ✂️ Solutions to break down large textual data using chunking algorithms. Including [HiRAG](https://openreview.net/forum?id=cWWb9cgSVi "HiRAG paper") that offers an advanced chunk reformatting.
 * 🧩 Embedding model adapted for NXP platforms to generate RAG databases.
 
-### Inference
+### Inference (PC & i.MX)
 * 🔍 A retrieval engine that finds the most relevant chunks for a given query.
 ---
 
@@ -43,15 +43,15 @@
 
 [Configurable parameters](#configurable-parameters)
 
-[Custom Database Generation](#custom-database-generation)
+[Custom Database Generation](#custom-database-generation-pc-only)
 
-  * [(Optional) Parse PDF files](#optional-parse-pdf-files)
-  * [Generate Chunks](#generate-chunks)
-  * [Generate RAG Database](#generate-rag-database)
+  * [(Optional) Parse PDF files](#optional-parse-pdf-files-pc-only)
+  * [Generate Chunks](#generate-chunks-pc-only)
+  * [Generate RAG Database](#generate-rag-database-pc-only)
 
 [Classify Inputs](#classify-inputs)
 
-[Custom Database Testing](#custom-database-testing)
+[Custom Database Testing](#custom-database-testing-pc--imx)
 
 [Support](#support)
 
@@ -64,16 +64,16 @@
 <a name="set-up-the-environment"></a>
 ### Set up the environment:
 
+**Works only on Linux environment. This package has been tested thoroughly with [Python 3.13.2](https://www.python.org/downloads/).**
+
 Install Runtime & Development Dependencies (Dev):
 ```bash
 cd rag
-# Install Runtime Dependencies:
+# Install Runtime Dependencies (i.MX & PC):
 pip install -e .
-# Install Runtime and Development Dependencies (Dev):
+# Install Runtime and Development Dependencies (PC):
 pip install -e .[dev]
 ```
-
-> Works on Linux environment. This package has been tested thoroughly with [Python 3.13.2](https://www.python.org/downloads/).
 
 <a name="optional-setting-up-a-hugging-face-environment-"></a>
 #### (Optional) Setting Up a Hugging Face Environment: 
@@ -104,15 +104,15 @@ Various parameters in the [config.py](src/rag/config.py) file are available to c
 
 ---
 
-<a name="custom-database-generation"></a>
-## Custom Database Generation
+<a name="custom-database-generation-pc-only"></a>
+## Custom Database Generation (PC only)
 
 These are the steps for creating a RAG database.
 
 💡 To understand the workflow and its features, example files in the [data folder](src/data) are included. These files illustrate the entire process, from [parsing](src/data/parsed_files) and [chunking](src/data/chunked_files) the [Medical.pdf](src/data/input_files/Medical.pdf) to incorporating handcrafted chunks. The resulting database is then used in the `eIQ GenAI Flow Demonstrator`.
 
-<a name="optional-parse-pdf-files"></a>
-### (Optional) Parse PDF Files
+<a name="optional-parse-pdf-files-pc-only"></a>
+### (Optional) Parse PDF Files (PC only)
 
 To parse PDFs into Markdown files, we use [Docling](https://github.com/docling-project/docling/tree/main), so the [Dev environment](#set-up-the-environment) is needed. FlashAttention is also needed, to install run:
 ```bash
@@ -155,8 +155,8 @@ python -m document_parsing
 >
 > Use the `--help` flag to see available options for `document_parsing`.
 
-<a name="generate-chunks"></a>
-### Generate Chunks
+<a name="generate-chunks-pc-only"></a>
+### Generate Chunks (PC only)
 
 To generate text chunks from Markdown files: 
 ```bash
@@ -188,8 +188,8 @@ Chunk files that respect this JSON format, can manually be added to [chunked_fil
 ```
 An example can be found in [Medical_hand_made_chunks.json](src/data/chunked_files/Medical_hand_made_chunks.json).
 
-<a name="generate-rag-database"></a>
-### Generate RAG Database
+<a name="generate-rag-database-pc-only"></a>
+### Generate RAG Database (PC only)
 
 To compute the embeddings and generate the database, first set the right `database description` in [config.py](src/rag/config.py), then run: 
 ```bash
@@ -213,23 +213,26 @@ The **`QueryClassifier`** class categorizes each incoming query into one of seve
 | **`ACCEPTED`**  | Default case — none of the above conditions apply.                                          | Indicates that the LLM can be safely and confidently prompted.                                   |
 
 ---
-<a name="custom-database-testing"></a>
-## Custom Database Testing
+<a name="custom-database-testing-pc--imx"></a>
+## Custom Database Testing (PC & i.MX)
 
 To test the retrieval process, which identifies the most relevant chunks in the `rag_database.pkl` file, run:
 ```bash
+# PC and i.MX
 python -m rag
 ```
 > Use the `--help` flag to see available options for `rag`.
 
-If the retrieved chunks are satisfiying, try prompting a LLM.
+If the retrieved chunks are satisfiying:
 
-To test prompting a HuggingFace LLM with `RAG`, run:
+-  To prompt a HuggingFace LLM with `RAG`, run:
 ```bash
+# PC with GPU only
 python -m rag.run_llm
 ```
-To test `RAG` and the `QueryClassifier` with `eIQ GenAI Flow`, run:
+- To test `RAG` and the `QueryClassifier` with `eIQ GenAI Flow`, run:
 ```bash
+# i.MX only
 python eiq_genai_flow.py -r
 ```
 ---

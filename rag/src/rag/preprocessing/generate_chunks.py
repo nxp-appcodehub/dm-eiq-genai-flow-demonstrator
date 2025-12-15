@@ -17,8 +17,7 @@ from enum import Enum
 from tqdm import tqdm
 from rag.config import Config as RAGConfig
 from hirag.config import Config as HiRAGConfig
-from shared_utils.utils import setup_logging
-from rag.utils import save_json, get_file_list, load_json, load_markdown
+from rag.utils import save_json, get_file_list, load_json, load_markdown, setup_logging
 from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter, NLTKTextSplitter, SpacyTextSplitter
 
 logger = logging.getLogger(__name__)

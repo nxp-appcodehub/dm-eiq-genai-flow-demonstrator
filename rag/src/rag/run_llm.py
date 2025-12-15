@@ -12,7 +12,7 @@ import os
 import typer
 from colorama import Fore
 from rag.retrieval import Retriever
-from shared_utils.utils import setup_logging, pretty_log
+from rag.utils import setup_logging, pretty_log
 from rag.config import Config as RAGConfig
 from rag.models.llms.huggingface_llm import Danube, AvailableLLMs
 from rag.models.embedding_models.embedding_models import EmbeddingModel

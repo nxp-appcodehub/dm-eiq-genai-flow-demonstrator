@@ -12,7 +12,10 @@ import os
 import json
 import pickle
 import logging
-from shared_utils.utils import _summarize_value
+import numpy as np
+import multiprocessing
+from datetime import datetime
+from colorama import Fore, Style
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +130,185 @@ def check_censored_word_presence(query: str) -> bool:
     if not bool(words & CENSORED_WORDS):  # If no intersection
         return False
     return True
+
+class PrettyLoggerFormatter(logging.Formatter):
+    """Logging Formatter"""
+    format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    FORMATS = {
+        logging.DEBUG: Fore.LIGHTBLUE_EX + format + Style.RESET_ALL,
+        logging.INFO: Fore.LIGHTGREEN_EX + format + Style.RESET_ALL,
+        logging.WARNING: Fore.LIGHTYELLOW_EX + format + Style.RESET_ALL,
+        logging.ERROR: Fore.LIGHTRED_EX + format + Style.RESET_ALL,
+        logging.CRITICAL: Fore.RED + Style.BRIGHT + format + Style.RESET_ALL
+    }
+
+    def format(self, record):
+        logger_format = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(fmt=logger_format, datefmt='%Y-%m-%d %H:%M:%S')
+        return formatter.format(record)
+
+def setup_logging(level=logging.DEBUG, root_path: str = '.', saved_log_limit: int = 20):
+    from logging.handlers import QueueHandler, QueueListener, BufferingHandler
+    import queue
+    import atexit
+
+    # Create a custom logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.NOTSET)  # Set the root logger's level
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+
+    # Create log folder
+    log_folder_path = os.path.join(root_path, "logs")
+    if not os.path.exists(log_folder_path):
+        os.makedirs(log_folder_path)
+
+    # Get list of log files in the directory
+    log_files = [f for f in os.listdir(log_folder_path) if os.path.isfile(os.path.join(log_folder_path, f))]
+
+    # Check if there are 20 or more log files
+    if len(log_files) >= saved_log_limit:
+        # Sort log files by creation time
+        log_files.sort(key=lambda x: os.path.getctime(os.path.join(log_folder_path, x)))
+        # Delete the oldest log file
+        os.remove(os.path.join(log_folder_path, log_files[0]))
+
+    log_file_path = os.path.join(log_folder_path, datetime.now().strftime('%Y-%m-%d_%H:%M:%S') + '.log')
+
+    # Create file handler (will run in background thread)
+    file_handler = logging.FileHandler(filename=log_file_path)
+    file_handler.setLevel(logging.DEBUG)
+
+    # Create formatters
+    console_formatter = PrettyLoggerFormatter()
+    file_formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+                                       datefmt="%Y-%m-%d %H:%M:%S")
+
+    # Set formatters
+    console_handler.setFormatter(console_formatter)
+    file_handler.setFormatter(file_formatter)
+
+    # Create queue for async file logging
+    log_queue = queue.Queue()
+    queue_handler = QueueHandler(log_queue)
+
+    # Create queue listener (runs file handler in background thread)
+    queue_listener = QueueListener(log_queue, file_handler, respect_handler_level=True)
+    queue_listener.start()
+
+    # Ensure queue listener stops on program exit
+    atexit.register(queue_listener.stop)
+
+    # Add handlers to the logger
+    root_logger.addHandler(queue_handler)    # Async file logging
+    root_logger.addHandler(console_handler)  # Direct console logging
+
+    logger.info(f"Log file saved at: {log_file_path}")
+
+
+def get_number_of_cores():
+    try:
+        # Attempt to get the number of cores using multiprocessing module
+        num_cores = multiprocessing.cpu_count()
+    except NotImplementedError:
+        # If the multiprocessing module is not available, fall back to os module
+        num_cores = os.cpu_count()
+
+    return num_cores
+
+def get_leaf_classes(cls):
+    """
+    Recursively finds all leaf subclasses of a given class.
+    A leaf class is one that does not have any subclasses.
+    :param cls: The base class to start the search from.
+    :return: A list of all leaf subclasses.
+    """
+    subclasses = cls.__subclasses__()  # Get direct subclasses of the class
+    leaf_classes = []
+
+    # Recursively collect leaf classes from each subclass
+    for subclass in subclasses:
+        leaf_classes.extend(get_leaf_classes(subclass))
+
+    # If no subclasses exist, this is a leaf class
+    if not subclasses:
+        return [cls]
+
+    return leaf_classes
+
+def _summarize_dict(dictionary: dict) -> dict:
+    """
+    Summarize all values of the given dictionary using the `_summarize_value` method.
+    :param dictionary: The dictionary to be summarized.
+    :return: A summarized dictionary.
+    """
+    return {key: _summarize_value(value) for key, value in dictionary.items()}
+
+def _summarize_value(value):
+    """
+    Summarize the value for logs by handling dictionaries, lists, torch tensors, and numpy arrays.
+    :param value: The value to be summarized.
+    :return: A summarized representation of the value.
+    """
+    from torch import Tensor
+    # If the value is a numpy array, summarize its shape and dtype
+    if isinstance(value, np.ndarray):
+        return f"ndarray(shape={value.shape}, dtype={value.dtype})"
+    # If the value is a torch Tensor, summarize its shape and dtype
+    if isinstance(value, Tensor):
+        return f"tensor(shape={value.shape}, dtype={value.dtype})"
+    # If the value is a dictionary, recursively summarize it
+    elif isinstance(value, dict):
+        return _summarize_dict(value)
+    # If the value is a list, recursively summarize each item in the list
+    elif isinstance(value, list):
+        return [_summarize_value(v) for v in value]
+    # If it's neither a numpy array, dictionary, nor list, return it as is
+    return value
+
+def _log_dict(dictionary: dict) -> None:
+    """
+    Logs each key-value pair in a dictionary on a single line using a summarized format.
+
+    Each entry is formatted as:
+
+    "│  • key: `_summarize_value(value)`"
+
+    where the value is processed by `_summarize_value` to provide a concise representation (e.g., for tensors, arrays, etc.).
+    :param dictionary: The dictionary whose contents will be logged.
+    :return: None
+    """
+    for i, (name, value) in enumerate(dictionary.items(), start=1):
+        logger.info(f"│  • {name}: {_summarize_value(value)}")
+
+def pretty_log(name: str, result_dictionary: dict) -> None:
+    """
+    Logs a dictionary in a visually structured and readable format.
+
+    The output is framed with a header and footer using box-drawing characters,
+    and each key-value pair is logged in a clean, indented format via `_log_dict`.
+
+    Example output for name="Results" and result_dictionary={accuracy: 0.95, loss: tensor([...]), config: {...}:
+
+    ╭─ Results:
+
+    │ • accuracy: 0.95
+
+    │ • loss: tensor(shape=(1,), dtype=float32)
+
+    │ • config: {'lr': 0.001, 'batch_size': 32}
+
+    ╰─
+
+    :param name: A title or label for the dictionary being logged.
+    :param result_dictionary: The dictionary containing the data to log.
+    :return: None
+    """
+    logger.info(f"╭─ {name}:")
+    _log_dict(result_dictionary)
+    logger.info("╰─")
 
 CENSORED_WORDS = {
     "clunge",

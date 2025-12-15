@@ -11,7 +11,7 @@
 import os
 import typer
 import logging
-from shared_utils.utils import setup_logging
+from rag.utils import setup_logging
 from document_parsing.docling_parser import DoclingParser, AvailableOutputFormat
 
 logger = logging.getLogger(__name__)

@@ -16,7 +16,7 @@ import onnxruntime as ort
 import torch.nn.functional as F
 from transformers import AutoTokenizer
 from rag.config import Config as RAGConfig
-from shared_utils.utils import get_number_of_cores
+from rag.utils import get_number_of_cores
 
 
 logger = logging.getLogger(__name__)

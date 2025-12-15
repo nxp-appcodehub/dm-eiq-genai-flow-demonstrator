@@ -13,9 +13,8 @@ import typer
 import torch
 import logging
 from tqdm import tqdm
-from shared_utils.utils import setup_logging
 from rag.config import Config as RAGConfig
-from rag.utils import load_json, save_pkl, get_file_list
+from rag.utils import load_json, save_pkl, get_file_list, setup_logging
 from rag.models.embedding_models.embedding_models import EmbeddingModel
 
 logger = logging.getLogger(__name__)
