@@ -48,11 +48,12 @@ For more details, use the [NXP Community Forum Generative AI & LLMs](https://com
 - [Benchmark mode](#benchmark-mode)
 - [Audio setup](#audio-setup)
 - [GUI](#graphical-user-interface-gui)
+- [Other customizations](#other-customizations)
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
 - [Release Notes](#release-notes)
 
-# Platforms supported and flow configuration recommendations
+## Platforms supported and flow configuration recommendations
 
 <a name="flow-configuration-recommendations"></a>
 
@@ -82,7 +83,7 @@ See [GEN-AI-FLOW](https://www.nxp.com/applications/technologies/human-machine-in
 
 <a name="limitations"></a>
 
-# Demonstrator Limitations
+## Demonstrator Limitations
 
 This eIQ® GenAI Flow demonstrator has the following limitations:
 
@@ -99,18 +100,23 @@ These limitations are designed to provide an optimal evaluation experience while
 <a name="installation"></a>
 
 
-## Installation from binary package
+## Installation of the demonstrator package
 
 ### BSP selection
 
-This demo requires a Linux BSP available at [Embedded Linux for i.MX Applications Processors](https://www.nxp.com/design/design-center/software/embedded-software/i-mx-software/embedded-linux-for-i-mx-applications-processors:IMXLINUX).
+This demonstrator requires a Linux BSP available at [Embedded Linux for i.MX Applications Processors](https://www.nxp.com/design/design-center/software/embedded-software/i-mx-software/embedded-linux-for-i-mx-applications-processors:IMXLINUX).
 
-The NPU Acceleration is available only for i.MX95 devices running the [L6.12.34-2.1.0_IMX95 BSP](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=L6.12.34-2.1.0_IMX95&appType=file1&DOWNLOAD_ID=null) with a specific device tree configuration (extended CMA memory region), see [CMA Configuration](#cma-configuration).
+The NPU Acceleration is available only for i.MX95 B0 devices running the [LF6.12.34-2.1.0_IMX95 BSP](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=L6.12.34-2.1.0_IMX95&appType=file1&DOWNLOAD_ID=null) or later, with a specific device tree configuration (extended CMA memory region), see [CMA Configuration](#cma-configuration).
 The NPU Acceleration benefits are an important CPU load reduction plus a faster Time-To-First-Token (TTFT) on LLM operations. See LLM Benchmark section for details.
 
-The demo will run on CPUs only on all other platforms.
+The demonstrator will run on CPUs only on all other platforms.
 
-### Install Git LFS
+### Get the demonstrator package
+
+It's recommended to get the package on a Linux PC host, then copy it to the i.MX device. The following section describes how to set up the Linux PC host, clone the repository, and prepare the demonstrator for deployment on i.MX devices.
+
+
+#### Install Git LFS on the Linux PC host
 
 This repository uses [Git Large File Storage (LFS)](https://git-lfs.github.com/) to manage large files (e.g., models, datasets, binaries).
 
@@ -123,22 +129,13 @@ sudo apt update
 sudo apt install git-lfs
 ```
 
-**macOS (Homebrew):**
-
-```bash
-brew install git-lfs
-```
-
-**Windows:**
-Download and install Git LFS from https://git-lfs.github.com/
-
-### Initialize Git LFS (Run Once)
+#### Initialize Git LFS on the Linux PC host (Run Once)
 
 ```bash
 git lfs install
 ```
 
-### Cloning the project
+#### Cloning the project on the Linux PC host
 
 ```bash
 git clone --single-branch -b release/v2.0 https://github.com/nxp-appcodehub/dm-eiq-genai-flow-demonstrator
@@ -153,7 +150,16 @@ git lfs pull
 
 to manually fetch any missing LFS files.
 
-Once fully cloned, the **eiq_genai_flow** folder from this package can be copied on the linux /root folder of the target device. Make sure to have at 16GB of free space for the demo, models and dependencies.
+Once fully cloned, copy the **eiq_genai_flow** folder from this package to the target i.MX device running the NXP BSP (e.g., to the SD card).
+
+**Requirements:**
+- At least 16GB of free space on the target device
+- SSH or physical access to transfer files
+
+**Example transfer command:**
+```bash
+scp -r eiq_genai_flow root@<imx-device-ip>:/root/
+```
 
 ---
 
@@ -161,18 +167,27 @@ Once fully cloned, the **eiq_genai_flow** folder from this package can be copied
 
 ## Getting Started
 
-The dependencies of the demo needs to be installed on the device before first run, use the following command:
+### Install dependencies on the i.MX target
+
+After transferring the **eiq_genai_flow** folder to your i.MX device, install the required dependencies before running the demonstrator for the first time:
 
 ```bash
 ./install.sh
 ```
 
-Once the dependencies are installed, to run the demo, use the following command:
+### Running the demonstrator
+
+Once the dependencies are installed, to run the demonstrator, use the following basic command to run default configuration:
 
 ```bash
 python3 eiq_genai_flow.py
 ```
 
+To see available configurations, run:
+
+```bash
+python3 eiq_genai_flow.py -h
+```
 
 > Run ```python3 eiq_genai_flow.py --help``` to see available options.
 
@@ -341,6 +356,8 @@ Answers given by the LLM have a maximum number of words, if this number is reach
 
 **⚙️ LLM API**
 
+This can be used in custom Python scripts. Create your script in the same directory as `eiq_genai_flow.py` and ensure that dependencies are installed (using `install.sh`). Then, you can run `python3 your_script.py`.
+
 ```python
 from llm.modeling_llm import make_LLM
 from llm.config.user_config import Config as user_config
@@ -357,7 +374,7 @@ while True:
 
 **📊 LLM Benchmarks**
 
-Expected performances of the LLMs inside the demo can be found at: [eIQ GenAI Flow Page](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW)
+Expected performances of the LLMs inside the demonstrator can be found at: [eIQ GenAI Flow Page](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW)
 
 ⎺⎺⎺
 <a name="text-to-speech-tts"></a>
@@ -415,7 +432,7 @@ Model profiling and speech quality measurement (DNS-MOS) are available [here](ht
 
 ## Using NPU Acceleration
 
-NPU acceleration can be used for LLM inference on `i.MX 95`. It requires the BSP to have an extended CMA (> 4GB) for Neutron NPU. This CMA is defined via the linux device tree, ensure to have such a dtb set as fdtfile in uboot.
+NPU acceleration can be used for LLM inference on `i.MX 95 B0`. It requires the BSP to have an extended CMA (> 3GB) for Neutron NPU. This CMA is defined via the linux device tree, ensure to have such a dtb set as fdtfile in uboot, see [CMA Configuration](#cma-configuration).
 To enable NPU acceleration, pass the `--use-neutron` flag when running the pipeline on supported BSPs.
 
 ---
@@ -455,7 +472,7 @@ Various configurations have been benchmarked, results are available in [eIQ GenA
 
 ## Audio setup
 
-The demo's default audio setup is based on the on-board [WM8962 codec](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/58279/1/WM8962_v4.2.pdf) present on most EVK's, which manages both input and output through a single 3.5mm jack connector CTIA.
+The demonstrator's default audio setup is based on the on-board [WM8962 codec](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/58279/1/WM8962_v4.2.pdf) present on most EVK's, which manages both input and output through a single 3.5mm jack connector CTIA.
 
 However, USB devices for capture/playback can be used with some precautions, see below.
 
@@ -474,7 +491,7 @@ Setup example:
 
 ![Complete demo setup](assets/demo_setup.png)
 
-This ensures proper handling of both input and output audio during the demo.
+This ensures proper handling of both input and output audio during the demonstrator's operation.
 
 Some settings defined in the shared_utils/audio_config.sh such as the capture level and playback level are automatically applied on startup, and can be customized in this shell script.
 
@@ -482,7 +499,7 @@ Note that if this codec is not present on the platform, a fall-back to another d
 
 ### USB devices/codecs
 
-Running the demo with `-h` will display the audio interfaces found on the system, and selectable via the `--capture-device` and `--playback-device` parameters.
+Running the demonstrator with `-h` will display the audio interfaces found on the system, and selectable via the `--capture-device` and `--playback-device` parameters.
 
 The displayed interfaces use ALSA's "plughw" format, which automatically converts audio formats to match your hardware requirements.
 
@@ -493,7 +510,7 @@ The displayed interfaces use ALSA's "plughw" format, which automatically convert
 - For any audio issues, see the [Troubleshooting](#troubleshooting) section
 
 **Customization:**
-The audio settings (volume, etc..) can be customized by editing the [audio_config.sh](shared_utils/audio_config.sh) script, which can automatically applies a custom configuration when the demo starts.
+The audio settings (volume, etc..) can be customized by editing the [audio_config.sh](shared_utils/audio_config.sh) script, which can automatically applies a custom configuration when the demonstrator starts.
 
 ⎺⎺⎺
 <a name="graphical-user-interface-gui"></a>
@@ -520,6 +537,55 @@ pip install -e . # To run once
 - Real-time chat bubbles for questions and responses
 - Visual status indicators for connection and listening states
 - Streaming AI responses as they generate
+
+⎺⎺⎺
+<a name="other-customizations"></a>
+
+### Other customizations
+
+The demonstrator package includes a `config.py` file that allows for extensive customization of the eIQ® GenAI Flow behavior and parameters.
+
+**Key Configuration Parameters:**
+
+**System Messages & Prompts:**
+- `default_system_prompt`: Default system prompt for the LLM (default: "Helpful assistant.")
+- `tts_start_text`: Initial greeting message when TTS starts
+- `out_of_domain_response_list`: Predefined responses when questions are outside the knowledge base
+- `ambiguous_response_list`: Responses when questions need clarification
+
+**Performance Settings:**
+- `set_cpu_governor`: Enable/disable CPU governor configuration (default: `True`)
+- `cpu_governor`: CPU governor mode (default: "performance")
+- `restore_cpu_governor_on_exit`: Restore original CPU governor on exit (default: `True`)
+
+**Thresholds:**
+- `similarity_threshold`: Minimum similarity score for RAG retrieval (default: 0.65)
+
+**Audio Feedback:**
+- `play_tts_sound`: Play notification sound before TTS speaks (default: `True`)
+- `play_wake_word_sound`: Play sound when wake-word is detected (default: `True`)
+
+**Advanced Settings:**
+- `wake_model_path`: Custom VIT wake-word model path (default: "vit/models/VIT_Model_en.bin")
+
+**Example customization:**
+
+```python:config.py
+# Adjust ASR timeout for slower speech
+asr_timeout_sec: int = 30
+
+# Use a more specific system prompt
+default_system_prompt: str = "You are a medical assistant specializing in diabetes care."
+
+# Increase similarity threshold for more precise RAG matching
+similarity_threshold: float = 0.75
+
+# Disable audio notifications
+play_tts_sound: bool = False
+play_wake_word_sound: bool = False
+```
+
+Edit the `config.py` file directly to customize these parameters according to your application requirements.
 
 ---
 
@@ -564,10 +630,10 @@ Neutron NPU acceleration for LLM is only available on i.MX95 B0, on compatible B
 
 ```bash
 # Check CMA memory allocation:
-cat /proc/meminfo | grep CMA
+cat /proc/meminfo | grep -i CMA
 ```
 
-It must be > 4GB.
+It must be > 3GB: 2GB is required for the NPU and 1GB for the system.
 
 If not, the Neutron device tree blob (DTB) must be set manually in U-Boot.
 To set the correct DTB neutron in u-boot:
