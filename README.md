@@ -150,7 +150,7 @@ git lfs pull
 
 to manually fetch any missing LFS files.
 
-Once fully cloned, copy the **eiq_genai_flow** folder from this package to the target i.MX device running the NXP BSP (e.g., to the SD card).
+Once fully cloned, copy the **dm-eiq-genai-flow-demonstrator** folder from this package to the target i.MX device running the NXP BSP (e.g., to the SD card).
 
 **Requirements:**
 - At least 16GB of free space on the target device
@@ -158,7 +158,7 @@ Once fully cloned, copy the **eiq_genai_flow** folder from this package to the t
 
 **Example transfer command:**
 ```bash
-scp -r eiq_genai_flow root@<imx-device-ip>:/root/
+scp -r dm-eiq-genai-flow-demonstrator root@<imx-device-ip>:/root/
 ```
 
 ---
@@ -169,7 +169,7 @@ scp -r eiq_genai_flow root@<imx-device-ip>:/root/
 
 ### Install dependencies on the i.MX target
 
-After transferring the **eiq_genai_flow** folder to your i.MX device, install the required dependencies before running the demonstrator for the first time:
+After transferring the **dm-eiq-genai-flow-demonstrator** folder to your i.MX device, install the required dependencies before running the demonstrator for the first time:
 
 ```bash
 ./install.sh
