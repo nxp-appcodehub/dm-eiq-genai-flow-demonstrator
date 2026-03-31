@@ -1,372 +1,248 @@
+# NXP® eIQ® GenAI Flow Demonstrator Package
 
-# eIQ GenAI Flow Demonstrator
+[![License badge](https://img.shields.io/badge/License-Proprietary-red)](./LICENSE.txt)
+[![Board badge](https://img.shields.io/badge/Board-i.MX95-blue)](https://www.nxp.com/products/i.MX95)
+[![Board badge](https://img.shields.io/badge/Board-i.MX943-blue)](https://www.nxp.com/products/i.MX94)
+[![Board badge](https://img.shields.io/badge/Board-i.MX93-blue)](https://www.nxp.com/products/i.MX93)
+[![Board badge](https://img.shields.io/badge/Board-i.MX91-blue)](https://www.nxp.com/products/i.MX91)
+[![Board badge](https://img.shields.io/badge/Board-i.MX8MPLUS-blue)](https://www.nxp.com/products/I.MX8MPLUS)
+[![Board badge](https://img.shields.io/badge/Board-i.MX8MMINI-blue)](https://www.nxp.com/products/I.MX8MMINI)
+[![Board badge](https://img.shields.io/badge/Board-i.MX8MNANO-blue)](https://www.nxp.com/products/I.MX8MNANO)
 
-[![License badge](https://img.shields.io/badge/License-Proprietary-red)](./eiq_genai_flow/LICENSE.txt)
-[![Board badge](https://img.shields.io/badge/Board-i.MX_95-blue)](https://www.nxp.com/products/iMX95)
-[![Board badge](https://img.shields.io/badge/Board-i.MX_8MPLUS-blue)](https://www.nxp.com/products/IMX8MPLUS)
 [![Language badge](https://img.shields.io/badge/Language-Python-yellow)]()
 [![Category badge](https://img.shields.io/badge/Category-AI/ML-green)]()
 
-**eIQ GenAI Flow** is a software pipeline for AI-powered experiences on edge devices. Currently, the Flow supports **conversational AI** on the **NXP i.MX 95** and **NXP i.MX 8MPLUS**. . 
-
 ---
+
 ## Overview
 
-The eIQ GenAI Flow integrates multiple AI technologies to create a seamless HMI experience. The conversational AI flow consists of the following stages: 
+The **NXP eIQ® GenAI Flow Demonstrator** package showcases advanced AI capabilities running at the edge on **NXP i.MX9 and i.MX8M** application processors. This demonstrator includes two powerful AI applications:
 
-1. **Wake-Word Detection**: A VIT (Voice Intelligent Technology) Wake-Word triggers the ASR (Automatic Speech Recognition).
-2. **Speech-to-Text (ASR)**: Converts spoken input into text.
-3. **Retrieval-Augmented Generation (RAG)**: Enhances the Large Language Model (LLM) with relevant external knowledge.
-4. **Text Generation (LLM)**: Generates a response based on the retrieved context.
-5. **Text-to-Speech (TTS)**: Converts the response into speech output.
+1. **[eIQ GenAI Flow](eiq_genai_flow/README.md)** - Conversational AI Pipeline
+2. **[Vision Language Model (VLM)](vlm/README.md)** - Visual Question Answering
 
-![Pipeline Diagram](assets/eiq_flow.png)
-
-This demonstrator showcases some of eIQ GenAI Flow core capabilities. This English demo is designed to provide an overview of what the project can achieve and how it works.
-It's a subset of the full project: **eIQ GenAI Flow Pro**.
- 
-
-The complete version of the Flow offers more options for **models**, **features**, **customization**, **RAG fine-tuning** and **better performance** on audio tasks. 
-
-For more details, use the [NXP Community Forum Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs).
-
----
-## Table of Contents
-
-1. [Pre-requisites](#pre-requisites)
-2. [Installation](#installation)
-3. [Getting Started](#getting-started)
-4. [Software Components](#software-components)
-   1. [Voice Intelligent Technology (VIT)](#voice-intelligent-technology-vit)
-   2. [Automatic Speech Recognition (ASR)](#automatic-speech-recognition-asr)
-   3. [Retrieval-Augmented Generation (RAG)](#retrieval-augmented-generation-rag)
-   4. [Large Language Model (LLM)](#large-language-model-llm)
-   5. [Text-To-Speech (TTS)](#text-to-speech-tts)
-5. [Using NPU Acceleration](#using-npu-acceleration)
-6. [Hardware](#hardware)
-7. [Examples](#examples)
-8. [FAQs](#faqs)
-9. [Support](#support)
-10. [Release Notes](#release-notes)
-
-
-<a name="pre-requisites"></a>
-## Pre-requisites
-
-This repository uses [Git Large File Storage (LFS)](https://git-lfs.github.com/) to manage large files (e.g., models, datasets, binaries).
-
-**Before cloning this repository**, ensure that Git LFS is installed and initialized on your machine.
-
-### Install Git LFS
-
-**Ubuntu / Debian:**
-```bash
-sudo apt update
-sudo apt install git-lfs
-```
-
-**macOS (Homebrew):**
-```bash
-brew install git-lfs
-```
-
-**Windows:**
-Download and install Git LFS from https://git-lfs.github.com/
-
-### Initialize Git LFS (Run Once)
-```bash
-git lfs install
-```
-
-### Cloning the project
-```bash
-git clone https://github.com/nxp-appcodehub/dm-eiq-genai-flow-demonstrator
-cd dm-eiq-genai-flow-demonstrator
-```
-
-Git LFS will automatically download all tracked large files during or after the clone. If needed, you can run:
-```bash
-git lfs pull
-```
-to manually fetch any missing LFS files.
-
-### BSP selection
-This demo requires a Linux BSP available at [Embedded Linux for i.MX Applications Processors](https://www.nxp.com/design/design-center/software/embedded-software/i-mx-software/embedded-linux-for-i-mx-applications-processors:IMXLINUX).
-
-For i.MX8MP EVK, the NPU Acceleration is unavailable. LLM pipeline will run on CPUs for this platform. Therefore there is not a custom BSP and the default BSP is the only choice.
-
-For i.MX95, although the demo can work on the regular NXP Q1 2025 BSP (L6.12.3-1.0.0), it works best on the BSP customized with the [meta-eiq-genai-flow](meta-eiq-genai-flow) available in the package. This meta-layer updates:
-* **Linux kernel:** matmul Neutron C-API
-* **Device tree:** dedicated Continuous Memory Allocation (CMA) area for Neutron
-* **Onnxruntime:** add Neutron Execution Provider
-* **Neutron assets:** driver and firmware for matmul operations handling.
-
-> **Note:** The meta-layer is for the EVK i.MX95 A1 revision only on Q1 BSP (L6.12.3_1.0.0). It's not necessary for EVK with i.MX95 B0 revision or BSPs > Q1 2025.  
->
-> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) on an EVK with i.MX95 B0 revision, Neutron acceleration is not supported. It will be available in a next package.
->
-> **Note:** The package works on Q2 BSP (L6.12.20_2.0.0) with Neutron acceleration for LLMs by replacing the /lib/firmware/NeutronFwllm.elf by the one present in the meta-layer on an EVK with i.MX95 A1 revision
->
-
-See [README](meta-eiq-genai-flow/README) in [meta-eiq-genai-flow](meta-eiq-genai-flow) for build details.
- 
-This customization benefits are an important CPU load reduction plus a faster Time-To-First-Token (TTFT) on LLM operations. See LLM Benchmark section for details.
-
-Once the BSP is flashed on the target, the **eiq_genai_flow** folder from this package must be copied on the linux home folder.
+Both applications are optimized for edge deployment and demonstrate real-world AI use cases on resource-constrained devices.
 
 ---
 
-<a name="installation"></a>
-## Installation
+## 📦 Package Contents
 
-To set up the environment, run:
+### 1. eIQ GenAI Flow - Conversational AI
 
+A complete conversational AI pipeline integrating:
+- **Wake-Word Detection** (VIT)
+- **Speech-to-Text** (Whisper, Moonshine)
+- **Retrieval-Augmented Generation** (RAG)
+- **Large Language Model** (Danube 500M)
+- **Text-to-Speech** (VITS)
+
+**📖 Detailed Documentation:** [eiq_genai_flow/README.md](eiq_genai_flow/README.md)
+
+**Key Features:**
+- Multi-turn conversations with wake-word activation
+- Knowledge-base enhanced responses via RAG
+- Multiple input modes (voice, keyboard, GUI)
+- NPU acceleration support (i.MX95)
+- 900+ TTS voice options
+
+---
+
+### 2. Vision Language Model (VLM)
+
+Visual question answering system for image understanding:
+- Multimodal AI combining vision and language
+- Image captioning and visual reasoning
+- Edge-optimized inference
+
+**📖 Detailed Documentation:** [vlm/README.md](vlm/README.md)
+
+**Key Features:**
+- Describe and analyze images
+- Answer questions about visual content
+- Optimized for edge deployment
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Hardware:** NXP i.MX95, i.MX943, i.MX93, i.MX91, i.MX8MP, i.MX8MM, or i.MX8MN board
+- **OS:** NXP Linux BSP (L6.12.49-2.2.0 or later recommended for i.MX95)
+- **Python:** Version 3.13
+- **Storage:** At least 16GB free space
+
+### Installation
+
+1. **Transfer the package to your i.MX device:**
+
+   ```bash
+   scp -r dm-eiq-genai-flow-demonstrator root@<imx-device-ip>:/root/
+   ```
+
+2. **Install eIQ GenAI Flow:**
+
+   ```bash
+   cd eiq_genai_flow
+   ./install.sh
+   ```
+
+   See [eiq_genai_flow/README.md](eiq_genai_flow/README.md#installation) for detailed installation options.
+
+3. **Install VLM:**
+
+   ```bash
+   cd ../vlm
+   ./install.sh
+   ```
+
+### Running the Demonstrators
+
+**Conversational AI:**
 ```bash
 cd eiq_genai_flow
-./install.sh
+python3 eiq_genai_flow.py -i vasr -o tts -m danube-500M-q8
 ```
 
----
-
-<a name="getting-started"></a>
-## Getting Started
-
-To run the demo, use the following command:
-
+**Vision Language Model:**
 ```bash
-./eiq_genai_flow
+cd vlm
+./launch.sh
 ```
 
-> **Note:** The binary file must always be executed from the `eiq_genai_flow` directory.
-> 
-> **Note**: The trial period has a timeout of 2 hours.
-> 
-> **Note:**  Cache is currently not enabled in i.MX 95 or i.MX8MP. Every time this application is executed, the warm up time is required (less than a minute).
-> 
-> Run ```./eiq_genai_flow --help``` to see available options.
+---
 
-The default mode is keyboard-to-speech, meaning the module VIT and ASR are disabled. To enable the speech-to-speech experience use the  `--input-mode vasr` argument.
+## 📋 Platform Support
 
-The application supports various input/output options and model selections, which are detailed in the software components sections below.
+| Platform | eIQ GenAI Flow | VLM | NPU Acceleration |
+|----------|----------------|-----|------------------|
+| i.MX95   | ✅ Full        | ✅  | ✅ (LLM)        |
+| i.MX943  | ✅ Full        | ✅  | ❌              |
+| i.MX8MP  | ✅ Full        | ✅  | ❌              |
+| i.MX93   | ✅ Partial*    | ✅  | ❌              |
+| i.MX91   | ✅ Minimal**   | ✅  | ❌              |
+| i.MX8MM/MN | ✅ Minimal** | ✅  | ❌              |
+
+\* Lighter models recommended (danube-500M-q4, moonshine-tiny)  
+\** RAG-only mode (no LLM generation)
+
+See [platform recommendations](eiq_genai_flow/README.md#flow-configuration-recommendations) for detailed configuration guidance.
 
 ---
 
-<a name="software-components"></a>
-## Software Components
+## 📚 Documentation
 
-<a name="voice-intelligent-technology-vit"></a>
-### Voice Intelligent Technology (VIT)
-
-VIT is NXP’s Voice UI technology that enables always-on Wake-Word detection using deep learning.
-
-VIT is integrated with **"HEY NXP"** pre-defined Wake-Word.
-
-**✅ Enabling VIT**
-
-Use the `-i vasr` argument to enable ASR **after the Wake-Word detection**.
-
-Additional options include:
-
-- `-c` (continuous mode): Allows continuous conversation without requiring the Wake-Word after each response.
-
-⎺⎺⎺
-<a name="automatic-speech-recognition-asr"></a>
-### Automatic Speech Recognition (ASR)
-
-ASR converts spoken language into text.
-
-The demonstrator uses Whisper-small.en int8-quantized optimized for streaming with 244M parameters.
-
-**✅ Enabling ASR**
-
-Use the `--input-mode` argument with one of the following values:
-
-- `-i vasr`: Enables ASR after detecting the VIT Wake-Word.
-- `-i kasr`: Activates ASR via keyboard input (press "Enter" to start transcription).
-- `-i keyb`: Disables ASR, using keyboard input only.
-
-To enable continuous ASR, pass the `-c` flag. In this mode, ASR remains active until the user says "stop" or a timeout occurs due to inactivity.
-
-
-**📊 ASR Benchmarks**
-
-i.MX95:
-
-| Audio Duration | Transcription Time <br/>(after end of speech) | 
-|:--------------:|:---------------------------------------------:|
-|       3s       |                     1.4s                      | 	  
-|       6s       |                     2.5s                      |  
-|       9s       |                     3.3s                      | 
-
-
-i.MX8MP:
-
-| Audio Duration | Transcription Time <br/>(after end of speech) | 
-|:--------------:|:---------------------------------------------:|
-|       3s       |                     1.9s                      | 	  
-|       6s       |                     3.5s                      |  
-|       9s       |                     5.3s                      | 
-
-On LibriSpeech test-clean, in streaming, Word Error Rate (WER) = 4.1.
-
-⎺⎺⎺
-<a name="retrieval-augmented-generation-rag"></a>
-### Retrieval-Augmented Generation (RAG)
-
-RAG enhances the LLM’s responses by grounding the input in factual information from a knowledge base. This significantly improves the relevancy of the response to the prompt and reduces LLM hallucinations overall.
-
-The demonstrator uses all-MiniLM-L6-v2 int8-quantized embedding model with 22M parameters.
-
-**✅ Enabling RAG**
- 
-Use the `--use-rag` argument to activate RAG.
-
-> **Note:** Some words are censored by our RAG, meaning the system will not respond if they appear in the query. The censored word list can be found in the [utils.py](retrieval-database-generator/src/rag/utils.py) file.
-
-
-#### RAG Example
- 
-The pre-generated RAG database is about medical healthcare for patients with diabetes, so questions related to this topic can be asked. This RAG database example was generated using the information in the [Medical.pdf](retrieval-database-generator/src/data/input_files/Medical.pdf) file ([original file](https://www.hse.ie/eng/about/who/cspd/ncps/paediatrics-neonatology/resources/paediatric-type-1-diabetes-resource-pack.pdf#page=6)).
-
-#### Generate a RAG Database
- 
-To create a RAG database, please follow the instructions of the [Retrieval Database Generator](retrieval-database-generator).
-
-⎺⎺⎺
-<a name="large-language-model-llm"></a>
-### Large Language Model (LLM)
-
-The LLM is responsible for understanding input and generating relevant text-based responses. It predicts words based on the given input using advanced language modeling techniques.
-
-The demonstrator uses Danube int8-quantized LLM with 500M parameters, derived from Llama LLM family. 
-
-**✅ Enabling LLM**
-
-LLM is enabled by default and requires no additional parameters. 
-Answers given by the LLM have a maximum number of words, if this number is reached, it will print "[...]".
-
-
-**📊 LLM Benchmarks**
-
-Expected performances of the Danube-INT8 model :
-
-| Platform |   Accelerator   | Time-To-First-Token (TTFT) | Tok/s |               Command               |
-|:--------:|:---------------:|:--------------------------:|:-----:|:-----------------------------------:|
-|  i.MX8MP  | CPU (4 threads) |           0.94s            | 8.66 |   `./eiq_genai_flow -b`             |
-|  i.MX95  | CPU (6 threads) |           0.94s            | 9.38  |   `./eiq_genai_flow -b`             |
-|  i.MX95 A1 |  NPU (Neutron)  |           0.59s            | 9.72  | `./eiq_genai_flow -b --use-neutron` |
-
-Wikitext-2 perplexity of this model is 17.69 compared to the float reference at 14.76.
-
-⎺⎺⎺
-<a name="text-to-speech-tts"></a>
-### Text-To-Speech (TTS)
-
-TTS converts the LLM-generated text responses into speech output.
-
-The demonstrator uses a Vits int8-quantized model with 19.5M parameters.
-
-**✅ Enabling TTS**
-
-Use the `--output-mode tts` argument to enable TTS, or `--output-mode text` to disable it.
-
-**📊 TTS Benchmarks**
-
-|          Speech type           |   DNS-MOS   | 
-|:------------------------------:|:-----------:|
-|      Reference (natural)       |    4.39     | 
-|      Quantized Vits 16kHz      | 4.23 ± 0.24 |
-
-TTS Real-Time-Factor (RTF) is ~0.24 for the given model.
-
----
-<a name="using-npu-acceleration"></a>
-## Using NPU Acceleration
-
-On custom BSPs, NPU acceleration can be used for LLM inference. Contact support for details on enabling this feature.
-
-To enable NPU acceleration, pass the `--use-neutron` flag when running the pipeline on supported BSPs.
+- **[eIQ GenAI Flow Documentation](eiq_genai_flow/README.md)** - Complete conversational AI setup and usage
+- **[VLM Documentation](vlm/README.md)** - Vision language model guide
+- **[License Information](LICENSE.txt)** - Terms and conditions
+- **[SBOM](SBOM-eIQ-GenAI-Flow_v3.0.spdx.json)** - Software Bill of Materials
 
 ---
 
-<a name="hardware"></a>
-## Hardware
+## 🔧 Configuration
 
-To run the `eIQ GenAI Flow`, an [i.MX95](https://www.nxp.com/products/iMX95) EVK (either 19x19 or 15x15) or [i.MX8MP](https://www.nxp.com/products/IMX8MPLUS) EVK is required. The demo's audio setup is based on the onboard [WM8962 codec](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/58279/1/WM8962_v4.2.pdf), which manages both input and output through a single 3.5mm jack connector CTIA.  
+Each component has its own configuration:
 
-To use the audio functionalities, the following setups are possible:  
-
-- **🎧 Headset Mode:** Use a headset with an integrated microphone and a 4-pole CTIA connector.  
-- **🔊 Open Audio Setup:** Use a **3.5mm jack audio splitter** (4-pole CTIA) along with:  
-  - 🎤 A standalone **microphone** (3-pole)  
-  - 🔉 A **loudspeaker**
-
-Setup example:
-
-![Complete demo setup](assets/demo_setup.png)
-
-This ensures proper handling of both input and output audio during the demo.
+- **eIQ GenAI Flow:** Edit `eiq_genai_flow/config.py`
+- **VLM:** See `vlm/README.md` for configuration options
 
 ---
 
-<a name="examples"></a>
-## Examples
+## 📊 Benchmarks
 
-When eIQ GenAI Flow Demonstrator starts running, the terminal should look like:
-
-|            **Default mode:** <br> `./eiq_genai_flow` <br> ![run_default_demo.png](assets/run_default_demo.png)             |        **With RAG:** <br> `./eiq_genai_flow --use-rag` <br> ![run_rag_demo.png](assets/run_rag_demo.png)         |
-|:--------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------:|
-| **With NPU acceleration:** <br> `./eiq_genai_flow --use-neutron` <br> ![run_neutron_demo.png](assets/run_neutron_demo.png) | **With Wake Word detection:** <br>`./eiq_genai_flow -i vasr` <br> ![run_vasr_demo.png](assets/run_vasr_demo.png) |
-
-
-
----
-<a name="faqs"></a>
-## FAQs
-
-**How to change the RAG database?**
-
-RAG database can be created from textual files. Please check the retrieval-database-generator [README.md](retrieval-database-generator/README.md).
-
-**How to run another LLM?**
-
-Danube-500M model is the only LLM enabled in this release version, but many other LLMs are supported in the Pro version.
-
-**How to change the ASR model?**
-
-In the Pro version, more ASR models are supported, including Whisper in different sizes with various languages.
-
-**How to change the TTS voice?**
-
-In the Pro version, a far broader and richer audio experience with hundreds of voices is proposed.
-
-**FileNotFoundError: [Errno 2] No such file or directory: 'asr' error**
-
-The demonstrator binary file must be executed from the eiq_gen_ai_flow directory.
+Performance benchmarks for various configurations are available at:
+- [eIQ GenAI Flow Benchmarks](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW)
 
 ---
 
-<a name="support"></a>
-## Support
+## ⚠️ Demonstrator Limitations
 
-For more general technical questions, use the [NXP Community Forum Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs).
+This demonstrator package has the following limitations:
+
+- **Session timeout**: Applications automatically shut down after 1 hour of operation
+- **Language support**: English language only
+- **Component delivery**: Core AI components provided as optimized binary libraries
+- **Model selection**: Includes a curated subset of models optimized for target platforms
+- **Model format**: Models delivered in encrypted format
+
+These limitations are designed to provide an optimal evaluation experience while showcasing AI capabilities on NXP platforms.
 
 ---
-<a name="release-notes"></a>
-## Release Notes
 
-<table>
-  <tr>
-    <th>Version</th>
-    <th>Description / Update</th>
-    <th>Date</th>
-  </tr>
-  <tr>
-    <td>1.1</td>
-    <td>Initial release on Application Code Hub.<br> This is solely for evaluation and development<br>in combination with an NXP Product.</td>
-    <td>June 20<sup>th</sup> 2025</td>
-  </tr>
-</table>
+## 🆘 Support
+
+- **Community Forum:** [NXP Community - Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs)
+- **Technical Questions:** Post on the NXP Community Forum
+- **Documentation:** See component-specific README files
+
+---
+
+## 📄 License
+
+This software is proprietary to NXP and may only be used strictly in accordance with the applicable license terms.
+
+See [LICENSE.txt](LICENSE.txt) for complete terms and conditions.
+
+### Third-Party Licenses
+
+- See individual component licenses in the `licenses/` directory
+
+---
+
+## 📝 Release Notes
+
+| Version | Release Date | Highlights |
+|---------|--------------|------------|
+| 3.0 | March 31, 2026 | TTS streaming, new Audio Manager, module customization, VLM demonstrator v1.0 |
+| 2.0 | November 21, 2025 | Neutron acceleration, customizable wake-word, 900+ TTS voices |
+| 1.1 | June 20, 2025 | i.MX8MP support |
+| 1.0 | March 31, 2025 | Initial release (i.MX95) |
+
+See component-specific README files for detailed release notes.
+
+---
+
+## 🎯 Use Cases
+
+### Conversational AI Applications
+- Smart home voice assistants
+- Automotive in-cabin assistants
+- Healthcare patient interfaces
+- Industrial HMI systems
+
+### Vision Applications
+- Visual inspection and QA
+- Assistive technologies
+- Educational tools
+- Content analysis
+
+---
+
+## 🏗️ Repository Structure
+
+```
+dm-eiq-genai-flow-demonstrator/
+├── eiq_genai_flow/          # Conversational AI pipeline
+│   ├── README.md           # Detailed documentation
+│   ├── config.py           # Configuration file
+│   └── eiq_genai_flow.py   # Main application
+├── vlm/                    # Vision Language Model
+│   └── README.md           # VLM documentation
+├── licenses/               # Third-party licenses
+├── LICENSE.txt            # Main license
+├── SBOM-*.spdx.json       # Software Bill of Materials
+└── README.md              # This file
+```
+
+---
+
+## 🔗 Related Resources
+
+- [NXP i.MX Application Processors](https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/i-mx-applications-processors:IMX_HOME)
+- [NXP eIQ ML Software](https://www.nxp.com/design/software/development-software/eiq-ml-development-environment:EIQ)
+- [i.MX Linux BSP](https://www.nxp.com/design/design-center/software/embedded-software/i-mx-software/embedded-linux-for-i-mx-applications-processors:IMXLINUX)
+
+---
 
 <br>
 <p align="center">
@@ -374,3 +250,8 @@ For more general technical questions, use the [NXP Community Forum Generative AI
     <img src="https://mcuxpresso.nxp.com/static/icon/nxp-logo-color.svg" width="100"/>
   </a>
 </p>
+
+<p align="center">
+  <strong>NXP Semiconductors - Securing the Connected World</strong>
+</p>
+\
