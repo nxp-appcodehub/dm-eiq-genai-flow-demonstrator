@@ -1,0 +1,57 @@
+[project]
+name = "rag_database_generator"
+version = "3.1.0"
+description = "Database Generator for RAG."
+authors = [
+    { name = "NXP AI Software Team", email = "voice@nxp.com" }
+]
+readme = "README.md"
+license-files = ["LICENSE"]
+
+# Main runtime dependencies
+dependencies = [
+    "docling==2.108.0",
+    "langchain-text-splitters==1.1.2",
+    "spacy==3.8.11",
+    "nltk==3.10.0",
+    "accelerate==1.14.0",
+    "datasets",
+    "torch==2.12.1; platform_machine == 'x86_64'",
+    "huggingface_hub==1.13.0",
+    "nxp_eiq_shared_utils",
+    "nxp_eiq_retriever",
+]
+
+# Optional dependencies (for development)
+[project.optional-dependencies]
+# Optional dependencies for the example Jupyter notebooks.
+notebooks = [
+    "jupyter==1.1.1",
+    "nbmake==1.5.5",
+]
+
+[project.scripts]
+parse-files = "rag_database_generator.parse:main"
+chunk-files = "rag_database_generator.chunk:main"
+embed-files = "rag_database_generator.embed:main"
+generate-db = "rag_database_generator.__main__:main"
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[tool.distutils.egg_info]
+egg_base = "."
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "ERROR"
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning"
+]
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.setuptools.packages.find]
+where = ["src", "src/rag_database_generator"]

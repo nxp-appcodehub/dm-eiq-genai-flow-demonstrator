@@ -1,41 +1,44 @@
 [project]
 name = "VLM"
-version = "0.1.0"
+version = "1.1.0"
 description = "VLM project with various quantized VLM support."
 readme = "README.md"
 authors = [
-    {name = "Tess Boivin", email = "tess.boivin@nxp.com"}
+    { name = "NXP AI Software Team", email = "voice@nxp.com" }
 ]
+license-files = ["LICENSE"]
 
 dependencies = [
     "colorama==0.4.6",
-    "transformers==5.3.0",
-    "onnx==1.21.0rc3",
-    "torch==2.8.0",
-    "torchvision==0.23.0",
-    "requests>=2.32.4",
-    "urllib3>=2.3.0",
-    "posix-ipc==1.1.1",
+    "transformers==5.12.1",
+    "onnx==1.22.0",
+    "torch==2.12.1",
+    "torchvision==0.27.1",
+    "requests>=2.34.2",
+    "urllib3>=2.7.0",
+    "posix-ipc==1.3.2",
 ]
 
 [project.optional-dependencies]
-gui = [
-    "PyQt6==6.9.1",
-]
+gui = ["nxp_eiq_chat_interface"]
 onnxruntime = [
-    "onnxruntime==1.20.1; python_version <= '3.12'",
-    "onnxruntime>=1.22.0; python_version >= '3.13'"
+    "onnxruntime>=1.22.0"
 ]
 
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=67"]
 build-backend = "setuptools.build_meta"
 
 [tool.distutils.egg_info]
 egg_base = "."
 
 [tool.setuptools.packages.find]
-where = ["src", "gui/modules/chat_interface/src", "gui/src"]
+where = ["src", "gui/src"]
+exclude = [
+    "*.shared_utils",
+    "*.shared_utils.*",
+    "shared_utils.*"
+]
 
 [tool.pytest.ini_options]
 log_cli = true

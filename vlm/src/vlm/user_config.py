@@ -1,5 +1,5 @@
 # Copyright 2025-2026 NXP
-# NXP Proprietary.
+# NXP Confidential and Proprietary.
 # This software is owned or controlled by NXP and may only be used strictly in
 # accordance with the applicable license terms. By expressly accepting such
 # terms or by downloading, installing, activating and/or otherwise using the

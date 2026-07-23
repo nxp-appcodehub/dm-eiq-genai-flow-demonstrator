@@ -1,32 +1,36 @@
 [project]
 name = "eiq_genai_flow"
-version = "3.0.0"
-description = "Project integrating VIT wake word detection, Automatic Speech Recognition (ASR), Retrieval-Augmented Generation (RAG), Large Language Models (LLMs), and Text-to-Speech (TTS)."
+dynamic = ["version"]
+description = "Project integrating VIT wake word detection, Voice Identification (Voice ID), Speech-to-Text (STT), Retrieval-Augmented Generation (RAG), Large Language Models (LLMs), and Text-to-Speech (TTS)."
 readme = "README.md"
+authors = [
+    { name = "NXP AI Software Team", email = "voice@nxp.com" }
+]
+license = "LicenseRef-LA-OPT-Online-Code-Hosting-NXP-Software-License-v1.4-May-2025"
+license-files = ["LICENSE"]
 
 # Main runtime dependencies
 dependencies = [
-    "numpy==1.26.4; python_version <= '3.12'",
-    "numpy>=2.2.3,<3.0.0; python_version >= '3.13'",
-    "onnx==1.21.0rc3",
-    "pyalsaaudio==0.11.0",
-    "posix_ipc==1.1.1",
-    "psutil==7.0.0",
+    "transformers==5.12.1",
+    "numpy>=2.4.3,<3.0.0",
+    "posix_ipc==1.3.2",
+    "psutil==7.2.2",
     "colorama==0.4.6",
-    "accelerate==1.7.0",
-    "silero-vad==5.1.2",
-    "sentencepiece==0.2.1",
-    "typer==0.16.0",
-    "pycryptodome==3.23.0",
-    "transformers==5.3.0",
-    "sentence-transformers>4.1.0",
-    "torch==2.8.0",
-    "torchaudio==2.8.0",
-    "scikit-learn==1.7.0",
-    "soundfile==0.13.1",
-    "Cython==3.2.1",
-    "urllib3>=2.3.0",
-    "ai-edge-litert>=1.2.0",
+    "accelerate==1.14.0",
+    "typer==0.24.0",
+    "tokenizers==0.22.2",
+    "torch==2.12.1",
+    "soundfile==0.14.0",
+    "charset_normalizer>=3.4.7",
+    "nxp_eiq_shared_utils",
+    "nxp_eiq_text_to_speech",
+    "nxp_eiq_speech_to_text",
+    "nxp_eiq_audio_manager",
+    "nxp_eiq_vit_wake_word",
+    "nxp_eiq_llm",
+    "nxp_eiq_vad",
+    "nxp_eiq_voice_id",
+    "nxp_eiq_retriever",
 ]
 
 # Optional dependencies (for development)
@@ -34,27 +38,19 @@ dependencies = [
 dev = [
     "tenacity==8.3.0",
     "pandas==2.2.3",
-    "langchain-text-splitters==0.3.2",
-    "pdfminer.six==20240706",
-    "spacy==3.7.5",
-    "nltk==3.9.1",
     "altgraph==0.17.4",
 ]
 gui = [
-    "PyQt6==6.9.1"
+    "nxp_eiq_chat_interface",
 ]
-onnxruntime = [
-    "onnxruntime==1.20.1; python_version <= '3.12'",
-    "onnxruntime>=1.22.0; python_version >= '3.13'",
-]
-gstreamer = ["PyGObject>=3.52.2",]
+onnxruntime = ["onnxruntime>=1.22"]
+
+[project.urls]
+Homepage = "https://www.nxp.com/design/design-center/software/embedded-software/eiq-genai-flow-conversational-ai-software-pipeline-on-edge-devices:GEN-AI-FLOW"
 
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=67"]
 build-backend = "setuptools.build_meta"
 
-[tool.distutils.egg_info]
-egg_base = "."
-
-[tool.setuptools.packages.find]
-where = ["speech_to_text/src", "rag/src", "llm/src", "tts/src", "shared_utils", "gui/src", "gui/modules/chat_interface/src", "vit/src", "audio_manager/src"]
+[project.scripts]
+eiq_genai_flow = "eiq_genai_flow.__main__:main"

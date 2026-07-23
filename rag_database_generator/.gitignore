@@ -1,0 +1,12 @@
+.idea*
+*__pycache__*
+*venv*
+*.egg-info
+.codesight
+*.log
+
+# Ignore everything in notebooks/...
+notebooks/*
+# ...except Jupyter notebooks and PDFs
+!notebooks/*.ipynb
+!notebooks/*.pdf

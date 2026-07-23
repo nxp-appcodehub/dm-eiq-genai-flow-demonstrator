@@ -1,5 +1,5 @@
 # Copyright 2025-2026 NXP
-# NXP Proprietary.
+# NXP Confidential and Proprietary.
 # This software is owned or controlled by NXP and may only be used strictly in
 # accordance with the applicable license terms. By expressly accepting such
 # terms or by downloading, installing, activating and/or otherwise using the
@@ -122,3 +122,11 @@ class SmolVLM2_500M_q8_config(SmolVLM2_500M_config):
     vision_session: str = model_folder + hf_subfolder + hf_vision_session
     embedding_session: str = model_folder + hf_subfolder + hf_embedding_session
     decoder_session: str = model_folder + hf_subfolder + hf_decoder_session
+
+
+@dataclass
+class SmolVLM2_500M_q8_config_neutron(SmolVLM2_500M_q8_config):
+
+    hf_vision_session = "vision_encoder_quantized.onnx"
+    hf_embedding_session = "embed_tokens_int8.onnx"
+    hf_decoder_session = "decoder_model_merged_int8.onnx"

@@ -1,5 +1,5 @@
 # Copyright 2026 NXP
-# NXP Proprietary.
+# NXP Confidential and Proprietary.
 # This software is owned or controlled by NXP and may only be used strictly in
 # accordance with the applicable license terms. By expressly accepting such
 # terms or by downloading, installing, activating and/or otherwise using the
@@ -22,7 +22,8 @@ from vlm.utils import ensure_local_or_download_hf, remove
 from vlm.models.models_config import (SmolVLM2_256M_q8_config,
                                       SmolVLM2_500M_q8_config,
                                       SmolVLM2_256M_config,
-                                      SmolVLM2_500M_config
+                                      SmolVLM2_500M_config,
+                                      SmolVLM2_500M_q8_config_neutron
                                       )
 from transformers.image_utils import load_image
 from transformers.feature_extraction_utils import BatchFeature
@@ -31,6 +32,7 @@ from transformers.models.smolvlm.processing_smolvlm import get_image_prompt_stri
 from transformers import AutoConfig, LogitsProcessorList, TemperatureLogitsWarper, TopPLogitsWarper
 
 logger = logging.getLogger(__name__)
+logging.getLogger("transformers.configuration_utils").setLevel(logging.ERROR)
 
 
 class VLM:
@@ -44,15 +46,25 @@ class VLM:
         session_options = onnxruntime.SessionOptions()
         session_options.add_session_config_entry("session.intra_op.allow_spinning", "0")
         session_options.intra_op_num_threads = user_params.n_threads
+        providers = onnxruntime.get_available_providers()
+        if user_params.use_neutron and "NeutronExecutionProvider" in providers:
+            logger.info("Using Neutron EP")
+            providers = ["NeutronExecutionProvider", 'CPUExecutionProvider']
         # avail_providers = onnxruntime.get_available_providers()
         # avail_providers is disabled as Neutron is not ready yet for this model  # providers = avail_providers
-        self.vision_session = self._initialize_onnx_sessions(self.model_config.vision_session, None)
+        self.vision_session = self._initialize_onnx_sessions(
+            self.model_config.vision_session,
+            providers=providers,
+            sess_options=None
+        )
         self.embed_session = self._initialize_onnx_sessions(
             self.model_config.embedding_session,
+            providers=providers,
             sess_options=session_options
         )
         self.decoder_session = self._initialize_onnx_sessions(
             self.model_config.decoder_session,
+            providers=providers,
             sess_options=session_options
         )
 
@@ -63,9 +75,10 @@ class VLM:
 
         # For now fixed image
         self.image = load_image(fixed_image)
+        # print(self.image)
         self.image_inputs = self.processor.image_processor([[self.image]],
-                                                           **{'return_row_col_info': True, 'return_tensors': 'np'})
-
+                                                           **{'return_row_col_info': True, 'return_tensors': 'pt'})
+        # print(self.image_inputs)
         self.logits_warper = LogitsProcessorList([
             TemperatureLogitsWarper(self.model_config.temperature),
             TopPLogitsWarper(top_p=self.model_config.top_p),
@@ -73,16 +86,17 @@ class VLM:
 
         self.perf = dict.fromkeys(["embed", "vision", "decoder_ttft", "decoder"])
 
-    def _handle_load_failure(self, func, cleanup, sess_options, retry):
+    def _handle_load_failure(self, func, cleanup, providers, sess_options, retry):
         """Handle model load failure with retry and cleanup."""
         remove(cleanup)
         new_path = ensure_local_or_download_hf(models_dir, os.path.relpath(cleanup, models_dir))
-        return func(new_path, sess_options, retry)
+        return func(new_path, providers, sess_options, retry)
 
-    def _initialize_onnx_sessions(self, model_path, sess_options, retry=True):
+    def _initialize_onnx_sessions(self, model_path, providers, sess_options, retry=True):
         try:
             return onnxruntime.InferenceSession(
                 model_path,
+                providers=providers,
                 sess_options=sess_options
             )
         except Exception:
@@ -90,6 +104,7 @@ class VLM:
                 raise RuntimeError("Failed loading model and tried to re-download it")
             return self._handle_load_failure(self._initialize_onnx_sessions,
                                              cleanup=model_path,
+                                             providers=providers,
                                              sess_options=sess_options,
                                              retry=False
                                              )
@@ -182,6 +197,7 @@ class VLM:
         ]
         prompt = self.processor.apply_chat_template(messages, add_generation_prompt=True)
         input_text = self.process_text(text=[prompt])
+        # print('input_text',input_text)
         input_text_tokenized = self.processor.tokenizer(input_text,
                                                         **{'add_special_tokens': True, 'is_split_into_words': False,
                                                            'padding': False})
@@ -282,8 +298,8 @@ class SmolVLM(VLM):
         vision_features = self.vision_session.run(
             ['image_features'],
             {
-                'pixel_values': inputs['pixel_values'],
-                'pixel_attention_mask': inputs['pixel_attention_mask'].astype(np.bool_)
+                'pixel_values': inputs['pixel_values'].numpy(),
+                'pixel_attention_mask': inputs['pixel_attention_mask'].numpy().astype(np.bool_)
             }
         )
 
@@ -323,7 +339,7 @@ class SmolVLM(VLM):
         return prompt_strings
 
 
-def make_VLM(name, precision, **kwargs):
+def make_VLM(name, precision, use_neutron=False, **kwargs):
     _name_mapping = {
         'smolvlm-256M':
             {'subclass': SmolVLM,
@@ -331,7 +347,9 @@ def make_VLM(name, precision, **kwargs):
              },
         'smolvlm-500M':
             {'subclass' : SmolVLM,
-             'config' : SmolVLM2_500M_q8_config if precision == "q8" else SmolVLM2_500M_config
+             'config' :
+                 SmolVLM2_500M_q8_config_neutron if (precision == "q8" and use_neutron)
+                 else SmolVLM2_500M_q8_config if precision == "q8" else SmolVLM2_500M_config
              },
     }
 

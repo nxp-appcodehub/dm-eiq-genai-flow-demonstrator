@@ -18,6 +18,7 @@ from transformers.video_utils import VideoInput
 from transformers.tokenization_utils_base import PreTokenizedInput
 
 logger = logging.get_logger(__name__)
+logging.get_logger("transformers.processing_utils").setLevel(logging.ERROR)
 
 # The correct chat template to be used for videos after #38105
 DEFAULT_CHAT_TEMPLATE = ("<|im_start|>{% for message in messages %}{{message['role'] | capitalize}}"

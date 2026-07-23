@@ -12,30 +12,20 @@
 [![Language badge](https://img.shields.io/badge/Language-Python-yellow)]()
 [![Category badge](https://img.shields.io/badge/Category-AI/ML-green)]()
 
-**VLM** submodule combines the abilities of vision and language models to handle both image and text on the **NXP [i.MX9](https://www.nxp.com/products/iMX9-PROCESSORS) applications processors. 
-
+**VLM** submodule combines the abilities of vision and language models to handle both image and text on the **NXP [i.MX9](https://www.nxp.com/products/iMX9-PROCESSORS) applications processors.
 
 ---
 
-![SmolVLM256M-fp32-delivery.gif](assets/SmolVLM256M-fp32-delivery.gif)
+![SmolVLM256M-fp32-delivery_q3.gif](assets/SmolVLM256M-fp32-delivery_q3.gif)
 
 ---
 
 ## Installation
-### 1. Clone the repository (make sure git lfs is installed)
-```bash
-# Clone repository
-git clone --single-branch -b release/v3.0 https://github.com/nxp-appcodehub/dm-eiq-genai-flow-demonstrator
-```
-
-### 2. Set up dependencies
+### Set up dependencies
 ```bash
 cd vlm
 ./install.sh
 ```
-**Installation Warning:**
-
-The "Transformers" python package has a transitive dependency on "Pygments 2.19.2" package with a known vulnerability CVE-2026-4539 with no available fix at the time of this release. Please verify fix availability before integrating this dependency into your product.
 
 ## Run VLM with Chat Interface GUI
 Command to run the VLM and GUI.
@@ -69,7 +59,7 @@ Use GUI. Default True.
 
 ```bash
 #Example
- ./launch.sh -m smolvlm-500M -im path/to/your/image/image.png -p q8 -g
+ ./launch.sh -m smolvlm-500M -im /path/to/your_image.png -p q8 -g
 ```
 ```bash
 #Helper
@@ -95,3 +85,11 @@ python3 -m vlm
 |  | INT8| 3.34s          | 0.81s          | 0.12s - 0.19s |  
 
 > SmolVLM2-256 and SmolVLM2-500M share the same vision encoder so performance are the same.
+
+
+## Performance on i.MX95 (CPU+NPU)
+| i.MX95        | Precision | Vision Encoder | Decoder (TTFT) | Decoder        | 
+|---------------|-----------|----------------|----------------|----------------|
+| SmolVLM2-500M | INT8      | 2.198s         | 0.58s          | 0.07s - 0.125s |
+
+

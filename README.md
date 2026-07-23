@@ -16,12 +16,13 @@
 
 ## Overview
 
-The **NXP eIQ® GenAI Flow Demonstrator** package showcases advanced AI capabilities running at the edge on **NXP i.MX9 and i.MX8M** application processors. This demonstrator includes two powerful AI applications:
+The **NXP eIQ® GenAI Flow Demonstrator** package showcases advanced AI capabilities running at the edge on **NXP i.MX9 and i.MX8M** application processors. This demonstrator includes three AI components:
 
-1. **[eIQ GenAI Flow](eiq_genai_flow/README.md)** - Conversational AI Pipeline
+1. **[eIQ GenAI Flow](eiq_genai_flow/README.md)** - Conversational AI Pipeline (VIT wake-word, Voice ID, VAD, STT, RAG, LLM, TTS)
 2. **[Vision Language Model (VLM)](vlm/README.md)** - Visual Question Answering
+3. **[RAG Database Generator](rag_database_generator/README.md)** - Offline tool to build domain-specific knowledge bases for RAG-enhanced LLM responses
 
-Both applications are optimized for edge deployment and demonstrate real-world AI use cases on resource-constrained devices.
+All components are optimized for edge deployment and demonstrate real-world AI use cases on resource-constrained devices.
 
 ---
 
@@ -31,19 +32,24 @@ Both applications are optimized for edge deployment and demonstrate real-world A
 
 A complete conversational AI pipeline integrating:
 - **Wake-Word Detection** (VIT)
+- **Voice Activity Detection** (Silero VAD)
+- **Voice Identification** (ResNet-34)
 - **Speech-to-Text** (Whisper, Moonshine)
-- **Retrieval-Augmented Generation** (RAG)
-- **Large Language Model** (Danube 500M)
+- **Retrieval-Augmented Generation** (all-MiniLM-L6-v2)
+- **Large Language Model** (Danube 500M on CPU/Neutron, or ARA240 DNPU models)
 - **Text-to-Speech** (VITS)
 
 **📖 Detailed Documentation:** [eiq_genai_flow/README.md](eiq_genai_flow/README.md)
 
 **Key Features:**
 - Multi-turn conversations with wake-word activation
+- Speaker recognition via the Voice ID module
 - Knowledge-base enhanced responses via RAG
-- Multiple input modes (voice, keyboard, GUI)
-- NPU acceleration support (i.MX95)
-- 900+ TTS voice options
+- Multiple input modes (voice, keyboard, GUI/chat interface)
+- Neutron NPU acceleration for LLM and STT (i.MX95 B0)
+- Discrete NPU (ARA2) acceleration for large LLMs on compatible platforms
+- Event-driven pipeline, all modules delivered as Python wheels
+- ROS 2 node wrapper for integration with ROS 2 ecosystems
 
 ---
 
@@ -63,13 +69,28 @@ Visual question answering system for image understanding:
 
 ---
 
+### 3. RAG Database Generator
+
+PC-based offline utility to build the compact knowledge database consumed by the eIQ GenAI Flow RAG stage. It parses source documents (PDF via [Docling](https://github.com/DS4SD/docling)), chunks them (including the HiRAG algorithm), and computes embeddings using NXP-optimized embedding models.
+
+**📖 Detailed Documentation:** [rag_database_generator/README.md](rag_database_generator/README.md)
+
+**Key Features:**
+- Advanced PDF parsing (Docling)
+- Multiple chunking strategies, including HiRAG
+- NXP-optimized ONNX / quantized embedding models (e.g. `all-MiniLM-L6-v2`)
+- Example notebooks: database generation + end-to-end RAG with Hugging Face LLMs
+- Produces `.pkl` databases directly usable by the eIQ GenAI Flow (`--use-rag` / `-r`)
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Hardware:** NXP i.MX95, i.MX943, i.MX93, i.MX91, i.MX8MP, i.MX8MM, or i.MX8MN board
-- **OS:** NXP Linux BSP (L6.12.49-2.2.0 or later recommended for i.MX95)
-- **Python:** Version 3.13
+- **Hardware:** NXP i.MX95, i.MX952, i.MX943, i.MX93, i.MX91, i.MX8MP, i.MX8MM, or i.MX8MN board
+- **OS:** NXP Linux BSP (L6.12.49-2.2.0 or later recommended for i.MX95, tested up to L6.18.20-2.0.0)
+- **Python:** Version 3.13 or 3.14
 - **Storage:** At least 16GB free space
 
 ### Installation
@@ -77,7 +98,7 @@ Visual question answering system for image understanding:
 1. **Transfer the package to your i.MX device:**
 
    ```bash
-   scp -r dm-eiq-genai-flow-demonstrator root@<imx-device-ip>:/root/
+   scp -r eiq_genai_flow vlm root@<imx-device-ip>:/root/
    ```
 
 2. **Install eIQ GenAI Flow:**
@@ -88,6 +109,7 @@ Visual question answering system for image understanding:
    ```
 
    See [eiq_genai_flow/README.md](eiq_genai_flow/README.md#installation) for detailed installation options.
+
 
 3. **Install VLM:**
 
@@ -101,13 +123,20 @@ Visual question answering system for image understanding:
 **Conversational AI:**
 ```bash
 cd eiq_genai_flow
-python3 eiq_genai_flow.py -i vasr -o tts -m danube-500M-q8
+eiq_genai_flow -i vasr -o tts -m danube-500M-q8 --voice-id
 ```
 
 **Vision Language Model:**
 ```bash
+# Basic usage — run with default model and settings
 cd vlm
 ./launch.sh
+```
+
+```bash
+# Custom usage — specify model, input image, and precision
+cd vlm
+./launch.sh -m smolvlm-500M -im path/to/your_image.png -p q8
 ```
 
 ---
@@ -116,7 +145,8 @@ cd vlm
 
 | Platform | eIQ GenAI Flow | VLM | NPU Acceleration |
 |----------|----------------|-----|------------------|
-| i.MX95   | ✅ Full        | ✅  | ✅ (LLM)        |
+| i.MX95   | ✅ Full        | ✅  | ✅ (LLM, experimental STT)        |
+| i.MX952  | ✅ Full        | ✅  | ❌              |
 | i.MX943  | ✅ Full        | ✅  | ❌              |
 | i.MX8MP  | ✅ Full        | ✅  | ❌              |
 | i.MX93   | ✅ Partial*    | ✅  | ❌              |
@@ -134,8 +164,9 @@ See [platform recommendations](eiq_genai_flow/README.md#flow-configuration-recom
 
 - **[eIQ GenAI Flow Documentation](eiq_genai_flow/README.md)** - Complete conversational AI setup and usage
 - **[VLM Documentation](vlm/README.md)** - Vision language model guide
-- **[License Information](LICENSE.txt)** - Terms and conditions
-- **[SBOM](SBOM-eIQ-GenAI-Flow_v3.0.spdx.json)** - Software Bill of Materials
+- **[RAG Database Generator Documentation](rag_database_generator/README.md)** - Build custom RAG knowledge bases
+- **[License Information](LICENSE)** - Terms and conditions
+- **[SBOM](SBOM-eIQ-GenAI-Flow_v3.1.spdx.json)** - Software Bill of Materials
 
 ---
 
@@ -145,6 +176,7 @@ Each component has its own configuration:
 
 - **eIQ GenAI Flow:** Edit `eiq_genai_flow/config.py`
 - **VLM:** See `vlm/README.md` for configuration options
+- **RAG Database Generator:** Edit `rag_database_generator/src/rag_database_generator/config.py`
 
 ---
 
@@ -181,7 +213,7 @@ These limitations are designed to provide an optimal evaluation experience while
 
 This software is proprietary to NXP and may only be used strictly in accordance with the applicable license terms.
 
-See [LICENSE.txt](LICENSE.txt) for complete terms and conditions.
+See [LICENSE](LICENSE) for complete terms and conditions.
 
 ### Third-Party Licenses
 
@@ -193,6 +225,7 @@ See [LICENSE.txt](LICENSE.txt) for complete terms and conditions.
 
 | Version | Release Date | Highlights |
 |---------|--------------|------------|
+| 3.1 | July 31, 2026  | Voice ID module, ARA240 DNPU LLM support, event-based pipeline, all modules as wheels, ROS 2 node wrapper, improved TTS streaming (up to 0.5s TTFA improvement) |
 | 3.0 | March 31, 2026 | TTS streaming, new Audio Manager, module customization, VLM demonstrator v1.0 |
 | 2.0 | November 21, 2025 | Neutron acceleration, customizable wake-word, 900+ TTS voices |
 | 1.1 | June 20, 2025 | i.MX8MP support |
@@ -222,16 +255,20 @@ See component-specific README files for detailed release notes.
 
 ```
 dm-eiq-genai-flow-demonstrator/
-├── eiq_genai_flow/          # Conversational AI pipeline
-│   ├── README.md           # Detailed documentation
-│   ├── config.py           # Configuration file
-│   └── eiq_genai_flow.py   # Main application
-├── vlm/                    # Vision Language Model
-│   └── README.md           # VLM documentation
-├── licenses/               # Third-party licenses
-├── LICENSE.txt            # Main license
-├── SBOM-*.spdx.json       # Software Bill of Materials
-└── README.md              # This file
+├── eiq_genai_flow/               # Conversational AI pipeline
+│   ├── README.md                 # Detailed documentation
+│   ├── ROS_README.md             # ROS 2 node documentation
+│   ├── src/                      # eIQ GenAI Flow sources
+│   └── wheels/                   # Prebuilt Python wheels
+├── vlm/                          # Vision Language Model
+│   ├── README.md                 # Detailed documentation
+│   └── src/                      # VLM sources
+├── rag_database_generator/       # RAG Database Generator (PC)
+│   ├── README.md                 # Detailed documentation
+│   ├── src/                      # RAG Database Generator sources
+│   ├── wheels/                   # Prebuilt Python wheels
+│   └── notebooks/                # Example notebooks
+└── README.md                     # <-- You are here
 ```
 
 ---

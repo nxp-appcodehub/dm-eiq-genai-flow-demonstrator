@@ -1,8 +1,0 @@
-{
-  "0": {
-    "chunks": [
-      "Show me my glucose level."
-    ],
-    "intent": "Your glucose level is 5.9 mmols/L"
-  }
-}

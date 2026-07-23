@@ -1,6 +1,6 @@
 # eIQ® GenAI Flow
 
-[![License badge](https://img.shields.io/badge/License-Proprietary-red)](./eiq_genai_flow/LICENSE.txt)
+[![License badge](https://img.shields.io/badge/License-Proprietary-red)](./LICENSE)
 [![Board badge](https://img.shields.io/badge/Board-i.MX95-blue)](https://www.nxp.com/products/i.MX95)
 [![Board badge](https://img.shields.io/badge/Board-I.MX943-blue)](https://www.nxp.com/products/i.MX94)
 [![Board badge](https://img.shields.io/badge/Board-i.MX93-blue)](https://www.nxp.com/products/i.MX93)
@@ -18,13 +18,15 @@
 
 ## Overview
 
-The eIQ® GenAI Flow integrates multiple AI technologies to create a seamless HMI experience. The conversational AI flow consists of the following stages:
+The eIQ GenAI Flow integrates multiple AI technologies to create a seamless Human-Machine Interface (HMI) experience on all kinds of edge devices. The conversational AI flow consists of the following stages, each with pre-defined, optimized models and components for end-users, as well as the ability to customize or bring their own models for each stage:
 
 1. **Wake-Word Detection**: A VIT (Voice Intelligent Technology) Wake-Word triggers the STT (Speech-To-Text).
-2. **Speech-to-Text (STT)**: Converts spoken input into text.
-3. **Retrieval-Augmented Generation (RAG)**: Enhances the Large Language Model (LLM) with relevant external knowledge.
-4. **Text Generation (LLM)**: Generates a response based on the retrieved context.
-5. **Text-to-Speech (TTS)**: Converts the response into speech output.
+2. **Voice ID**: Recognize speaker identity to trigger the STT.
+3. **Voice Activity Detection (VAD)**: Detects speech boundaries to determine when the user starts and stops speaking.
+4. **Speech-to-Text (STT)**: Converts spoken input into text.
+5. **Retrieval-Augmented Generation (RAG)**: Enhances the Large Language Model (LLM) with relevant external knowledge.
+6. **Text Generation (LLM)**: Generates a response based on the retrieved context.
+7. **Text-to-Speech (TTS)**: Converts the response into speech output.
 
 ![Pipeline Diagram](assets/eiq_flow.png)
 
@@ -40,9 +42,13 @@ For more details, use the [NXP Community Forum Generative AI & LLMs](https://com
 - [Getting Started](#getting-started)
 - [Software Components](#software-components)
   - [Voice Intelligent Technology (VIT)](#voice-intelligent-technology-vit)
+  - [Voice Identification](#voice-identification)
+  - [Voice Activity Detection (VAD)](#voice-activity-detection-vad)
   - [Speech-To-Text (STT)](#speech-to-text-stt)
   - [Retrieval-Augmented Generation (RAG)](#retrieval-augmented-generation-rag)
   - [Large Language Model (LLM)](#large-language-model-llm)
+    - [LLM on CPU/NPU (Neutron)](#llm-on-cpunpu-neutron)
+    - [LLM on Discrete NPU (ARA2)](#llm-on-discrete-npu-ara2)
   - [Text-To-Speech (TTS)](#text-to-speech-tts)
   - [Audio Manager](#audio-manager)
   - [Adapters](#adapters)
@@ -50,6 +56,7 @@ For more details, use the [NXP Community Forum Generative AI & LLMs](https://com
 - [Benchmark mode](#benchmark-mode)
 - [Audio setup](#audio-setup)
 - [GUI](#graphical-user-interface-gui)
+- [ROS 2 Node](#ros-node)
 - [Other customizations](#other-customizations)
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
@@ -62,24 +69,24 @@ For more details, use the [NXP Community Forum Generative AI & LLMs](https://com
 **eIQ GenAI Flow** can run on various i.MX platforms with different performance tiers. The following table provides easy to understand configuration recommendations that map directly to the target SoC:
 
 
-| Performance Tier     | Hardware Requirements         | i.MX SOC         | Flow Configuration | STT Models                     | LLM Models                                             | Additional Notes                           |
-| ---------------------- | ------------------------------- | ------------------ | -------------------- | -------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
-| **High Performance** | 6+ cores, 1.8+ GHz, 8+ GB RAM | i.MX95           | Full Flow          | whisper-small, moonshine-base  | danube-500M-q8, danube-500M-q4         | Complete pipeline with optimal performance |
-| **Standard**         | 4+ cores, 1.5+ GHz, 3+ GB RAM | i.MX943, i.MX8MP | Full Flow          | moonshine-base                 | danube-500M-q8 (i.MX8M/i.MX9), danube-500M-q4* (i.MX9) | Balanced performance and features          |
-| **Lightweight**      | 2+ cores, 1.5+ GHz, 2+ GB RAM | i.MX93           | Partial Flow       | moonshine-base, moonshine-tiny | danube-500M-q4                                         | LLM enabled with smaller models            |
-| **Minimal**          | 2+ cores, 1.2+ GHz, 2+ GB RAM | i.MX8MN, i.MX8MM | Retrieval Only     | moonshine-base, moonshine-tiny | None                                                   | No LLM processing                          |
-| **Ultra-Light**      | 1 core, >1.2 GHz, 2+ GB RAM   | i.MX91           | Retrieval Only     | moonshine-tiny                 | None                                                   | No LLM, no TTS                             |
+| Performance Tier     | Hardware Requirements         | i.MX SOC                  | Flow Configuration | STT Models                     | LLM Models                                             | Additional Notes                           |
+| -------------------- | ----------------------------- | ------------------------- | ------------------ | ------------------------------ | ------------------------------------------------------ | ------------------------------------------ |
+| **High Performance** | 6+ cores, 1.8+ GHz, 8+ GB RAM | i.MX95                    | Full Flow          | whisper-small, moonshine-base  | danube-500M-q8, danube-500M-q4                         | Complete pipeline with optimal performance |
+| **Standard**         | 4+ cores, 1.5+ GHz, 3+ GB RAM | i.MX952, i.MX943, i.MX8MP | Full Flow          | moonshine-base                 | danube-500M-q8 (i.MX8M/i.MX9), danube-500M-q4* (i.MX9) | Balanced performance and features          |
+| **Lightweight**      | 2+ cores, 1.5+ GHz, 2+ GB RAM | i.MX93                    | Partial Flow       | moonshine-base, moonshine-tiny | danube-500M-q4                                         | LLM enabled with smaller models            |
+| **Minimal**          | 2+ cores, 1.2+ GHz, 2+ GB RAM | i.MX8MN, i.MX8MM          | Retrieval Only     | moonshine-base, moonshine-tiny | None                                                   | No LLM processing                          |
+| **Ultra-Light**      | 1 core, >1.2 GHz, 2+ GB RAM   | i.MX91                    | Retrieval Only     | moonshine-tiny                 | None                                                   | No LLM, no TTS                             |
 
 **q8/q4 refers to int8 and int4 model quantization. q4 models have reduced performance on i.MX8Mx platforms with Cortex-A53 cores compared to i.MX9x Cortex-A55 architectures.*
 
 
 ### Configuration Details
 
-- **Full Flow**: VIT + STT + RAG + LLM + TTS
+- **Full Flow**: VIT + VoiceID + STT + RAG + LLM + TTS
 - **Partial Flow**: VIT + STT + RAG + LLM + TTS (reduced model size)
 - **Retrieval Only**: VIT + STT + RAG + TTS (knowledge base queries without LLM generation, except no TTS on ultra-light tier)
 
-See [GEN-AI-FLOW](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW) for additional details and benchmarks.
+See [eIQ® GenAI Flow](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW) for additional details and benchmarks.
 
 ---
 
@@ -90,8 +97,8 @@ See [GEN-AI-FLOW](https://www.nxp.com/applications/technologies/human-machine-in
 This eIQ GenAI Flow demonstrator has the following limitations:
 
 - **Session timeout**: The demonstrator automatically shuts down after 1 hour of operation. The timeout can be extended or removed for production usage on request
-- **Language support**: The demonstrator supports English language only. The complete and partial GenAI Flow can be extended to support other languages beyond the English-only demonstrator (🇨🇳, 🇪🇸, 🇩🇪, 🇰🇷, 🇯🇵, 🇫🇷, etc...). If interested in production-use of GenAI flow with additional languages (for STT-only or with the complete Flow) and for additional languages/accents (for TTS / speech generation), please use our community forum or make the request to your NXP account or regional manager.
-- **Component delivery**: STT, LLM, and TTS components are provided as optimized binary libraries with predefined configuration options
+- **Language support**: The demonstrator supports English language only. The complete and partial GenAI Flow can be extended to support other languages beyond the English-only demonstrator (🇨🇳, 🇪🇸, 🇩🇪, 🇰🇷, 🇯🇵, 🇫🇷, etc...). If interested in production-use of GenAI flow with additional languages (for STT-only or with the complete Flow) and for additional languages/accents (for TTS / speech generation), please use our community forum or make the request to your NXP account or regional manager
+- **Component delivery**: All components are delivered as pre-built Python wheels and can be imported in other i.MX8M/9 projects
 - **Model selection**: Includes a curated subset of STT and LLM models optimized for the target platforms
 - **Model format**: Models are delivered in an encrypted format
 
@@ -144,7 +151,7 @@ git lfs install
 #### Cloning the project on the Linux PC host
 
 ```bash
-git clone --single-branch -b release/v3.0 https://github.com/nxp-appcodehub/dm-eiq-genai-flow-demonstrator
+git clone --single-branch -b release/v3.1 https://github.com/nxp-appcodehub/dm-eiq-genai-flow-demonstrator
 cd dm-eiq-genai-flow-demonstrator
 ```
 
@@ -183,18 +190,39 @@ After transferring the **eiq_genai_flow** folder to your i.MX device, install th
 
 **What this does:**
 
-- Synchronizes system time via NTP
-- Installs ALSA development headers and espeak-ng
-- Installs all required Python dependencies system-wide (default)
+- Synchronizes system time via NTP (unless `--skip-date` is used)
+- Installs ALSA development headers and espeak-ng (built from source when not already present)
+- Installs a CPU-only build of `torch` (and `torchaudio` when pinned) from the PyTorch CPU index
+- Installs all required Python dependencies, including the eIQ GenAI Flow pipeline modules that are delivered as pre-built wheels (see [How the pipeline modules are installed](#module-wheels))
 
-**Common options:**
+**Options:**
+
+
+| Option               | Description                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| `--dev`              | Install with the development dependencies (`tenacity`, `pandas`, `altgraph`)               |
+| `--gui`              | Install the optional chat interface GUI (pulls in PySide6)                                 |
+| `--skip-date`        | Skip the NTP system time synchronization                                                   |
+| `--venv`             | Install into a virtual environment (`./venv`) instead of system-wide                       |
+| `--python VERSION`   | Select the Python interpreter, e.g.`--python 3.13` or `--python 3.14` (default: `python3`) |
+| `--recreate-venv`    | Remove and recreate the virtual environment (only with`--venv`)                            |
+| `--no-auto-activate` | Do not add venv auto-activation to the shell startup file (only with`--venv`)              |
+| `--no-fix-record`    | Skip fixing system packages with missing `RECORD` files (fixed automatically by default)    |
+| `-h`, `--help`       | Show the help message and exit                                                             |
+
+**Common examples:**
 
 ```bash
-./install.sh                            # Default installation
+./install.sh                            # Default system-wide installation
 ./install.sh --skip-date                # Skip time synchronization
-./install.sh --venv                     # Use virtual environment instead of system-wide
+./install.sh --dev                      # Include development dependencies
+./install.sh --gui                      # Include the optional chat interface GUI
+./install.sh --python 3.14              # Use a specific Python version
+./install.sh --venv                     # Use a virtual environment instead of system-wide
 ./install.sh --venv --recreate-venv     # Recreate the virtual environment
 ./install.sh --venv --no-auto-activate  # Skip venv auto-activation in shell
+./install.sh --gui --venv --python 3.14 # Combine options
+./install.sh --no-fix-record            # Skip the RECORD-file fixup step
 ./install.sh --help                     # Show all options
 ```
 
@@ -211,28 +239,45 @@ After transferring the **eiq_genai_flow** folder to your i.MX device, install th
   ./install.sh --venv
   ```
 
-  When using `--venv`, the virtual environment is automatically activated in your shell startup file (~/.bashrc).
+  When using `--venv`, the virtual environment is automatically activated in your shell startup file (~/.bashrc), unless `--no-auto-activate` is passed.
 
-**Installation Warning:**
+<a name="module-wheels"></a>
 
-The "Transformers" python package has a transitive dependency on "Pygments 2.19.2" package with a known vulnerability CVE-2026-4539 with no available fix at the time of this release. Please verify fix availability before integrating this dependency into your product.
+### How the pipeline modules are installed
+
+The eIQ GenAI Flow pipeline modules are **not** built from source at install time. They are distributed as pre-built Python **wheels** and are declared as dependencies of the `eiq_genai_flow` package in `pyproject.toml`. The following modules are pulled in as wheels:
+
+- `nxp_eiq_shared_utils` - shared utilities
+- `nxp_eiq_speech_to_text` - Speech-To-Text (STT)
+- `nxp_eiq_text_to_speech` - Text-To-Speech (TTS)
+- `nxp_eiq_vad` - Voice Activity Detection (VAD)
+- `nxp_eiq_voice_id` - Voice Identification
+- `nxp_eiq_vit_wake_word` - VIT wake-word engine
+- `nxp_eiq_llm` - Large Language Model runtime
+- `nxp_eiq_retriever` - Retrieval-Augmented Generation (RAG)
+- `nxp_eiq_audio_manager` - Audio Manager
+- `nxp_eiq_chat_interface` - optional chat interface GUI (installed only with `--gui`)
+
+
+The correct wheel is selected automatically for the running platform and Python version:
+
+- **aarch64 (i.MX targets)**: cythonized, architecture-specific wheels (`...-cpXX-cpXX-linux_aarch64.whl`).
+- Pure-Python modules ship as `...-pyXX-none-any.whl` and are shared across architectures.
+
+By default the wheels are downloaded from the NXP Nexus repository. When a local `wheels/` folder is present next to `install.sh` (as produced for offline release packages), `install.sh` automatically resolves the module wheels from that folder instead, making the package self-contained and installable without network access to Nexus.
+
+
 
 ### Running the demonstrator
 
 Once the dependencies are installed, to run the demonstrator, use the following basic command to run default configuration:
 
 ```bash
-python3 eiq_genai_flow.py
-```
-
-To see available configurations, run:
-
-```bash
-python3 eiq_genai_flow.py -h
+eiq_genai_flow
 ```
 
 
-> Run ```python3 eiq_genai_flow.py --help``` to see available options.
+> Run ```eiq_genai_flow --help``` to see available options.
 
 The default mode is keyboard-to-speech, meaning the module VIT and STT are disabled. To enable the speech-to-speech experience use the  `--input-mode vasr` argument.
 
@@ -259,18 +304,20 @@ Use the `-i vasr` argument to enable STT **after the Wake-Word detection**.
 Additional options include:
 
 - `-c` (continuous mode): Allows continuous conversation without requiring the Wake-Word after each response.
+- `--voice-id` (Voice ID mode): Enables speaker recognition so the pipeline identifies the speaker before processing the request. Use it together with `-i vasr` (e.g. `eiq_genai_flow -i vasr --voice-id`).
 
 #### Custom Wake-Word Models
 
 You can use custom wake-word models with the `-w/--wake-word-model` option:
 
 ```bash
-python3 eiq_genai_flow.py -i vasr -w path/to/your/custom_model.bin
+eiq_genai_flow -i vasr -w path/to/your/custom_model.bin
 ```
 
 **Creating Custom Wake-Word Models:**
 
 1. **Generate the model** at the [VIT Model Generation Tool](https://vit.nxp.com/#/)
+
    - Click on LOGIN and create an NXP account or sign in
    - Click on GENERATE MODEL
    - In the VOICE COMMAND section, Click on CHOOSE
@@ -279,16 +326,127 @@ python3 eiq_genai_flow.py -i vasr -w path/to/your/custom_model.bin
    - Select any device (your choice)
    - Define your custom wake words (up to 3)
    - Generate and download the model bin file
-
 2. **Use your custom model:**
 
    ```bash
-   python3 eiq_genai_flow.py -i vasr -w VIT_Model_yourmodel.bin
+   eiq_genai_flow -i vasr -w VIT_Model_yourmodel.bin
    ```
 
 **Note:**: The default VIT wake-word model to use can be defined in the config.py.
 
 ⎺⎺⎺
+
+<a name="voice-identification"></a>
+
+### Voice Identification
+
+Voice ID allows the system to recognize and verify the identity of the speaker.
+
+- When a user says a wake word, their voice is registered.
+- Once registered, the user can issue commands directly without repeating the wake word.
+
+If the speaker changes during an interaction and the new speaker is not registered (haven't said the wake word), STT processing is immediately stopped if tolerance is reached.
+The tolerance for the number of times a speaker is not recognized, after the start of an interaction with registered speaker,
+can be configured via : threshold_nb_chunk_unverified
+
+**✅ Enabling Voice ID**
+
+Use `-i vasr` with the `--voice-id` argument to enable Voice ID.
+
+**⚙️ Voice ID Parameters**
+
+
+| Parameter                       | Type    | Default | Description                                                                                                            |
+| ------------------------------- | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `audio_chunk_duration  `        | `int`   | `3`     | Maximum duration (in seconds) of audio segments processed at a time.                                                   |
+| `max_registered_users`          | `int`   | `1`     | Maximum number of registered speakers                                                                                  |
+| `inactivity_timeout`            | `float` | `40.0`  | Inactivity timeout in seconds                                                                                          |
+| `threshold_nb_chunk_unverified` | `int`   | `2`     | Tolerance of the number of times a speaker is not recognized after the start of an interaction with registered speaker |
+
+**⚙️ Voice ID API**
+
+```python
+from voice_id.utils import load_audio
+from voice_id.speaker import SpeakerEncoder, merge_speakers
+
+# Initialize model
+speaker_encoder = SpeakerEncoder("resnet34")
+
+# Load audio file
+audio_file_speakers = ['/path/to/your/audio_speaker_0.wav', '/path/to/your/audio_speaker_1.wav']
+
+input_chunks1 = load_audio(audio_file_speakers[0], speaker_encoder.model_config.sample_rate)[0]
+input_chunks2 = load_audio(audio_file_speakers[1], speaker_encoder.model_config.sample_rate)[0]
+
+# Speaker 1
+# verify that enough samples to send to the model
+if len(input_chunks1) >= speaker_encoder.model_config.model_required_samples:
+    # Send chunk to the model. Return a new speaker.
+    spk1 = speaker_encoder(input_chunks1)
+
+# Speaker 2
+# verify that enough samples to send to the model
+if len(input_chunks2) >= speaker_encoder.model_config.model_required_samples:
+    # Send chunk to the model. Return a new speaker.
+    spk2 = speaker_encoder(input_chunks2)
+
+if spk2 ==  spk1 :
+    merge_speakers(spk1, spk2)
+    print("Speaker 2 is the same speaker as the speaker 1")
+else : 
+    print("Two different speakers")
+```
+
+⎺⎺⎺
+<a name="voice-activity-detection-vad"></a>
+
+### Voice Activity Detection (VAD)
+
+VAD is a standalone module that detects the presence of speech in audio streams. It uses silero-vad, a lightweight neural network optimized for real-time voice activity detection.
+
+**⚙️ VAD API**
+
+```python
+from vad.vad import VAD
+from vad.utils import load_audio
+from vad.user_config import UserConfig
+
+# Initialize VAD
+vad = VAD(save_audio=UserConfig.save_audio)
+
+# Import audio file
+audio_file = '/path/to/your/audio.wav'
+audio_input = load_audio(audio_file, sample_rate=vad.sample_rate)
+audio_input = audio_input[UserConfig.audio_channel_index]
+
+# 1- No streaming mode: process entire audio file at once
+is_speech, chunk, _ = vad(audio_input, streaming=False)
+print(is_speech, chunk)
+
+# 2- Streaming mode: process audio in chunks
+vad.init_streaming_state()
+for start_idx in range(0, audio_input.shape[-1], vad.required_samples):
+    end_idx = min(start_idx + vad.required_samples, audio_input.shape[-1])
+    chunk = audio_input[start_idx:end_idx]
+    if chunk.shape[-1] < vad.required_samples:
+        break
+    is_speech, chunk, _ = vad(chunk)
+vad.flush()
+```
+
+**⚙️ VAD configuration**
+
+The VAD adapter is integrated into eIQ GenAI Flow via [src/eiq_genai_flow/adapters/vad.py](src/eiq_genai_flow/adapters/vad.py). VAD is automatically activated
+when STT is enabled.
+
+
+| Parameter                 | Type     | Default | Description                                                                                      |
+|---------------------------|----------| ------- |--------------------------------------------------------------------------------------------------|
+| `save_audio`              | `bool`   | `False` | Enables saving the captured audio to a WAV file.                                                 |
+| `threshold`               | `float`  | `0.3`   | Voice Activity Detection threshold (0.0-1.0). Higher values require stronger speech signals.     |
+| `min_silence_duration_ms` | `int`    | `200`   | Minimum silence duration (in ms) required for the VAD to detect an end of speech.                |
+| `pre_vad_samples`         | `int`    | `1536`  | Number of audio samples to keep before detected speech onset (avoids cutting off initial words). |
+
 <a name="speech-to-text-stt"></a>
 
 ### Speech-To-Text (STT)
@@ -310,6 +468,8 @@ Use the `--input-mode` argument with one of the following values:
 - `-i chat_interface`: Enables a chat-like example interface for interaction, if exists. See [GUI](#graphical-user-interface-gui).
 - `-i <user_gui>`: Enables the user defined interface for interaction, if it inherits GuiConfig Class. See [GUI](#graphical-user-interface-gui)
 
+To enable Voice ID alongside STT, see [Voice Identification](#voice-identification).
+
 To enable continuous Speech-To-Text, pass the `-c` flag. In this mode, Speech-To-Text remains active until a timeout occurs due to inactivity.
 
 **⚙️ Speech-To-Text API**
@@ -324,8 +484,8 @@ from speech_to_text.utils.utils import load_audio
 stt = SpeechToText('whisper-small.en', language='English', task='transcribe')
 
 # Load and prepare audio
-audio_file = '/path/to/your/audio.wav'  # example .wav can be found in eiq_genai_flow/speech_to_text/tests/data/sample_en.wav
-audio_input, _ = load_audio(audio_file, sample_rate=stt.sample_rate)
+audio_file = '/path/to/your/audio.wav'
+audio_input = load_audio(audio_file, sample_rate=stt.sample_rate)
 audio_input = audio_input[stt.audio_channel_index]
 
 # Split audio into chunks
@@ -344,37 +504,36 @@ for chunk_idx, chunk in enumerate(input_chunks):
 print(text)
 ```
 
-Speech-To-Text uses Voice Activity Detection (VAD) to detect speech activities. The Speech-To-Text and VAD are integrated into eiq_genai_flow in [adapters/stt/stt_adapter.py](adapters/stt/stt_adapter.py).
-The Speech-To-Text and VAD modules are configurable in the `stt_init` method in [eiq_genai_flow.py](eiq_genai_flow.py). Most of the parameters impact Speech-To-Text performance, affecting Word Error Rate (WER) and/or latency.
-
+Speech-To-Text works in conjunction with the VAD module (see [Voice Activity Detection](#voice-activity-detection-vad))
+which detects speech boundaries. The STT adapter is integrated into eIQ GenAI Flow via [src/eiq_genai_flow/adapters/stt.py](src/eiq_genai_flow/adapters/stt.py).
 
 Some of the parameters configured in the `stt_init` override Speech-To-Text default parameters.
 
-| Parameter                  | Type          | Default | Description                                                           |
-|----------------------------|---------------|---------|-----------------------------------------------------------------------|
-| `audio_chunk_duration`     | `float`       | `3.`    | Maximum duration (in seconds) of audio segments processed at a time.  |
-| `max_decoded_tokens`       | `int`         | `18`    | Maximum number of tokens decoded per audio segment.                   |
-| `tokens_per_second`        | `float`       | `4.`    | Expected tokens processed per second of audio.                        |
-| `stream_print`             | `bool`        | `False` | Prints decoded text during streaming.                                 |
-| `temperature`              | `float`       | `0.`    | Temperature for decoder sampling (`0` is argmax).                     |
-| `prompt`                   | `str `        | `''`    | Text prompt to guide the initial decoding process (only for Whisper). |
 
-Other available parameters are related to the VAD.
-
-| Parameter                     | Type          | Default | Description                                                                             |
-|-------------------------------|---------------|---------|-----------------------------------------------------------------------------------------|
-| `vad_threshold`               | `float`       | `0.3`   | Voice Activity Detection threshold.                                                     |
-| `vad_min_silence_duration_ms` | `int`         | `200`   | Minimum silence duration (in ms) required for the VAD to detect an end of speech.       |
-| `inactivity_timeout`          | `float`       | `20.`   | Timeout duration (is seconds) when waiting for speech activity before interrupting STT. |
-
-To use Speech-To-Text and/or VAD in standalone, please refer to the example code in [speech_to_text/src/speech_to_text/\_\_main\_\_.py](speech_to_text/src/speech_to_text/__main__.py).
+| Parameter              | Type    | Default | Description                                                                             |
+| ---------------------- | ------- | ------- | --------------------------------------------------------------------------------------- |
+| `audio_chunk_duration` | `float` | `3.`    | Maximum duration (in seconds) of audio segments processed at a time.                    |
+| `max_decoded_tokens`   | `int`   | `18`    | Maximum number of tokens decoded per audio segment.                                     |
+| `tokens_per_second`    | `float` | `4.`    | Expected tokens processed per second of audio.                                          |
+| `stream_print`         | `bool`  | `False` | Prints decoded text during streaming.                                                   |
+| `temperature`          | `float` | `0.`    | Temperature for decoder sampling (`0` is argmax).                                       |
+| `prompt`               | `str `  | `''`    | Text prompt to guide the initial decoding process (only for Whisper).                   |
+| `inactivity_timeout`   | `float` | `20.`   | Timeout duration (is seconds) when waiting for speech activity before interrupting STT. |
 
 **📊 Speech-To-Text Benchmark**
 
 Model profiling and WER evaluation are available [here](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/speech-to-text:STT).
 
 
-⎺⎺⎺
+**🚀 NPU Acceleration (Neutron)**
+
+This feature is experimental for the Speech-To-Text module. Enable it via `use_neutron = True` in STTAdapterConfig (adapters/stt.py).
+- Only the Whisper-small.en model is supported.
+- For optimal performance, run Neutron on the encoder only.
+- The Whisper-small.en encoder is 20% faster when using Neutron.
+
+NPU acceleration can be used on **i.MX95 B0** with extended CMA (> 3GB). See the [Using NPU Acceleration](#using-npu-acceleration) section for more information.
+
 <a name="retrieval-augmented-generation-rag"></a>
 
 ### Retrieval-Augmented Generation (RAG)
@@ -385,22 +544,24 @@ The demonstrator uses all-MiniLM-L6-v2 int8-quantized embedding model with 22M p
 
 **✅ Enabling RAG**
 
-Use the `--use-rag` argument to activate RAG.
+Use the `--use-rag` or `-r` argument to activate RAG.
 
 #### RAG Example
 
-The pre-generated RAG database is about medical healthcare for patients with diabetes, so questions related to this topic can be asked. This RAG database example was generated using the information in [Medical.pdf](rag/src/data/input_files/Medical.pdf).
+The pre-generated RAG database is about medical healthcare for patients with diabetes, so questions related to this topic can be asked.
 
 #### Generate your own RAG Database
 
-To easily create a RAG database for fine-tuning and domain specific LLM-responses with GenAI Flow, please follow the instructions of the [RAG documentation](rag/README.md).
+To easily create a RAG database for fine-tuning and domain specific LLM-responses with GenAI Flow, please follow the `rag_database_generator` README.md.
 
-⎺⎺⎺
+
 <a name="large-language-model-llm"></a>
 
 ### Large Language Model (LLM)
 
 The LLM is responsible for understanding input and generating relevant text-based responses. It predicts words based on the given input using advanced language modeling techniques.
+
+#### LLM on CPU/NPU (Neutron)
 
 The demonstrator uses Danube int8 or int4 quantized LLM with 500M parameters, derived from Llama LLM family.
 
@@ -409,6 +570,16 @@ The demonstrator uses Danube int8 or int4 quantized LLM with 500M parameters, de
 
 LLM is enabled by default and requires no additional parameters.
 Answers given by the LLM have a maximum number of words, if this number is reached, it will print "[...]".
+This limit is customizable via the `max_tokens_to_keep` setting.
+
+**🚀 NPU Acceleration (Neutron)**
+
+NPU acceleration can be used for LLM inference on **i.MX95 B0** with extended CMA (> 3GB). See [Using NPU Acceleration](#using-npu-acceleration).
+To enable NPU acceleration for the LLM, pass the `--use-neutron` flag when running the pipeline on supported BSPs.
+```bash
+# Enable Neutron NPU acceleration
+eiq_genai_flow --use-neutron -m danube-500M-q8
+```
 
 **⚙️ LLM Parameters**
 
@@ -465,7 +636,7 @@ INFO:utils.utils - ========================
 
 **⚙️ LLM API**
 
-This can be used in custom Python scripts. Create your script in the same directory as `eiq_genai_flow.py` and ensure that dependencies are installed (using `install.sh`). Then, you can run `python3 your_script.py`.
+Ensure that dependencies are installed (using `install.sh`). Then, you can run `python3 your_script.py`.
 
 ```python
 from llm.modeling_llm import make_LLM
@@ -483,11 +654,161 @@ while True:
         print(token, end="")
 ```
 
-Alternatively you can check the file [\_\_main\_\_.py](llm/src/llm/__main__.py) to see how the LLM system can be used as a command-line tool with various arguments and options for customization.
+Alternatively, you can refer to the `__main__.py` file located inside the installed `llm` package (in your Python `site-packages/llm/` directory) to see how the LLM system can be used as a command-line tool with various arguments and options for customization.
 
-**📊 LLM Benchmarks**
+#### LLM on Discrete NPU (ARA2)
 
-Expected performances of the LLMs inside the demonstrator can be found at: [eIQ GenAI Flow Page](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW)
+**ARA2** is NXP's discrete Neural Processing Unit that connects via M.2 interface, providing dedicated hardware acceleration for LLM inference on compatible i.MX platforms.
+
+**What is ARA2?**
+
+The [ARA2 M.2 Module](https://www.nxp.com/design/design-center/development-boards-and-designs/ARA2-M2-16G-GT) is a PCIe-based AI accelerator that uses the **M.2 2280 form factor** (22mm wide, 80mm long) with **Key M connector**. Key M is the standard keying for PCIe x4 NVMe devices, featuring a single notch on the right side of the connector.
+
+**Prerequisites:**
+
+**Hardware:**
+
+- Compatible i.MX platform with **M.2 2280 socket, Key M** (supports PCIe):
+  - i.MX95 Board with M.2 M-Key Gold Fingers (i.e. FRDM i.MX95)
+  - i.MX8M Plus Board with M.2 M-Key Gold Fingers (i.e. FRDM i.MX8MPlus)
+- [ARA2 M.2 Module](https://www.nxp.com/design/design-center/development-boards-and-designs/ARA2-M2-16G-GT) properly installed
+
+**Note:** The M.2 socket must support **PCIe interface**. WiFi-only M.2 sockets (Key E) are **not compatible**.
+
+**Software:**
+
+- **BSP Version**: Linux 6.18.20_2.0.0 or later
+
+The ARA2 stack relies on two components: `rt-sdk-ara2` and `eiq-aaf-connector`.
+
+- **rt-sdk-ara2**: already installed as part of the BSP.
+- **eiq-aaf-connector**: shipped on the platform in `/usr/share/eiq/aaf-connector/` but not installed by default. 
+Install it by tuning and running the `install.sh` script provided in that directory:
+
+```bash
+cd /usr/share/eiq/aaf-connector/
+# Review and tune install.sh for your setup, then run it
+./install.sh
+```
+
+Verify installation:
+
+```bash
+systemctl status rt-sdk-ara2.service
+dpkg -l | grep eiq-aaf-connector
+```
+
+**ARA2 LLM Models:**
+
+1. **Get models**
+   ```bash
+   # Fetch models using `fetch_models` helper script:
+   fetch_models --repo-id nxp/Qwen2.5-7B-Instruct-Ara240
+   fetch_models --repo-id nxp/Qwen2.5-Coder-1.5B-Ara240
+   ```
+
+The models are being fetched from [NXP's Hugging Face page](https://huggingface.co/nxp) and put in `/usr/share/llm/`
+
+2. **Configure enabled models** in `/usr/share/eiq/aaf-connector/server_config.json`:
+
+   ```json
+    {
+      "available_models": [
+        {
+          "name": "Qwen2.5-Coder-1.5B",
+          "description": "Qwen2.5-coder 1.5B instance with code generation support.",
+          "type": "text",
+          "tool_calling": "native",
+          "enabled": true
+        },
+        {
+          "name": "Qwen2.5-7B-Instruct",
+          "description": "Qwen2.5 7B Instruct Unimodal model",
+          "type": "text",
+          "tool_calling": "native",
+          "max_prompt_size": 2047,
+          "enabled": true
+        },
+        {
+          "name": "Qwen2.5-VL-7B-Instruct",
+          "description": "Qwen2.5-VL 7B instance with vision and language capabilities.",
+          "type": "qwen_vl_video",
+          "tool_calling": "no",
+          "max_prompt_size": 2047,
+          "enabled": false
+        },
+      ]
+    }
+   ```
+
+   **Important:**
+
+   - Set `"enabled": true` for models you want to use
+   - Only enabled models will appear in the eIQ GenAI Flow model list
+   - The `name` field must match the directory name in `/usr/share/llm/`
+   - ARA2 VLM models (type "qwen_vl_image") are not supported
+
+   **Troubleshooting:**
+
+   While using Qwen2.5-Coder-1.5B model, if you get stuck without any response for the LLM, make sure to configure the sampling parameters in `/usr/share/eiq/aaf-connector/server_config.json` as the following:
+   ```json
+      "llm_params": {
+        ...
+        "temperature": 1.0,
+        "top_k": 50,
+        "top_p": 0.95,
+        ...
+      }
+    ```
+
+**✅ Using ARA2**
+
+ARA2 models are automatically detected and suffixed with `-ara`:
+
+```bash
+# List available models (look for -ara suffix)
+eiq_genai_flow --help
+
+# Run with ARA2 model
+eiq_genai_flow -m Qwen2.5-7B-Instruct-ara -i vasr -o tts -r
+```
+
+**⏱️ First Run:** The eiq-aaf-connector is launched if not yet running. Initial model loading takes **up to 10 minutes**. Subsequent runs are much faster.
+
+**Verification:**
+
+```bash
+# Check hardware detection
+lspci -nn | grep 1e58:0002
+
+# Check service
+systemctl status rt-sdk-ara2.service
+
+# Test connector API
+curl http://localhost:8000/v1/models
+
+# Run the application with DEBUG logs to verify ARA2 connectivity
+eiq_genai_flow -m Qwen2.5-7B-Instruct-ara -i vasr -o tts -r -l DEBUG
+```
+
+**Troubleshooting ARA2:**
+
+
+| Issue                                         | Solution                                                                                                                                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ARA2 not detected**                         | Verify module is seated properly in M.2 slot; check`lspci -nn`                                                                                                                        |
+| **Service won't start**                       | `systemctl start rt-sdk-ara2.service` or reboot                                                                                                                                       |
+| **No models found**                           | Check`/usr/share/llm/` directory exists and contains models, with `name` aligned in `/usr/share/eiq/aaf-connector/server_config.json` and `enabled` set to `true`;                    |
+| **Connector not responding**                  | Wait up to 10 minutes on first run; check `ps aux                                                                                                                                     |
+| **Connector not ready within timeout period** | check`server_config.json` validity, run the connector manually: `source /usr/share/eiq/aaf-connector/venv/bin/activate && /usr/share/eiq/aaf-connector/venv/bin/connector`, or reboot |
+
+**View logs:**
+
+```bash
+journalctl -u rt-sdk-ara2.service -f
+```
+
+For support: [NXP Community Forum - Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs)
 
 ⎺⎺⎺
 <a name="text-to-speech-tts"></a>
@@ -504,7 +825,7 @@ Use the `--output-mode tts` argument to enable TTS, or `--output-mode text` to d
 
 **⚙️ TTS API**
 
-This can be used in custom Python scripts. Create your script in the same directory as `eiq_genai_flow.py` and ensure that dependencies are installed (using `install.sh`). Then, you can run `python3 your_script.py`.
+Ensure that dependencies are installed (using `install.sh`). Then, you can run `python3 your_script.py`.
 
 ```python
 # script example
@@ -518,30 +839,33 @@ from tts.config import MultiSpeakerTTS16kHzConfig, MultiSpeakerTTS16kHzQuantConf
 config = MultiSpeakerTTS16kHzQuantConfig(
     speaker_id=24,  # between 1 and 904
     speed=0.52,  # the greater, the faster
-    pronunciation_json="tts/pronunciation.json"  # OPTIONAL: JSON file path for custom pronunciation
+    # pronunciation_json="pronunciation.json"  # OPTIONAL: JSON file path for custom pronunciation
 )
+
+# create folder for generated speech
+os.makedirs("tts_gen/", exist_ok=True)
 
 # default mode
 tts = TextToSpeech(config=config)
 audio_data = tts.generate("Hello world!")
 # you can then save or play the generated data
-sf.write("default.wav", audio_data, 16000)
+sf.write("tts_gen/default.wav", audio_data, 16000)
 
 # streaming mode
 tts = TextToSpeech(config=config, mode="streaming")
 audio_data = tts.generate("Hello, my name is Brian. How are you today?")
 # you can then save or play the generated data
-for i, chunk in audio_data:
-    sf.write(f"streaming_{i}.wav", chunk, 16000)
+for i, chunk in enumerate(audio_data):
+    sf.write(f"tts_gen/streaming_{i}.wav", chunk, 16000)
 
 os._exit(0) # exit the program and avoid waiting for the timeout to end
 ```
 
-Alternatively you can check the file [\_\_main\_\_.py](tts/src/tts/__main__.py) to see how the TTS system can be used 
-as a command-line tool with various arguments and options for customization.
+Alternatively, you can refer to the `__main__.py` file located inside the installed `tts` package (in your Python `site-packages/tts/` directory) to see how the LLM system can be used as a command-line tool with various arguments and options for customization.
 
 If you want to replace certain words with others that suit you better in terms of pronunciation, <br>
-you can use the JSON already present ([pronunciation.json](tts/pronunciation.json)) or specify your own JSON in the following format: 
+you can specify your own JSON in the following format:
+
 ```json
 {
   "english": {
@@ -579,7 +903,6 @@ The Audio Manager is a core infrastructure component that provides seamless audi
 - **Event-Driven**: Efficient blocking reads with condition variables (no polling)
 - **Recording Support**: Optional WAV file recording for both capture and playback
 
-
 **⚙️ Configuration**
 
 The Audio Manager is configured via the `config.py` file:
@@ -603,13 +926,14 @@ The Audio Manager supports two backends:
 
 ```bash
 # Direct ALSA (lowest latency)
-AUDIO_BACKEND=alsa python3 eiq_genai_flow.py
+AUDIO_BACKEND=alsa eiq_genai_flow
 
 # GStreamer (default, better device compatibility)
-python3 eiq_genai_flow.py
+eiq_genai_flow
 ```
 
-See example code in [audio_manager/src/audio_manager/\_\_main\_\_.py](audio_manager/src/audio_manager/__main__.py).
+See example code in the `__main__.py` file located inside the installed `audio_manager` package (in your Python `site-packages/audio_manager/` directory).
+
 
 ⎺⎺⎺
 <a name="adapters"></a>
@@ -620,11 +944,14 @@ Adapters bridge audio-based AI components (VIT, STT, TTS) and the GenAI Flow pip
 
 **📋 Available Adapters**
 
-| Adapter | Component | Processing Model |
-|---------|-----------|------------------|
-| **VITAdapter** | Wake-Word Detection | Continuous audio → Wake word event |
-| **STTAdapter** | Speech-to-Text | Continuous audio → Transcribed text |
-| **TTSAdapter** | Text-to-Speech | Text queue → Audio chunks (streaming) |
+
+| Adapter            | Component                | Processing Model                                           |
+| ------------------ | ------------------------ | ---------------------------------------------------------- |
+| **VITAdapter**     | Wake-Word Detection      | Continuous audio → Wake word event                        |
+| **VoiceIDAdapter** | Voice ID                 | Continuous audio → Verification of the speaker's identity |
+| **VADAdapter**     | Voice Activity Detection | Continuous audio → Speech segments                        |
+| **STTAdapter**     | Speech-to-Text           | Continuous audio → Transcribed text                       |
+| **TTSAdapter**     | Text-to-Speech           | Text queue → Audio chunks (streaming)                     |
 
 ---
 
@@ -632,9 +959,9 @@ Adapters bridge audio-based AI components (VIT, STT, TTS) and the GenAI Flow pip
 
 ## Using NPU Acceleration
 
-NPU acceleration can be used for LLM inference on `i.MX 95 B0`. It requires the BSP to have an extended CMA (> 3GB) for Neutron NPU. This CMA is defined via the linux device tree, ensure to have such a dtb set as fdtfile in uboot, see [CMA Configuration](#cma-configuration).
-To enable NPU acceleration, pass the `--use-neutron` flag when running the pipeline on supported BSPs.
-
+NPU acceleration can be used for LLM and STT inference on i.MX 95 B0. It requires the BSP to have an extended CMA (> 3GB) for the Neutron NPU. This CMA is defined via the Linux device tree — ensure such a DTB is set as fdtfile in U-Boot; see [CMA Configuration](#cma-configuration).
+- To enable Neutron for LLM: see [LLM section](#large-language-model-llm).
+- To enable Neutron for STT: see [STT section](#speech-to-text-stt).
 ---
 
 <a name="benchmark-mode"></a>
@@ -642,7 +969,7 @@ To enable NPU acceleration, pass the `--use-neutron` flag when running the pipel
 ## Benchmark Mode
 
 The eIQ GenAI Flow includes a benchmark mode for performance evaluation and testing any configuration of the flow.
-It converts the `tests/data/questions.txt` file to wav files if necessary to feed the pipeline and collect performance metrics. The [questions.txt](tests/data/questions.txt) can be customized to match the RAG database for instance. Results are given as a json report (metrics only) and a log file (detailed traces from each pipeline stage).
+It converts the `src/eiq_genai_flow/benchmark/data/questions.txt` file to wav files if necessary to feed the pipeline and collect performance metrics. The [questions.txt](src/eiq_genai_flow/benchmark/data/questions.txt) can be customized to match the RAG database for instance. Results are given as a json report (metrics only) and a log file (detailed traces from each pipeline stage).
 This mode allows to measure key average metrics per request such as:
 
 - **TTFA Avg**: Time To First Audio (seconds), the lower the better
@@ -661,7 +988,7 @@ This mode allows to measure key average metrics per request such as:
 To run benchmark mode:
 
 ```bash
-python3 eiq_genai_flow.py -i vasr -r -b # usual configuration + '-b'
+eiq_genai_flow -i vasr -r -b # usual configuration + '-b'
 ```
 
 Various configurations have been benchmarked, results are available in [eIQ GenAI Flow Page](https://www.nxp.com/applications/technologies/human-machine-interface/voice-processing/simplified-and-optimized-generative-ai-at-the-edge-with-eiq-genai-flow:GEN-AI-FLOW).
@@ -708,7 +1035,6 @@ The displayed interfaces use ALSA's "plughw" or "sysdefault" format, which autom
 - Try both "plughw" and "sysdefault" formats - one may work better with your hardware. Test with the audio commands in the the [Troubleshooting](#troubleshooting) section or enable recording in `config.py` (`save_audio_capture`, `save_audio_playback`) to validate your setup.
 - For any audio issues, see the [Troubleshooting](#troubleshooting) section
 
-
 **Customization:**
 The audio settings (volume, etc..) can be customized by editing the [set_audio_device_config.py](audio_manager/src/audio_manager/set_audio_device_config.py) script from the `audio_manager`, which can automatically applies a custom configuration when the demonstrator starts.
 
@@ -724,12 +1050,25 @@ The GUI runs as a separate process and communicates through message queues for r
 
 **🚀 Quick Launch**
 
-A launcher script is provided to initialize the GUI and eIQ GenAI Flow with a customizable configuration:
+The chat interface is installed either by running `./install.sh --gui` or by directly installing the `nxp_eiq_chat_interface` wheel:
 
 ```bash
-cd gui/modules/chat_interface
-pip install -e . # To run once
-./launch_gui.sh # script to customize with paths/configuration
+./install.sh --gui
+```
+
+OR
+
+```bash
+PY_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+pip install wheels/py$PY_VERSION/nxp_eiq_chat_interface-*
+```
+The chat_interface is started separately, then eIQ GenAI Flow must be started with the `chat_interface` input mode, which is a `vasr` mode + gui.
+The start GUI mode:
+
+```bash
+chat_interface&  # start the gui
+eiq_genai_flow -i chat_interface --voice-id -r  # vasr mode + gui, and usual customizable arguments
+
 ```
 
 **💬 Features**
@@ -739,6 +1078,19 @@ pip install -e . # To run once
 - Streaming AI responses as they generate
 
 ⎺⎺⎺
+
+<a name="ros-node"></a>
+
+## ROS 2 Node
+
+`ros_node.py` provides a ROS 2 wrapper around the eIQ GenAI Flow pipeline. It exposes the full pipeline as a standard ROS 2 node, publishing events (wake-word, VAD, STT transcription, LLM tokens, TTS state, Voice ID) to dedicated topics and accepting text queries or trigger commands via a topic and a service.
+
+This makes it straightforward to integrate eIQ GenAI Flow into any ROS 2-based robot or application without modifying the core pipeline.
+
+For installation instructions, topic/service reference, and usage examples, see the [ROS README](ROS_README.md).
+
+---
+
 <a name="other-customizations"></a>
 
 ### Other customizations
@@ -747,37 +1099,95 @@ The demonstrator package includes a `config.py` file that allows for extensive c
 
 **Key Configuration Parameters:**
 
-**System Messages & Prompts:**
-- `default_system_prompt`: Default system prompt for the LLM (default: "Helpful assistant.")
-- `tts_start_text`: Initial greeting message when TTS starts
-- `out_of_domain_response_list`: Predefined responses when questions are outside the knowledge base
-- `ambiguous_response_list`: Responses when questions need clarification
+**Interfaces & Paths:**
 
-**Performance Settings:**
+- `tests_data_path`: Directory holding test data (default: "tests/data")
+- `benchmark_questions_file`: File with questions used in benchmark mode (default: "tests/data/questions.txt")
+- `update_global_benchmark_json`: Update the global benchmark JSON report on each run (default: `False`)
+
+**System Messages & Prompts:**
+
+- Various configurable system messages and prompts exist (e.g. the default LLM system prompt, TTS greeting, console prompt, STT/Voice ID startup banners, and listening indicator). See the configuration source for the full list and defaults.
+
+**Performance & CPU Settings:**
+
 - `set_cpu_governor`: Enable/disable CPU governor configuration (default: `True`)
 - `cpu_governor`: CPU governor mode (default: "performance")
 - `restore_cpu_governor_on_exit`: Restore original CPU governor on exit (default: `True`)
 
 **RAG parameters:**
-- `rag_database_name`: Name of the RAG database file (default: "rag_database.pkl")
-- `rag_database_path`: Path to the RAG database directory (default: "rag/src/data")
+
+- `rag_db_name`: Name of the RAG database file (default: "medical_db.pkl")
+- `rag_db_path`: Full path to the RAG database file (default: retriever's default database)
 - `similarity_threshold`: Minimum similarity score for RAG retrieval (default: 0.65)
 
 **Audio Feedback:**
+
 - `play_tts_start_sound`: Play notification sound before TTS speaks (default: `True`)
 - `play_wake_word_detect_sound`: Play sound when wake-word is detected (default: `True`)
 - `play_intent_detect_sound`: Play sound when an intent is detected by RAG (default: `True`)
 
+**Audio Recording:**
+
+- `save_audio_capture`: Record captured audio to a WAV file (default: `False`)
+- `save_audio_playback`: Record playback audio to a WAV file (default: `False`)
+- `save_audio_vit`: Enable audio saving for VIT wake-word detection (default: `False`)
+- `audio_save_path`: Directory where recorded WAV files are stored (default: "tests/recordings/")
+
+**Audio Devices:**
+
+- `keep_playback_device_open`: Keep playback device always open for minimal latency (default: `True`)
+- `keep_capture_device_open`: Keep capture device always open; `False` opens it only when VIT/ASR is active (default: `True`)
+
 **Audio Fillers (generated by the TTS):**
+
 - `play_audio_filler`: Play a filler sentence while processing (default: `False`)
-- `audio_filler_sentences`: List of filler sentences to play during processing (i.e: `["Please wait...", "Processing your request..."]`)
+- `audio_filler_path`: Directory holding the filler audio assets (default: "assets/fillers")
+- `audio_filler_sentences`: List of filler sentences to play during processing (default: `["Okay.", "Got it.", "Alright.", "Let's see.", "One moment.", "Just a second."]`)
+
+**Benchmark Settings:**
+
+- `silent_benchmark`: Disable TTS playback and notifications during benchmark mode (default: `True`)
+
+**TTS Settings:**
+
+- `tts_mode`: TTS mode, "streaming" or "default" (default: "streaming")
+- `tts_speed`: TTS speaking speed; higher is faster (default: 0.55)
+- `tts_speaker_id`: TTS speaker voice ID (default: 24)
+
+**DNPU Acceleration Service:**
+
+- `discrete_npu_service`: systemd service name for the discrete NPU (ARA2) acceleration (default: "rt-sdk-ara2.service")
 
 **VIT Wake-word Settings:**
-- `wake_model_path`: Custom VIT wake-word model path (default: "vit/models/VIT_Model_en.bin")
-- `save_audio_vit`: Enable audio saving for VIT wake-word detection (default: `False`)
 
+- `wake_model_path`: Custom VIT wake-word model path; empty string uses the default from the vit package (default: "")
+- `vit_channel_indices`: Audio channel indices used by VIT (default: `[0]`)
+
+**STT (ASR) Settings:**
+
+- `stt_channel_indices`: Audio channel indices used by STT (default: `[0]`)
+- `stt_inactivity_timeout`: Timeout in seconds for STT inactivity (default: 15)
+
+**LLM Parameters (`LLMConfig`):**
+
+Set to `None` to use model-specific defaults. Note: these parameters are NOT used for ARA LLMs (models ending with `-ara`), which are controlled by `/usr/share/eiq/aaf-connector/server_config.json`.
+
+- `temperature`: Controls randomness of generation (default: `None`, model default)
+- `top_k`: Limits sampling to top K tokens (default: `None`, model default)
+- `top_p`: Nucleus sampling threshold (default: `None`, model default)
+- `min_p`: Floor on token probability relative to the most likely token (default: `None`, model default)
+- `repetition_penalty`: Penalty for repeating tokens (default: `None`, model default)
+- `end_margin`: Token margin before forcing response termination (default: 20)
+- `max_tokens_to_keep`: Maximum number of tokens the LLM can generate (default: 128)
+
+
+**GUI:**
+
+- `available_gui_list`: List of selectable GUI modules (default: `["chat_interface"]`)
 
 **Example customization:**
+
 
 ```python:config.py
 # Use a more specific system prompt
@@ -873,6 +1283,7 @@ The ONNX runtime version to use is the one delivered in the BSP. Any `pip instal
 ---
 
 <a name="support"></a>
+
 ## Support
 
 For more general technical questions, use the [NXP Community Forum Generative AI & LLMs](https://community.nxp.com/t5/Generative-AI-LLMs/bd-p/Generative-AI-LLMs).
@@ -883,13 +1294,14 @@ For more general technical questions, use the [NXP Community Forum Generative AI
 
 ## Release Notes
 
+| Version | Description / Update                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Date                          |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| 1.0     | Initial release on Application Code Hub for i.MX95. This is solely for evaluation and development in combination with an NXP Product.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | March 31<sup>th</sup> 2025    |
+| 1.1     | Add i.MX8MP Support. This is solely for evaluation and development in combination with an NXP Product.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | June 20<sup>th</sup> 2025     |
+| 2.0     | **Component release:** Pipeline and RAG as Python files, other components (STT, LLM, TTS) as binary libs. **Platform support:** i.MX9x and i.MX8Mx. **Key features:** Neutron acceleration (i.MX95 B0), customizable VIT Wake-Word, flexible audio devices, 900+ TTS voices, WhatsApp-style GUI. **Models:** moonshine-tiny/base/whisper-small.en (STT), Danube-500M q4/q8 (LLM), all-MiniLM-L6-v2 (embedding), vits-english (TTS). **Limitation:** 60-minute timeout. This is solely for evaluation and development in combination with an NXP Product.                                                                                                                                                                                      | November 21<sup>th</sup> 2025 |
+| 3.0     | **Latency improvement:** New TTS streaming mode providing up to 30% improvement for TTFA. **Enhancements:** New VIT wake-word engine v4.13 with wake-word detection performance improvement and false positive robustness. **Seamless interaction:** New Audio Manager component removing gap between wake-word and STT, supports direct ALSA or GStreamer audio backends. **Limitation:** 60-minute timeout. This is solely for evaluation and development in combination with an NXP Product.                                                                                                                                                                                                                                                   | March 31<sup>st</sup> 2026    |
+| 3.1     | **Latency improvement:** Improved TTS streaming mode providing up to 0.5s improvement for TTFA. **New module:** New Voice ID module which allows the system to recognize and verify the identity of the speaker. **ARA240 DNPU LLM support:** On compatible platforms, the ARA240 LLMs can be used. **Event based pipeline:** Modules are synchronized via events. **Modules as Wheels:** All the modules are delivered as wheels. **ROS2 node:** Add ROS 2 wrapper for eIQ GenAI Flow to provide a node-based interface to pipeline, allowing seamless integration with ROS 2 ecosystems. **Limitation:** 60-minute timeout. This is solely for evaluation and development in combination with an NXP Product. | July 31<sup>st</sup> 2026     |
 
-| Version | Description / Update                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Date                          |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| 1.0     | Initial release on Application Code Hub for i.MX95. This is solely for evaluation and development in combination with an NXP Product.                                                                                                                                                                                                                                                                                                                                                                                                                                                 | March 31<sup>th</sup> 2025    |
-| 1.1     | Add i.MX8MP Support. This is solely for evaluation and development in combination with an NXP Product.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | June 20<sup>th</sup> 2025     |
-| 2.0     | **Component release:** Pipeline and RAG as Python files, other components (STT, LLM, TTS) as binary libs. **Platform support:** i.MX9x and i.MX8Mx. **Key features:** Neutron acceleration (i.MX95 B0), customizable VIT Wake-Word, flexible audio devices, 900+ TTS voices, WhatsApp-style GUI. **Models:** moonshine-tiny/base/whisper-small.en (STT), Danube-500M q4/q8 (LLM), all-MiniLM-L6-v2 (embedding), vits-english (TTS). **Limitation:** 60-minute timeout. This is solely for evaluation and development in combination with an NXP Product.                              | November 21<sup>th</sup> 2025 |
-| 3.0     | **Latency improvement:** New TTS streaming mode providing up to 30% improvement for TTFA. **Enhancements:** New VIT wake-word engine v4.13 with wake-word detection performance improvement and false positive robustness. **Seamless interaction:** New Audio Manager component removing gap between wake-word and STT, supports direct ALSA or GStreamer audio backends. **Limitation:** 60-minute timeout. This is solely for evaluation and development in combination with an NXP Product. | March 31<sup>st</sup> 2026    |
 
 ---
 

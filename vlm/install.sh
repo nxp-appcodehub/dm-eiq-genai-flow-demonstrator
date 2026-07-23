@@ -10,6 +10,37 @@
 # by the applicable license terms, then you may not retain, install, activate
 # or otherwise use the software.
 
+install_torch_cpu() {
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PYPROJECT_FILE="${SCRIPT_DIR}/pyproject.toml"
+    TORCH_VERSION=$(grep -oP '"torch==\K[0-9]+\.[0-9]+\.[0-9]+' "${PYPROJECT_FILE}" | head -1)
+    TORCHVISION_VERSION=$(grep -oP '"torchvision==\K[0-9]+\.[0-9]+\.[0-9]+' "${PYPROJECT_FILE}" | head -1)
+    ARCH=$(uname -m)
+    TORCH_PACKAGES=""
+
+    if [ -n "${TORCH_VERSION}" ]; then
+        echo "INFO: torch==${TORCH_VERSION} found, adding to install list"
+        TORCH_PACKAGES="${TORCH_PACKAGES} torch==${TORCH_VERSION}"
+    else
+        echo "INFO: torch not defined in ${PYPROJECT_FILE}, skipping"
+    fi
+
+    if [ -n "${TORCHVISION_VERSION}" ]; then
+        echo "INFO: torchvision==${TORCHVISION_VERSION} found, adding to install list"
+        TORCH_PACKAGES="${TORCH_PACKAGES} torchvision==${TORCHVISION_VERSION}"
+    else
+        echo "INFO: torchvision not defined in ${PYPROJECT_FILE}, skipping"
+    fi
+
+    if [ -n "${TORCH_PACKAGES}" ]; then
+        echo "Installing CPU-only ${TORCH_PACKAGES} for ${ARCH}..."
+
+        pip3 install ${TORCH_PACKAGES} \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            --trusted-host download.pytorch.org
+    fi
+}
+
 # Check for internet connectivity by pinging a reliable server
 if ! ping -c 1 -W 2 8.8.8.8 > /dev/null 2>&1; then
     echo "ERROR: No internet connection detected."
@@ -67,11 +98,14 @@ if [ -z "$VIRTUAL_ENV" ]; then
   echo "Uninstall previous version of VLM if any"
   sudo pip3 uninstall vlm -y
 
+  install_torch_cpu
+
   echo "Installing required Python packages system-wide..."
+  PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
   if [ "$ONNXRUNTIME_INSTALLED" = false ]; then
-      sudo pip3 install -e ".[onnxruntime,gui]"
+      sudo pip3 install -e ".[onnxruntime,gui]" --find-links=../eiq_genai_flow/wheels/py$PYTHON_VERSION
   else
-      sudo pip3 install -e ".[gui]"
+      sudo pip3 install -e ".[gui]" --find-links=../eiq_genai_flow/wheels/py$PYTHON_VERSION
   fi
 
   if [ $? -eq 0 ]; then
@@ -108,11 +142,14 @@ else
   echo "Uninstall previous version of VLM if any"
   python3 -m pip uninstall vlm -y
 
+  install_torch_cpu
+
   echo "Installing required Python packages inside env"
+  PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
   if [ "$ONNXRUNTIME_INSTALLED" = false ]; then
-      python3 -m pip install -e ".[onnxruntime,gui]"
+      python3 -m pip install -e ".[onnxruntime,gui]"  --find-links=../eiq_genai_flow/wheels/py$PYTHON_VERSION
   else
-      python3 -m pip install -e ".[gui]"
+      python3 -m pip install -e ".[gui]"  --find-links=../eiq_genai_flow/wheels/py$PYTHON_VERSION
   fi
 
   if [ $? -eq 0 ]; then

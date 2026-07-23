@@ -1,5 +1,5 @@
 # Copyright 2026 NXP
-# NXP Proprietary.
+# NXP Confidential and Proprietary.
 # This software is owned or controlled by NXP and may only be used strictly in
 # accordance with the applicable license terms. By expressly accepting such
 # terms or by downloading, installing, activating and/or otherwise using the
@@ -51,8 +51,11 @@ def parse_args():
                         choices=logging_levels,
                         default='INFO',
                         help="Verbose log level")
+    parser.add_argument('-n', '--use-neutron', action='store_true', help="Neutron usage")
+
     parser.add_argument('-g', '--gui', dest='gui', action='store_true', help="Gui usage")
     parser.add_argument('-ng', '--no-gui', dest='gui', action='store_false', help="Gui usage")
+
     parser.set_defaults(gui=False)
     args = parser.parse_args()
     return args
@@ -68,6 +71,7 @@ if __name__ == '__main__':
 
     print(f"{Fore.GREEN}{'Loading {} VLM {}...'.format(args.model, args.precision)}{Style.RESET_ALL}")
 
+    user_params.use_neutron = args.use_neutron
     vlm = make_VLM(args.model, args.precision, user_params=user_params, fixed_image=args.input_image)
     logger.info(f"{Fore.GREEN}{'Loaded! '}{Style.RESET_ALL}")
 
@@ -98,11 +102,15 @@ if __name__ == '__main__':
                 gui.send_rsp(decoded_token)
             print(f"{Fore.LIGHTGREEN_EX}{decoded_token}{Style.RESET_ALL}", end="")
 
+        if prefilled:
+            vlm.perf['vision'] = 0.0
         if args.gui:
             gui.send_rsp(end_token)
-            if prefilled:
-                vlm.perf['vision'] = 0.0
             gui.send_cmd(vlm.str_perf())
         print(f"{Fore.LIGHTGREEN_EX}\n{vlm.str_perf()}{Style.RESET_ALL}")
         prefilled = True
-        question = input("\n>")
+        try:
+            question = input("\n>")
+        except KeyboardInterrupt:
+            print("\nExiting.")
+            raise SystemExit(0)

@@ -10,17 +10,25 @@
 # by the applicable license terms, then you may not retain, install, activate
 # or otherwise use the software.
 
+
+if [ "$EUID" -eq 0 ]; then
+    echo "WARNING: Running as root. Packages will be owned by root."
+fi
+
 # Function to display usage
 usage() {
     echo "Usage: $0 [OPTIONS]"
     echo
     echo "Options:"
-    echo "  --dev         Install with development dependencies"
-    echo "  --skip-date   Skip setting the system date"
-    echo "  --venv        Use virtual environment instead of system-wide installation"
-    echo "  --recreate-venv  Remove and recreate the virtual environment (only with --venv)"
+    echo "  --dev               Install with development dependencies"
+    echo "  --gui               Install the optional chat interface GUI (pulls PySide6)"
+    echo "  --skip-date         Skip setting the system date"
+    echo "  --venv              Use virtual environment instead of system-wide installation"
+    echo "  --python VERSION    Specify Python version (e.g., 3.13, 3.14). Default: python3"
+    echo "  --recreate-venv     Remove and recreate the virtual environment (only with --venv)"
     echo "  --no-auto-activate  Skip adding venv activation to shell startup (only with --venv)"
-    echo "  -h, --help    Show this help message and exit"
+    echo "  --no-fix-record     Skip fixing system packages with missing RECORD files"
+    echo "  -h, --help          Show this help message and exit"
     echo
     echo "Description:"
     echo "  This script installs a package with either runtime dependencies (default)"
@@ -28,6 +36,15 @@ usage() {
     echo "  It automatically synchronizes the system date unless --skip-date is used."
     echo "  By default, packages are installed system-wide (requires sudo for pip)."
     echo "  Use --venv to install in a virtual environment with system site packages in ./venv"
+    echo "  By default, missing RECORD files in .dist-info directories are fixed automatically."
+    echo "  Use --no-fix-record to skip this step."
+    echo
+    echo "Examples:"
+    echo "  $0 --venv --python 3.14"
+    echo "  $0 --dev --python 3.13"
+    echo "  $0 --venv --python 3.14 --recreate-venv"
+    echo "  $0 --gui --venv --python 3.14"
+    echo "  $0 --no-fix-record"
     exit 1
 }
 
@@ -39,6 +56,36 @@ manual_date_instructions() {
     echo "sudo date -s 'YYYY-MM-DD HH:MM:SS'"
     echo "For example: date -s '2025-10-09 12:34:56'"
     echo "---------------------------------------------"
+}
+
+# Function to fix missing RECORD files in dist-info directories
+fix_record_files() {
+    echo "Fixing system packages with missing RECORD files..."
+
+    # Search only in known Python package locations, not the entire filesystem
+    SEARCH_PATHS=(
+        "/usr/lib/python3"
+        "/usr/lib/python3.*"
+        "/usr/local/lib/python3.*"
+        "/usr/lib64/python3.*"
+    )
+
+    for SEARCH_PATH in "${SEARCH_PATHS[@]}"; do
+        for DIST_INFO in $(find $SEARCH_PATH -maxdepth 4 -name "*.dist-info" -type d 2>/dev/null); do
+            if [ ! -f "$DIST_INFO/RECORD" ]; then
+                echo "Creating missing RECORD file in: $DIST_INFO"
+                # Use sudo only for system paths, not user paths
+                if [[ "$DIST_INFO" == /usr/* ]]; then
+                    sudo touch "$DIST_INFO/RECORD" 2>/dev/null || \
+                        echo "Warning: Could not create RECORD in $DIST_INFO (permission denied, skipping)"
+                else
+                    touch "$DIST_INFO/RECORD" 2>/dev/null || true
+                fi
+            fi
+        done
+    done
+
+    echo "Done fixing RECORD files."
 }
 
 # Function to get installed ALSA version
@@ -55,6 +102,38 @@ get_alsa_version() {
     # Fallback: return empty string
     echo ""
     return 1
+}
+
+install_torch_cpu() {
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PYPROJECT_FILE="${SCRIPT_DIR}/pyproject.toml"
+    TORCH_VERSION=$(grep -oP '"torch==\K[0-9]+\.[0-9]+\.[0-9]+' "${PYPROJECT_FILE}" | head -1)
+    TORCHAUDIO_VERSION=$(grep -oP '"torchaudio==\K[0-9]+\.[0-9]+\.[0-9]+' "${PYPROJECT_FILE}" | head -1)
+    ARCH=$(uname -m)
+    TORCH_PACKAGES=""
+
+    if [ -n "${TORCH_VERSION}" ]; then
+        echo "INFO: torch==${TORCH_VERSION} found, adding to install list"
+        TORCH_PACKAGES="${TORCH_PACKAGES} torch==${TORCH_VERSION}"
+    else
+        echo "INFO: torch not defined in ${PYPROJECT_FILE}, skipping"
+    fi
+
+    if [ -n "${TORCHAUDIO_VERSION}" ]; then
+        echo "INFO: torchaudio==${TORCHAUDIO_VERSION} found, adding to install list"
+        TORCH_PACKAGES="${TORCH_PACKAGES} torchaudio==${TORCHAUDIO_VERSION}"
+    else
+        echo "INFO: torchaudio not defined in ${PYPROJECT_FILE}, skipping"
+    fi
+
+    if [ -n "${TORCH_PACKAGES}" ]; then
+        echo "Installing CPU-only ${TORCH_PACKAGES} for ${ARCH}..."
+
+        # Use $PIP_CMD to ensure correct Python version is used
+        $PIP_CMD install ${TORCH_PACKAGES} \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            --trusted-host download.pytorch.org
+    fi
 }
 
 # Function to add venv activation to shell startup
@@ -104,25 +183,100 @@ fi"
 
 # Default settings
 DEV_MODE=false
+GUI_MODE=false
 SKIP_DATE_SETTING=false
 RECREATE_VENV=false
-AUTO_ACTIVATE=true
+AUTO_ACTIVATE=false
 SYSTEM_WIDE=true
 VENV_DIR="venv"
+FIX_RECORD_MODE=true
+PYTHON_CMD="python3"
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --dev) DEV_MODE=true ;;
+        --gui) GUI_MODE=true ;;
         --skip-date) SKIP_DATE_SETTING=true ;;
-        --venv) SYSTEM_WIDE=false ;;  # Changed: --venv flag to use virtual environment
+        --venv) SYSTEM_WIDE=false ;;
+        --python)
+            if [[ -n "$2" && "$2" != --* ]]; then
+                PYTHON_CMD="python$2"
+                shift
+            else
+                echo "Error: --python requires a version argument (e.g., 3.14)"
+                usage
+            fi
+            ;;
         --recreate-venv) RECREATE_VENV=true ;;
         --no-auto-activate) AUTO_ACTIVATE=false ;;
+        --no-fix-record) FIX_RECORD_MODE=false ;;
+        --fix-record) FIX_RECORD_MODE=true ;;
         -h|--help) usage ;;
         *) echo "Unknown option: $1"; usage ;;
     esac
     shift
 done
+
+# Verify Python version exists
+if ! command -v "$PYTHON_CMD" &> /dev/null; then
+    echo "Error: $PYTHON_CMD not found on this system"
+    echo "Available Python versions:"
+    ls /usr/bin/python* 2>/dev/null || echo "  No Python installations found in /usr/bin/"
+    echo ""
+    echo "Please install $PYTHON_CMD or specify a different version with --python"
+    exit 1
+fi
+
+# Display Python version being used
+PYTHON_VERSION=$($PYTHON_CMD --version 2>&1)
+echo "Using: $PYTHON_VERSION"
+echo ""
+
+# Set pip command based on Python version
+if [ "$SYSTEM_WIDE" = true ]; then
+    PYTHON_FULL_PATH=$(which "$PYTHON_CMD")
+    if [ -z "$PYTHON_FULL_PATH" ]; then
+        echo "Error: Could not find full path for $PYTHON_CMD"
+        exit 1
+    fi
+    echo "Python full path: $PYTHON_FULL_PATH"
+    PIP_CMD="sudo $PYTHON_FULL_PATH -m pip"
+else
+    PIP_CMD="$PYTHON_CMD -m pip"
+fi
+
+# Run fix-record if requested
+if [ "$FIX_RECORD_MODE" = true ]; then
+    fix_record_files
+fi
+
+# Detect a local "wheels" folder (produced by tools/make_release_package.py for
+# i.MX release packages). When present, pip resolves the nxp_eiq_* wheels from
+# this folder instead of Nexus, making the package self-contained/offline.
+#
+# Wheels are organized into per-python-version subfolders (e.g. wheels/py3.13,
+# wheels/py3.14) so a single release package can carry wheels for several python
+# versions. We pick the subfolder that matches the selected python version and
+# fall back to the top-level wheels folder for older/flat layouts.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WHEELS_DIR="${SCRIPT_DIR}/wheels"
+FIND_LINKS_ARGS=()
+if [ -d "${WHEELS_DIR}" ]; then
+    # Determine the python version (major.minor) of the selected interpreter.
+    PY_VER=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
+    PY_WHEELS_DIR="${WHEELS_DIR}/py${PY_VER}"
+
+    if [ -n "${PY_VER}" ] && [ -d "${PY_WHEELS_DIR}" ]; then
+        echo "Local wheels folder detected at ${PY_WHEELS_DIR}; installing wheels from it."
+        FIND_LINKS_ARGS+=(--find-links "${PY_WHEELS_DIR}")
+    else
+        echo "Local wheels folder detected at ${WHEELS_DIR}; installing wheels from it."
+        FIND_LINKS_ARGS+=(--find-links "${WHEELS_DIR}")
+    fi
+fi
+
+
 
 # Check for internet connectivity by pinging a reliable server
 if ! ping -c 1 -W 2 8.8.8.8 > /dev/null 2>&1; then
@@ -130,7 +284,6 @@ if ! ping -c 1 -W 2 8.8.8.8 > /dev/null 2>&1; then
     echo "Please connect the device to install required packages."
     exit 1
 fi
-
 
 # Set the date unless --skip-date is provided
 if [ "$SKIP_DATE_SETTING" = false ]; then
@@ -173,7 +326,7 @@ else
         echo "Found ALSA runtime version: $INSTALLED_VERSION"
         VERSION="$INSTALLED_VERSION"
     else
-        VERSION="1.2.13"
+        VERSION="1.2.14"
         echo "ALSA runtime version not found, falling back to v$VERSION"
     fi
 
@@ -263,8 +416,8 @@ if [ "$SYSTEM_WIDE" = true ]; then
 
     # Check if NXP custom onnxruntime is available system-wide
     ONNXRUNTIME_INSTALLED=false
-    if python3 -c "import onnxruntime" 2>/dev/null; then
-        ONNXRUNTIME_VERSION=$(python3 -c "import onnxruntime; print(onnxruntime.__version__)" 2>/dev/null)
+    if $PYTHON_CMD -c "import onnxruntime" 2>/dev/null; then
+        ONNXRUNTIME_VERSION=$($PYTHON_CMD -c "import onnxruntime; print(onnxruntime.__version__)" 2>/dev/null)
         echo "onnxruntime version $ONNXRUNTIME_VERSION is already installed system-wide."
         ONNXRUNTIME_INSTALLED=true
     else
@@ -272,24 +425,36 @@ if [ "$SYSTEM_WIDE" = true ]; then
     fi
 
     # Uninstall previous version
-    sudo pip3 uninstall eiq_genai_flow -y
+    $PIP_CMD uninstall eiq_genai_flow -y
 
-    # Install the package system-wide
-    if $DEV_MODE; then
-        echo "Installing dev required Python packages system-wide..."
-        if [ "$ONNXRUNTIME_INSTALLED" = false ]; then
-            sudo pip3 install -e ".[dev,onnxruntime]"
-        else
-            sudo pip3 install -e ".[dev]"
-        fi
+    install_torch_cpu
+
+    # Build the optional-dependency extras list based on the selected flags.
+    # and is therefore only installed when the user explicitly passes --gui.
+    # Keeping it opt-in keeps the default install footprint minimal.
+    EXTRAS=()
+    if $DEV_MODE; then EXTRAS+=("dev"); fi
+    if [ "$ONNXRUNTIME_INSTALLED" = false ]; then EXTRAS+=("onnxruntime"); fi
+    if $GUI_MODE; then
+        EXTRAS+=("gui")
+        echo "NOTE: --gui specified. Installing the optional chat interface (PySide6)."
     else
-        echo "Installing required Python packages system-wide..."
-        if [ "$ONNXRUNTIME_INSTALLED" = false ]; then
-            sudo pip3 install -e ".[onnxruntime]"
-        else
-            sudo pip3 install -e .
-        fi
+        echo "NOTE: chat interface GUI not requested (use --gui to install it)."
     fi
+    EXTRAS_STR=$(IFS=,; echo "${EXTRAS[*]}")
+    if [ -n "$EXTRAS_STR" ]; then
+        INSTALL_TARGET=".[$EXTRAS_STR]"
+    else
+        INSTALL_TARGET="."
+    fi
+
+    echo "Installing required Python packages system-wide (target: $INSTALL_TARGET)..."
+    $PIP_CMD install \
+        "${FIND_LINKS_ARGS[@]}" \
+        --extra-index-url https://download.pytorch.org/whl/cpu \
+        --trusted-host download.pytorch.org \
+        -e "$INSTALL_TARGET"
+
 
     if [ $? -eq 0 ]; then
         echo ""
@@ -323,8 +488,8 @@ else
     fi
 
     if [ ! -d "$VENV_DIR" ]; then
-        echo "Creating virtual environment with system site packages..."
-        python3 -m venv --system-site-packages "$VENV_DIR"
+        echo "Creating virtual environment with system site packages using $PYTHON_CMD..."
+        $PYTHON_CMD -m venv --system-site-packages "$VENV_DIR"
         if [ $? -ne 0 ]; then
             echo "Failed to create virtual environment. Exiting."
             exit 1
@@ -347,37 +512,59 @@ else
 
     # Check if NXP custom onnxruntime is available system-wide
     ONNXRUNTIME_INSTALLED=false
-    if python3 -c "import onnxruntime" 2>/dev/null; then
-        ONNXRUNTIME_VERSION=$(python3 -c "import onnxruntime; print(onnxruntime.__version__)" 2>/dev/null)
+    if $PYTHON_CMD -c "import onnxruntime" 2>/dev/null; then
+        ONNXRUNTIME_VERSION=$($PYTHON_CMD -c "import onnxruntime; print(onnxruntime.__version__)" 2>/dev/null)
         export PYTHON_VERSION
-        PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+        PYTHON_VERSION=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
         echo "onnxruntime version $ONNXRUNTIME_VERSION is already installed system-wide."
         ONNXRUNTIME_INSTALLED=true
     else
         echo "onnxruntime not found system-wide. It will be installed in the virtual environment."
     fi
 
-    # Uninstall previous version
-    sudo pip3 uninstall eiq_genai_flow -y
-
-    # Install the package
-    if $DEV_MODE; then
-        echo "Installing dev required Python packages..."
-        if [ "$ONNXRUNTIME_INSTALLED" = false ]; then
-            pip install -e ".[dev,onnxruntime]"
-        else
-            pip install -e ".[dev]"
-        fi
-    else
-        echo "Installing required Python packages..."
-        if [ "$ONNXRUNTIME_INSTALLED" = false ]; then
-            pip install -e ".[onnxruntime]"
-        else
-            pip install -e .
+    # Fix permissions for egg-info directory if it exists and is owned by root
+    if [ -d "eiq_genai_flow.egg-info" ]; then
+        OWNER=$(stat -c '%U' eiq_genai_flow.egg-info 2>/dev/null || stat -f '%Su' eiq_genai_flow.egg-info 2>/dev/null)
+        if [ "$OWNER" = "root" ]; then
+            echo "Fixing permissions for eiq_genai_flow.egg-info..."
+            sudo chown -R $USER:$USER eiq_genai_flow.egg-info
         fi
     fi
 
-    if [ $? -eq 0 ]; then
+    # Uninstall previous version
+    $PIP_CMD uninstall eiq_genai_flow -y
+
+    install_torch_cpu
+
+    # Build the optional-dependency extras list based on the selected flags.
+    # and is therefore only installed when the user explicitly passes --gui.
+    # Keeping it opt-in keeps the default install footprint minimal.
+    EXTRAS=()
+    if $DEV_MODE; then EXTRAS+=("dev"); fi
+    if [ "$ONNXRUNTIME_INSTALLED" = false ]; then EXTRAS+=("onnxruntime"); fi
+    if $GUI_MODE; then
+        EXTRAS+=("gui")
+        echo "NOTE: --gui specified. Installing the optional chat interface (PySide6)."
+    else
+        echo "NOTE: chat interface GUI not requested (use --gui to install it)."
+    fi
+    EXTRAS_STR=$(IFS=,; echo "${EXTRAS[*]}")
+    if [ -n "$EXTRAS_STR" ]; then
+        INSTALL_TARGET=".[$EXTRAS_STR]"
+    else
+        INSTALL_TARGET="."
+    fi
+
+    echo "Installing required Python packages (target: $INSTALL_TARGET)..."
+    pip install --ignore-installed \
+        "${FIND_LINKS_ARGS[@]}" \
+        --extra-index-url https://download.pytorch.org/whl/cpu \
+        --trusted-host download.pytorch.org \
+        -e "$INSTALL_TARGET"
+    PIP_EXIT_CODE=$?
+
+
+    if [ $PIP_EXIT_CODE -eq 0 ]; then
         echo ""
         echo "============================================"
         echo "Installation completed successfully!"
@@ -403,7 +590,7 @@ else
 
         if [ "$AUTO_ACTIVATE" = false ]; then
             echo "To enable auto-activation on login, run:"
-            echo "  ./install.sh --venv"
+            echo "  ./install.sh --venv --python $PYTHON_CMD"
             echo ""
         fi
 
